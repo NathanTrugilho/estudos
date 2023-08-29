@@ -1,3 +1,4 @@
+;./p3as-linux nathan.as; java -jar p3sim.jar nathan.exe
 ;------------------------------------------------------------------------------
 ; ZONA I: Definicao de constantes
 ;         Pseudo-instrucao : EQU
@@ -23,17 +24,18 @@ COLUMN_SHIFT	EQU		8d
 ;------------------------------------------------------------------------------
 
                 ORIG    8000h
-Text			STR     'Nathan Trugilho Braga', FIM_TEXTO
-RowIndex		WORD	0d
-ColumnIndex		WORD	0d
-TextIndex		WORD	0d
+
+LinePrintstr    WORD    0d
+StringPrintstr  WORD    0d
+line1           STR     '********************************************************************************', FIM_TEXTO
+line2           STR     '* p: 000       <3: 3                                                           *', FIM_TEXTO
 
 
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de tabela de interrupções
 ;------------------------------------------------------------------------------
                 ORIG    FE00h
-INT0            WORD    WriteCharacter
+;INT0            WORD    WriteCharacter
 
 ;------------------------------------------------------------------------------
 ; ZONA IV: codigo
@@ -44,28 +46,46 @@ INT0            WORD    WriteCharacter
                 JMP     Main
 
 ;------------------------------------------------------------------------------
-; Rotina de Interrupção WriteCharacter
+; Função esqueleto
 ;------------------------------------------------------------------------------
-WriteCharacter: PUSH	R1
-				PUSH	R2
 
-				MOV		R1, M[ TextIndex ]
-				MOV		R1, M[ R1 ]
-				CMP 	R1, FIM_TEXTO
-				JMP.Z	Halt
-				MOV     M[ IO_WRITE ], R1
-				INC		M[ RowIndex ]
-				INC		M[ ColumnIndex ]
-				INC		M[ TextIndex ]
-				MOV		R1, M[ RowIndex ]
-				MOV		R2, M[ ColumnIndex ]
-				SHL		R1, ROW_SHIFT
-				OR		R1, R2
-				MOV		M[ CURSOR ], R1
+Esqueleto:  PUSH R1
+            PUSH R2
+            PUSH R3
 
-				POP		R2
-				POP		R1
-				RTI
+            POP R3
+            POP R2
+            POP R1
+            RET
+
+;------------------------------------------------------------------------------
+; Função Printstr
+;------------------------------------------------------------------------------
+
+Printstr:   PUSH R1
+            PUSH R2
+            PUSH R3
+
+            MOV R1, StringPrintstr ; Move o valor 
+            MOV R2, FIM_TEXTO
+            MOV R3, M[LinePrintstr] ; POSIÇÃO DE PRINT  
+            MOV R4, R0
+
+            FAZDENOVO: CMP R1, R2
+            JMP.Z FAZALGO
+            MOV M[CURSOR], R3
+            MOV M[IO_WRITE], R1
+            MOV R1, M[R4 + StringPrintstr]
+            INC R3
+            INC R4
+            JMP FAZDENOVO
+            FAZALGO: NOP
+            
+            POP R3
+            POP R2
+            POP R1
+            RET
+
 
 ;------------------------------------------------------------------------------
 ; Função Main
@@ -76,26 +96,18 @@ Main:			ENI
 				MOV		SP, R1		 		; We need to initialize the stack
 				MOV		R1, CURSOR_INIT		; We need to initialize the cursor 
 				MOV		M[ CURSOR ], R1		; with value CURSOR_INIT
-				MOV     R1, Text
-				MOV		M[ TextIndex ], R1
 
-				MOV R1, m[Text]
-				MOV R2, FIM_TEXTO
-				MOV R3, 50
-				MOV R4, 11
-				SHL R4, 8
-				OR R3, R4
-				MOV R5, 1
-				FAZDENOVO: CMP R1, R2
-				JMP.Z FAZALGO
-				MOV M[CURSOR], R3
-				MOV M[IO_WRITE], R1
-				MOV R1, M[R5 + Text]
-				INC R3
-				INC R5
-				JMP FAZDENOVO
-				FAZALGO: NOP
+                MOV R1, R0
+                MOV M[LinePrintstr], R1     ; LinePrintstr tem o endereço 8k. Guarda o valor de R1 (0) no endereço 8k
+                MOV R1, line1               ; Por ser um vetor, guarda o endereço de line1(8002) em R1
+                MOV M[StringPrintstr], R1   ; Guarda no endereço de StringPrintstr (8001) o valor de R1 (8002)
+                CALL Printstr
 
+                MOV R1, 1d
+                MOV M[LinePrintstr], R1     ; LinePrintstr tem o endereço 8k. Guarda o valor de R1 (0) no endereço 8k
+                MOV R1, line2               ; Por ser um vetor, guarda o endereço de line1(8002) em R1
+                MOV M[StringPrintstr], R1   ; Guarda no endereço de StringPrintstr (8001) o valor de R1 (8002)
+                CALL Printstr
 
 Cycle: 			BR		Cycle	
 Halt:           BR		Halt

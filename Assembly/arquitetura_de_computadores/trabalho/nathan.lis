@@ -15,14 +15,14 @@
 	COL_POSITION                     0000         CONSTANT
 	ROW_SHIFT                        0008         CONSTANT
 	COLUMN_SHIFT                     0008         CONSTANT
-	Text                             8000           STRING
-	RowIndex                         8016         VARIABLE
-	ColumnIndex                      8017         VARIABLE
-	TextIndex                        8018         VARIABLE
-	INT0                             FE00         VARIABLE
-	WriteCharacter                   0002            LABEL
-	Main                             001E            LABEL
-	FAZDENOVO                        0036            LABEL
-	FAZALGO                          0043            LABEL
-	Cycle                            0044            LABEL
-	Halt                             0045            LABEL
+	LinePrintstr                     8000         VARIABLE
+	StringPrintstr                   8001         VARIABLE
+	line1                            8002           STRING
+	line2                            8053           STRING
+	Esqueleto                        0002            LABEL
+	Printstr                         0009            LABEL
+	FAZDENOVO                        0013            LABEL
+	FAZALGO                          0020            LABEL
+	Main                             0025            LABEL
+	Cycle                            0040            LABEL
+	Halt                             0041            LABEL
