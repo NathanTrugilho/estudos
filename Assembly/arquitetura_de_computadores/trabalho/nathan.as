@@ -1,4 +1,7 @@
-;./p3as-linux nathan.as; java -jar p3sim.jar nathan.exe
+;------------------------------------------------------------------------------
+; ZONA 0: compilar e rodar programa
+; Fedora:       ./p3as-linux nathan.as; java -jar p3sim.jar nathan.exe
+; Windows:      .\p3as-win.exe .\nathan.as ; java -jar .\p3sim.jar .\nathan.exe
 ;------------------------------------------------------------------------------
 ; ZONA I: Definicao de constantes
 ;         Pseudo-instrucao : EQU
@@ -27,8 +30,9 @@ COLUMN_SHIFT	EQU		8d
 
 LinePrintstr    WORD    0d
 StringPrintstr  WORD    0d
-line1           STR     '********************************************************************************', FIM_TEXTO
-line2           STR     '* p: 000       <3: 3                                                           *', FIM_TEXTO
+Line1           STR     '+---------------+---------------------+----------------------------------------+', FIM_TEXTO
+Line2           STR     '| Pontos: 00000 |  Vidas restantes: 3 |                                        |', FIM_TEXTO
+Line3           STR     '+---------------+---------------------+----------------------------------------+', FIM_TEXTO
 
 
 ;------------------------------------------------------------------------------
@@ -65,27 +69,29 @@ Esqueleto:  PUSH R1
 Printstr:   PUSH R1
             PUSH R2
             PUSH R3
+            PUSH R4
 
-            MOV R1, StringPrintstr ; Move o valor 
+            MOV R4, M[StringPrintstr] 
+            MOV R1, M[R4]
             MOV R2, FIM_TEXTO
             MOV R3, M[LinePrintstr] ; POSIÇÃO DE PRINT  
-            MOV R4, R0
+            SHL R3, 8
 
-            FAZDENOVO: CMP R1, R2
-            JMP.Z FAZALGO
+            VOLTA_LOOP: CMP R1, R2
+            JMP.Z FIM_LOOP
             MOV M[CURSOR], R3
             MOV M[IO_WRITE], R1
-            MOV R1, M[R4 + StringPrintstr]
             INC R3
             INC R4
-            JMP FAZDENOVO
-            FAZALGO: NOP
+            MOV R1, M[R4]
+            JMP VOLTA_LOOP
+            FIM_LOOP: NOP
             
+            POP R4
             POP R3
             POP R2
             POP R1
             RET
-
 
 ;------------------------------------------------------------------------------
 ; Função Main
@@ -99,15 +105,21 @@ Main:			ENI
 
                 MOV R1, R0
                 MOV M[LinePrintstr], R1     ; LinePrintstr tem o endereço 8k. Guarda o valor de R1 (0) no endereço 8k
-                MOV R1, line1               ; Por ser um vetor, guarda o endereço de line1(8002) em R1
+                MOV R1, Line1               ; Por ser um vetor, guarda o endereço de line1(8002) em R1
                 MOV M[StringPrintstr], R1   ; Guarda no endereço de StringPrintstr (8001) o valor de R1 (8002)
                 CALL Printstr
 
-                MOV R1, 1d
-                MOV M[LinePrintstr], R1     ; LinePrintstr tem o endereço 8k. Guarda o valor de R1 (0) no endereço 8k
-                MOV R1, line2               ; Por ser um vetor, guarda o endereço de line1(8002) em R1
-                MOV M[StringPrintstr], R1   ; Guarda no endereço de StringPrintstr (8001) o valor de R1 (8002)
+                MOV R1, 1
+                MOV M[LinePrintstr], R1     
+                MOV R1, Line2               
+                MOV M[StringPrintstr], R1   
                 CALL Printstr
 
+                MOV R1, 2
+                MOV M[LinePrintstr], R1     
+                MOV R1, Line3               
+                MOV M[StringPrintstr], R1   
+                CALL Printstr
+                
 Cycle: 			BR		Cycle	
 Halt:           BR		Halt

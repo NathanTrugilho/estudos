@@ -17,12 +17,13 @@
 	COLUMN_SHIFT                     0008         CONSTANT
 	LinePrintstr                     8000         VARIABLE
 	StringPrintstr                   8001         VARIABLE
-	line1                            8002           STRING
-	line2                            8053           STRING
+	Line1                            8002           STRING
+	Line2                            8053           STRING
+	Line3                            80A4           STRING
 	Esqueleto                        0002            LABEL
 	Printstr                         0009            LABEL
-	FAZDENOVO                        0013            LABEL
-	FAZALGO                          0020            LABEL
-	Main                             0025            LABEL
-	Cycle                            0040            LABEL
-	Halt                             0041            LABEL
+	VOLTA_LOOP                       0015            LABEL
+	FIM_LOOP                         0021            LABEL
+	Main                             0027            LABEL
+	Cycle                            004C            LABEL
+	Halt                             004D            LABEL
