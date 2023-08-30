@@ -18,12 +18,35 @@
 	LinePrintstr                     8000         VARIABLE
 	StringPrintstr                   8001         VARIABLE
 	Line1                            8002           STRING
-	Line2                            8053           STRING
-	Line3                            80A4           STRING
+	Line2                            8052           STRING
+	Line3                            80A2           STRING
+	Line4                            80F2           STRING
+	Line5                            8142           STRING
+	Line6                            8192           STRING
+	Line7                            81E2           STRING
+	Line8                            8232           STRING
+	Line9                            8282           STRING
+	Line10                           82D2           STRING
+	Line11                           8322           STRING
+	Line12                           8372           STRING
+	Line13                           83C2           STRING
+	Line14                           8412           STRING
+	Line15                           8462           STRING
+	Line16                           84B2           STRING
+	Line17                           8502           STRING
+	Line18                           8552           STRING
+	Line19                           85A2           STRING
+	Line20                           85F2           STRING
+	Line21                           8642           STRING
+	Line22                           8692           STRING
+	Line23                           86E2           STRING
+	Line24                           8732           STRING
 	Esqueleto                        0002            LABEL
 	Printstr                         0009            LABEL
-	VOLTA_LOOP                       0015            LABEL
-	FIM_LOOP                         0021            LABEL
-	Main                             0027            LABEL
-	Cycle                            004C            LABEL
-	Halt                             004D            LABEL
+	Printmenu                        001A            LABEL
+	LOOP_PRINT_STRING                0028            LABEL
+	LOOP_NEXT_LINE                   0035            LABEL
+	FIM_LOOP                         003F            LABEL
+	Main                             0046            LABEL
+	Cycle                            0057            LABEL
+	Halt                             0058            LABEL
