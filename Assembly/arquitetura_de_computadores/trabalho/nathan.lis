@@ -15,8 +15,8 @@
 	COL_POSITION                     0000         CONSTANT
 	ROW_SHIFT                        0008         CONSTANT
 	COLUMN_SHIFT                     0008         CONSTANT
-	LinePrintstr                     8000         VARIABLE
-	StringPrintstr                   8001         VARIABLE
+	argumento_cursor_pos_Printstr    8000         VARIABLE
+	argumento_string_Printstr        8001         VARIABLE
 	Line1                            8002           STRING
 	Line2                            8052           STRING
 	Line3                            80A2           STRING
@@ -41,12 +41,16 @@
 	Line22                           8692           STRING
 	Line23                           86E2           STRING
 	Line24                           8732           STRING
+	LabelMenu                        8783           STRING
+	BARRA                            87A4           STRING
 	Esqueleto                        0002            LABEL
 	Printstr                         0009            LABEL
-	Printmenu                        001A            LABEL
-	LOOP_PRINT_STRING                0028            LABEL
-	LOOP_NEXT_LINE                   0035            LABEL
-	FIM_LOOP                         003F            LABEL
-	Main                             0046            LABEL
-	Cycle                            0057            LABEL
-	Halt                             0058            LABEL
+	loop_Printstr                    0014            LABEL
+	fim_loop_Printmenu_Printstr      0020            LABEL
+	Printmenu                        0026            LABEL
+	loop_Printmenu                   0032            LABEL
+	LOOP_NEXT_LINE                   003F            LABEL
+	fim_loop_Printmenu               0049            LABEL
+	Main                             0050            LABEL
+	Cycle                            0078            LABEL
+	Halt                             0079            LABEL
