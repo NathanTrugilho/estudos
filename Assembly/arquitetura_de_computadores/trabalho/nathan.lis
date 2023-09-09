@@ -41,8 +41,7 @@
 	Line22                           8692           STRING
 	Line23                           86E2           STRING
 	Line24                           8732           STRING
-	LabelMenu                        8783           STRING
-	BARRA                            87A4           STRING
+	BARRA                            8783           STRING
 	Esqueleto                        0002            LABEL
 	Printstr                         0009            LABEL
 	loop_Printstr                    0014            LABEL
@@ -52,5 +51,5 @@
 	LOOP_NEXT_LINE                   003F            LABEL
 	fim_loop_Printmenu               0049            LABEL
 	Main                             0050            LABEL
-	Cycle                            0078            LABEL
-	Halt                             0079            LABEL
+	Cycle                            006B            LABEL
+	Halt                             006C            LABEL

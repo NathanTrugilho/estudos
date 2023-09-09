@@ -1,6 +1,6 @@
 ;------------------------------------------------------------------------------
 ; ZONA 0: compilar e rodar programa
-; Fedora:       ./p3as-linux nathan.as; java -jar p3sim.jar nathan.exe
+; Linux:        ./p3as-linux nathan.as; java -jar p3sim.jar nathan.exe
 ; Windows:      .\p3as-win.exe .\nathan.as ; java -jar .\p3sim.jar .\nathan.exe
 ;------------------------------------------------------------------------------
 ; ZONA I: Definicao de constantes
@@ -29,14 +29,14 @@ COLUMN_SHIFT	EQU		8d
                 ORIG    8000h
 
 argumento_cursor_pos_Printstr      WORD    0d
-argumento_string_Printstr     WORD    0d
+argumento_string_Printstr          WORD    0d
 
-Line1           STR     '________________________________________________________________________________'
-Line2           STR     '|                                                                              |'
-Line3           STR     '|______________________________________________________________________________|'
+Line1           STR     '+==================+===========================================+===============+'
+Line2           STR     '| Bolas: O - O - O |                                           | Pontos: 00000 |'
+Line3           STR     '+==================+===========================================+===============+'
 Line4           STR     '|                                                                              |'
 Line5           STR     '|                                                                              |'
-Line6           STR     '|                                                                              |'
+Line6           STR     '|       ################################################################       |'
 Line7           STR     '|       ################################################################       |'
 Line8           STR     '|       ################################################################       |'
 Line9           STR     '|       ################################################################       |'
@@ -48,16 +48,15 @@ Line14          STR     '|       ###############################################
 Line15          STR     '|       ################################################################       |'
 Line16          STR     '|       ################################################################       |'
 Line17          STR     '|       ################################################################       |'
-Line18          STR     '|       ################################################################       |'
-Line19          STR     '|       ################################################################       |'
+Line18          STR     '|                                                                              |'
+Line19          STR     '|                                                                              |'
 Line20          STR     '|                                                                              |'
 Line21          STR     '|                                                                              |'
 Line22          STR     '|                                                                              |'
 Line23          STR     '|                                                                              |'
 Line24          STR     '\______________________________________________________________________________/', FIM_TEXTO
 
-LabelMenu       STR     'Pontos: 00000   Vidas: <3 <3 <3 ', FIM_TEXTO
-BARRA           STR     '=============', FIM_TEXTO
+BARRA           STR     '============', FIM_TEXTO
 
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de tabela de interrupções
@@ -181,19 +180,10 @@ Main:			ENI
                 MOV M[argumento_string_Printstr], R1      ; Guarda no endereço de argumento_string_Printstr (8001) o valor de R1 (8002)
                 CALL Printmenu
                             
-            ;Printa o label do menu
-                MOV R1, 1
-                SHL R1, 8
-                ADD R1, 2
-                MOV M[argumento_cursor_pos_Printstr], R1     
-                MOV R1, LabelMenu      
-                MOV M[argumento_string_Printstr], R1   
-                CALL Printstr
-
             ;Printa a barra
                 MOV R1, 22
                 SHL R1, 8
-                ADD R1, 36
+                ADD R1, 34
                 MOV M[argumento_cursor_pos_Printstr], R1     
                 MOV R1, BARRA      
                 MOV M[argumento_string_Printstr], R1   
