@@ -18,6 +18,8 @@ ROW_POSITION	EQU		0d
 COL_POSITION	EQU		0d
 ROW_SHIFT		EQU		8d
 COLUMN_SHIFT	EQU		8d
+TAMANHO_BARRA   EQU     12d
+POSICAO_LINHA_BARRA     EQU     22d
 
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de variaveis
@@ -28,11 +30,19 @@ COLUMN_SHIFT	EQU		8d
 
                 ORIG    8000h
 
-argumento_cursor_pos_Printstr      WORD    0d
+argumento_pos_linha_Printstr       WORD    0d
+argumento_pos_coluna_Printstr      WORD    0d
 argumento_string_Printstr          WORD    0d
 
+argumento_pos_linha_Printchar      WORD    0d
+argumento_pos_coluna_Printchar     WORD    0d
+argumento_char_Printchar           WORD    0d
+
+posicao_inicio_barra               WORD    0d
+posicao_fim_barra                  WORD    0d
+
 Line1           STR     '+==================+===========================================+===============+'
-Line2           STR     '| Bolas: O - O - O |                                           | Pontos: 00000 |'
+Line2           STR     '| Bolas: O - O - O |               Nathan                      | Pontos: 00000 |'
 Line3           STR     '+==================+===========================================+===============+'
 Line4           STR     '|                                                                              |'
 Line5           STR     '|                                                                              |'
@@ -56,14 +66,16 @@ Line22          STR     '|                                                      
 Line23          STR     '|                                                                              |'
 Line24          STR     '\______________________________________________________________________________/', FIM_TEXTO
 
-BARRA           STR     '============', FIM_TEXTO
-
+bola            STR     'O', FIM_TEXTO
+barra           STR     '============', FIM_TEXTO
+   
 ;------------------------------------------------------------------------------
-; ZONA II: definicao de tabela de interrupções
+; ZONA III: definicao de tabela de interrupções
 ;------------------------------------------------------------------------------
                 ORIG    FE00h
-;INT0            WORD    WriteCharacter
-
+INT0            WORD    movimenta_barra_direita
+INT1            WORD    movimenta_barra_esquerda
+;
 ;------------------------------------------------------------------------------
 ; ZONA IV: codigo
 ;        conjunto de instrucoes Assembly, ordenadas de forma a realizar
@@ -84,12 +96,82 @@ Esqueleto:  PUSH R1
             POP R2
             POP R1
             RET
+;-----------------------------------------------------------------------------------------
+; Função movimenta_barra_direita
+;-----------------------------------------------------------------------------------------
+
+movimenta_barra_direita:  PUSH R1
+            PUSH R2
+
+            MOV R1, POSICAO_LINHA_BARRA
+            MOV M[argumento_pos_linha_Printchar], R1
+
+            MOV R1, M[posicao_inicio_barra]
+            INC M[posicao_inicio_barra]
+            MOV M[argumento_pos_coluna_Printchar], R1
+
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            Call Printchar
+
+            MOV R1, M[posicao_fim_barra]
+            INC M[posicao_fim_barra]
+            MOV M[argumento_pos_coluna_Printchar], R1
+
+            MOV R1, '='
+            MOV M[argumento_char_Printchar], R1
+            Call Printchar
+
+            POP R2
+            POP R1
+            RTI
+;--------------------------------------
+movimenta_barra_esquerda:  PUSH R1
+            PUSH R2
+            PUSH R3
+
+            MOV R1,12
+            MOV R2,40
+            SHL R1,8
+            OR R1,R2
+            MOV M[CURSOR], R1
+            MOV R1, 'N'
+            MOV M[IO_WRITE], R1
+
+            POP R3
+            POP R2
+            POP R1
+            RTI
+
+;---------------------------------------------------------------------------------------
+; Função Printchar - Imprime um caractere
+;
+; Recebe como parâmetros: a posição da linha guardada em "argumento_pos_linha_Printchar"
+;                         a posição da coluna guardada em "argumento_pos_coluna_Printchar"
+;                         o endereço do caractere guardado em "argumento_char_Printchar"
+;---------------------------------------------------------------------------------------
+
+Printchar:  PUSH R1
+            PUSH R2
+
+            MOV R2, M[argumento_pos_linha_Printchar]
+            SHL R2, 8d
+            MOV R1, M[argumento_pos_coluna_Printchar]  
+            OR R2, R1
+            MOV R1, M[argumento_char_Printchar] 
+            MOV M[CURSOR], R2
+            MOV M[IO_WRITE], R1
+
+            POP R2
+            POP R1
+            RET
 
 ;---------------------------------------------------------------------------------------
 ; Função Printstr - Imprime os caracteres de uma string a partir de uma posição N até 
 ; o marcador "FIM_TEXTO" ser encontrado
 ;
-; Recebe como parâmetros: a posição do cursor guardada em "argumento_cursor_pos_Printstr"
+; Recebe como parâmetros: a posição da linha guardada em "argumento_pos_linha_Printstr"
+;                         a posição da coluna guardada em "argumento_pos_coluna_Printstr"
 ;                         o endereço da string guardada em "argumento_string_Printstr"
 ;---------------------------------------------------------------------------------------
 
@@ -100,24 +182,28 @@ Printstr:   PUSH R1
 
             MOV R4, M[argumento_string_Printstr] 
             MOV R1, M[R4]
+            MOV R3, M[argumento_pos_linha_Printstr]
+            SHL R3, 8d
+            MOV R2, M[argumento_pos_coluna_Printstr]  
+            OR R3, R2
             MOV R2, FIM_TEXTO
-            MOV R3, M[argumento_cursor_pos_Printstr] ; POSIÇÃO DE PRINT  
 
             loop_Printstr: CMP R1, R2
-            JMP.Z fim_loop_Printmenu_Printstr
+            JMP.Z fim_loop_Printstr
             MOV M[CURSOR], R3
             MOV M[IO_WRITE], R1
             INC R3
             INC R4
             MOV R1, M[R4]
             JMP loop_Printstr
-            fim_loop_Printmenu_Printstr: NOP
+            fim_loop_Printstr: NOP
             
             POP R4
             POP R3
             POP R2
             POP R1
             RET
+
 
 ;-------------------------------------------------------------------------------
 ; Função Printmenu - Imprime a janela do menu do jogo 
@@ -181,11 +267,25 @@ Main:			ENI
                 CALL Printmenu
                             
             ;Printa a barra
+
                 MOV R1, 22
-                SHL R1, 8
-                ADD R1, 34
-                MOV M[argumento_cursor_pos_Printstr], R1     
-                MOV R1, BARRA      
+                MOV M[argumento_pos_linha_Printstr], R1
+                MOV R1, 34
+                MOV M[argumento_pos_coluna_Printstr], R1 
+                MOV M[posicao_inicio_barra], R1
+                ADD R1, TAMANHO_BARRA
+                MOV M[posicao_fim_barra], R1       
+                MOV R1, barra     
+                MOV M[argumento_string_Printstr], R1   
+                CALL Printstr
+
+            ;Printa a bola
+
+                MOV R1, 21d
+                MOV M[argumento_pos_linha_Printstr], R1 
+                MOV R1, 40d
+                MOV M[argumento_pos_coluna_Printstr], R1      
+                MOV R1, bola    
                 MOV M[argumento_string_Printstr], R1   
                 CALL Printstr
 
