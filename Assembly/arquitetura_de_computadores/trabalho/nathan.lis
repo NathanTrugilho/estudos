@@ -50,20 +50,21 @@
 	Line23                           86E8           STRING
 	Line24                           8738           STRING
 	bola                             8789           STRING
-	barra                            878B           STRING
 	INT0                             FE00         VARIABLE
 	INT1                             FE01         VARIABLE
 	Esqueleto                        0002            LABEL
-	movimenta_barra_direita          0009            LABEL
-	movimenta_barra_esquerda         002A            LABEL
-	Printchar                        003D            LABEL
-	Printstr                         004E            LABEL
-	loop_Printstr                    005D            LABEL
-	fim_loop_Printstr                0069            LABEL
-	Printmenu                        006F            LABEL
-	loop_Printmenu                   007B            LABEL
-	LOOP_NEXT_LINE                   0088            LABEL
-	fim_loop_Printmenu               0092            LABEL
-	Main                             0099            LABEL
-	Cycle                            00C9            LABEL
-	Halt                             00CA            LABEL
+	movimenta_barra_esquerda         0009            LABEL
+	final_if_movimenta_barra_esquerda   002D            LABEL
+	movimenta_barra_direita          0031            LABEL
+	final_if_movimenta_barra_direita   0055            LABEL
+	Printchar                        0059            LABEL
+	Printstr                         006A            LABEL
+	loop_Printstr                    0079            LABEL
+	fim_loop_Printstr                0085            LABEL
+	Printmenu                        008B            LABEL
+	loop_Printmenu                   0097            LABEL
+	LOOP_NEXT_LINE                   00A4            LABEL
+	fim_loop_Printmenu               00AE            LABEL
+	Main                             00B5            LABEL
+	Cycle                            00D9            LABEL
+	Halt                             00DA            LABEL

@@ -1,4 +1,39 @@
 ;------------------------------------------------------------------------------
+; ZONA LIXEIRA: partes de códigos que não sei se vou usar em algum momento, mas
+; vou salvá-los aqui caso necessário no futuro 
+;------------------------------------------------------------------------------
+;           Printa a barra **************************
+;
+;           MOV R1, 22
+;           MOV M[argumento_pos_linha_Printstr], R1
+;           MOV R1, 34
+;           MOV M[argumento_pos_coluna_Printstr], R1 
+;           MOV M[posicao_inicio_barra], R1
+;           ADD R1, TAMANHO_BARRA
+;           MOV M[posicao_fim_barra], R1       
+;           MOV R1, barra     
+;           MOV M[argumento_string_Printstr], R1   
+;           CALL Printstr
+;
+;           barra           STR     '============', FIM_TEXTO
+;********************************************************************************
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;------------------------------------------------------------------------------
 ; ZONA 0: compilar e rodar programa
 ; Linux:        ./p3as-linux nathan.as; java -jar p3sim.jar nathan.exe
 ; Windows:      .\p3as-win.exe .\nathan.as ; java -jar .\p3sim.jar .\nathan.exe
@@ -63,18 +98,17 @@ Line19          STR     '|                                                      
 Line20          STR     '|                                                                              |'
 Line21          STR     '|                                                                              |'
 Line22          STR     '|                                                                              |'
-Line23          STR     '|                                                                              |'
+Line23          STR     '|                                 ============                                 |'
 Line24          STR     '\______________________________________________________________________________/', FIM_TEXTO
 
 bola            STR     'O', FIM_TEXTO
-barra           STR     '============', FIM_TEXTO
    
 ;------------------------------------------------------------------------------
 ; ZONA III: definicao de tabela de interrupções
 ;------------------------------------------------------------------------------
                 ORIG    FE00h
-INT0            WORD    movimenta_barra_direita
-INT1            WORD    movimenta_barra_esquerda
+INT0            WORD    movimenta_barra_esquerda
+INT1            WORD    movimenta_barra_direita
 ;
 ;------------------------------------------------------------------------------
 ; ZONA IV: codigo
@@ -97,11 +131,52 @@ Esqueleto:  PUSH R1
             POP R1
             RET
 ;-----------------------------------------------------------------------------------------
-; Função movimenta_barra_direita
+; Função movimenta_barra_esquerda - O nome é bem óbvio, não preciso explicar
+;                                  Usar o caractere 'a' em IVAD0 no simulador
+;-----------------------------------------------------------------------------------------
+
+movimenta_barra_esquerda:  PUSH R1
+            PUSH R2
+            
+            MOV R1, M[posicao_inicio_barra]
+            CMP R1, 1
+            JMP.Z final_if_movimenta_barra_esquerda
+
+            MOV R1, POSICAO_LINHA_BARRA
+            MOV M[argumento_pos_linha_Printchar], R1
+
+            DEC M[posicao_fim_barra]
+            MOV R1, M[posicao_fim_barra]
+            MOV M[argumento_pos_coluna_Printchar], R1
+
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            Call Printchar
+
+            DEC M[posicao_inicio_barra]
+            MOV R1, M[posicao_inicio_barra]
+            MOV M[argumento_pos_coluna_Printchar], R1
+
+            MOV R1, '='
+            MOV M[argumento_char_Printchar], R1
+            Call Printchar
+
+            final_if_movimenta_barra_esquerda: NOP
+            POP R2
+            POP R1
+            RTI
+
+;-----------------------------------------------------------------------------------------
+; Função movimenta_barra_direita - O nome é bem óbvio, não preciso explicar
+;                                  Usar o caractere 'd' em IVAD1 no simulador
 ;-----------------------------------------------------------------------------------------
 
 movimenta_barra_direita:  PUSH R1
             PUSH R2
+            
+            MOV R1, M[posicao_fim_barra]
+            CMP R1, 79
+            JMP.Z final_if_movimenta_barra_direita
 
             MOV R1, POSICAO_LINHA_BARRA
             MOV M[argumento_pos_linha_Printchar], R1
@@ -122,34 +197,18 @@ movimenta_barra_direita:  PUSH R1
             MOV M[argumento_char_Printchar], R1
             Call Printchar
 
-            POP R2
-            POP R1
-            RTI
-;--------------------------------------
-movimenta_barra_esquerda:  PUSH R1
-            PUSH R2
-            PUSH R3
-
-            MOV R1,12
-            MOV R2,40
-            SHL R1,8
-            OR R1,R2
-            MOV M[CURSOR], R1
-            MOV R1, 'N'
-            MOV M[IO_WRITE], R1
-
-            POP R3
+            final_if_movimenta_barra_direita: NOP
             POP R2
             POP R1
             RTI
 
-;---------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------
 ; Função Printchar - Imprime um caractere
 ;
 ; Recebe como parâmetros: a posição da linha guardada em "argumento_pos_linha_Printchar"
 ;                         a posição da coluna guardada em "argumento_pos_coluna_Printchar"
 ;                         o endereço do caractere guardado em "argumento_char_Printchar"
-;---------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------
 
 Printchar:  PUSH R1
             PUSH R2
@@ -166,14 +225,14 @@ Printchar:  PUSH R1
             POP R1
             RET
 
-;---------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------
 ; Função Printstr - Imprime os caracteres de uma string a partir de uma posição N até 
 ; o marcador "FIM_TEXTO" ser encontrado
 ;
 ; Recebe como parâmetros: a posição da linha guardada em "argumento_pos_linha_Printstr"
 ;                         a posição da coluna guardada em "argumento_pos_coluna_Printstr"
 ;                         o endereço da string guardada em "argumento_string_Printstr"
-;---------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------
 
 Printstr:   PUSH R1
             PUSH R2
@@ -261,25 +320,13 @@ Main:			ENI
 				MOV		R1, CURSOR_INIT		; We need to initialize the cursor 
 				MOV		M[ CURSOR ], R1		; with value CURSOR_INIT
 
-            ;Printa o menu
-                MOV R1, Line1               ; Por ser um vetor, guarda o endereço de line1(8002) em R1
-                MOV M[argumento_string_Printstr], R1      ; Guarda no endereço de argumento_string_Printstr (8001) o valor de R1 (8002)
+;           Printa o menu ********************************
+
+                MOV R1, Line1               
+                MOV M[argumento_string_Printstr], R1
                 CALL Printmenu
                             
-            ;Printa a barra
-
-                MOV R1, 22
-                MOV M[argumento_pos_linha_Printstr], R1
-                MOV R1, 34
-                MOV M[argumento_pos_coluna_Printstr], R1 
-                MOV M[posicao_inicio_barra], R1
-                ADD R1, TAMANHO_BARRA
-                MOV M[posicao_fim_barra], R1       
-                MOV R1, barra     
-                MOV M[argumento_string_Printstr], R1   
-                CALL Printstr
-
-            ;Printa a bola
+;           Printa a bola ********************************
 
                 MOV R1, 21d
                 MOV M[argumento_pos_linha_Printstr], R1 
@@ -289,6 +336,12 @@ Main:			ENI
                 MOV M[argumento_string_Printstr], R1   
                 CALL Printstr
 
-                
+;           Define a posição do inicio e fim da barra ****
+
+                MOV R1, 34
+                MOV M[posicao_inicio_barra], R1
+                ADD R1, TAMANHO_BARRA
+                MOV M[posicao_fim_barra], R1     
+
 Cycle: 			BR		Cycle	
 Halt:           BR		Halt
