@@ -3,19 +3,10 @@
 ; vou salvá-los aqui caso necessário no futuro 
 ;------------------------------------------------------------------------------
 ;           Printa a barra **************************
-;
-;           MOV R1, 22
-;           MOV M[argumento_pos_linha_Printbarra], R1
-;           MOV R1, 34
-;           MOV M[argumento_pos_coluna_Printbarra], R1 
-;           MOV M[posicao_inicio_barra], R1
-;           ADD R1, TAMANHO_BARRA
-;           MOV M[posicao_fim_barra], R1       
-;           MOV R1, barra     
-;           MOV M[argumento_string_Printbarra], R1   
+; 
 ;           CALL Printbarra
 ;
-;           barra           STR     '============', FIM_TEXTO
+;           
 ;********************************************************************************
 ;
 ;
@@ -62,6 +53,7 @@ COLUMN_SHIFT	EQU		8d
 
 TAMANHO_BARRA   EQU     12d
 POSICAO_LINHA_BARRA     EQU     22d
+COLUNA_COMECO_BARRA     EQU     34d
 TEMPO_DE_ATUALIZACAO    EQU     3d
 
 ;------------------------------------------------------------------------------
@@ -73,9 +65,10 @@ TEMPO_DE_ATUALIZACAO    EQU     3d
 
                 ORIG    8000h
 
-argumento_pos_linha_Printbarra       WORD    0d
-argumento_pos_coluna_Printbarra      WORD    0d
-argumento_string_Printbarra          WORD    0d
+argumento_pos_linha_Printbarra     WORD    0d
+argumento_pos_coluna_Printbarra    WORD    0d
+
+argumento_string_Printmenu         WORD    0d
 
 argumento_pos_linha_Printchar      WORD    0d
 argumento_pos_coluna_Printchar     WORD    0d
@@ -106,10 +99,10 @@ Line19          STR     '|                                                      
 Line20          STR     '|                                                                              |'
 Line21          STR     '|                                                                              |'
 Line22          STR     '|                                                                              |'
-Line23          STR     '|                                 ============                                 |'
+Line23          STR     '|                                                                              |'
 Line24          STR     '\______________________________________________________________________________/', FIM_TEXTO
 
-bola            STR     'O', FIM_TEXTO
+bola            STR     'O'
    
 ;------------------------------------------------------------------------------
 ; ZONA III: definicao de tabela de interrupções
@@ -239,33 +232,36 @@ Printchar:  PUSH R1
 ;
 ; Recebe como parâmetros: a posição da linha guardada em "argumento_pos_linha_Printbarra"
 ;                         a posição da coluna guardada em "argumento_pos_coluna_Printbarra"
-;                         o endereço da string guardada em "argumento_string_Printbarra"
 ;-----------------------------------------------------------------------------------------
 
 Printbarra:   PUSH R1
             PUSH R2
             PUSH R3
-            PUSH R4
 
-            MOV R4, M[argumento_string_Printbarra] 
-            MOV R1, M[R4]
-            MOV R3, M[argumento_pos_linha_Printbarra]
+        ;Define a posição do inicio e fim da barra
+
+            MOV R1, COLUNA_COMECO_BARRA
+            MOV M[posicao_inicio_barra], R1
+            ADD R1, TAMANHO_BARRA
+            MOV M[posicao_fim_barra], R1         
+        ;______________________________________________
+
+            MOV R3, POSICAO_LINHA_BARRA
             SHL R3, 8d
-            MOV R2, M[argumento_pos_coluna_Printbarra]  
+            MOV R2, COLUNA_COMECO_BARRA
             OR R3, R2
-            MOV R2, FIM_TEXTO
+            MOV R2, TAMANHO_BARRA
+            MOV R1, '='
 
-            loop_Printbarra: CMP R1, R2
+            loop_Printbarra: CMP R2, R0
             JMP.Z fim_loop_Printbarra
             MOV M[CURSOR], R3
             MOV M[IO_WRITE], R1
+            DEC R2
             INC R3
-            INC R4
-            MOV R1, M[R4]
             JMP loop_Printbarra
             fim_loop_Printbarra: NOP
             
-            POP R4
             POP R3
             POP R2
             POP R1
@@ -275,7 +271,7 @@ Printbarra:   PUSH R1
 ;-------------------------------------------------------------------------------
 ; Função Printmenu - Imprime a janela do menu do jogo 
 ;
-; Recebe como parâmetro: o endereço da string guardada em "argumento_string_Printbarra"                       
+; Recebe como parâmetro: o endereço da string guardada em "argumento_string_Printmenu"                       
 ;-------------------------------------------------------------------------------
 
 Printmenu:  PUSH R1
@@ -284,8 +280,9 @@ Printmenu:  PUSH R1
             PUSH R4
             PUSH R5
 
-            MOV R5, M[argumento_string_Printbarra] 
-            MOV R1, M[R5]
+            MOV R5, Line1               
+            MOV M[argumento_string_Printmenu], R5
+            MOV R1, M[R5] 
             MOV R2, FIM_TEXTO
             MOV R3, R0 ; POSIÇÃO DE PRINT  
             MOV R4, R0
@@ -300,12 +297,12 @@ Printmenu:  PUSH R1
             SHL R4, 8
             ADD R3, R4
             MOV R4, R0
-            
+
             LOOP_NEXT_LINE: MOV M[CURSOR], R3
             MOV M[IO_WRITE], R1
             INC R3
-            INC R5
             INC R4
+            INC R5
             MOV R1, M[R5]
             JMP loop_Printmenu
             
@@ -331,31 +328,19 @@ Main:			ENI
 
 ;           Printa o menu ********************************
 
-                MOV R1, Line1               
-                MOV M[argumento_string_Printbarra], R1
                 CALL Printmenu
                             
 ;           Printa a bola ********************************
 
                 MOV R1, 21d
-                MOV M[argumento_pos_linha_Printbarra], R1 
+                MOV M[argumento_pos_linha_Printchar], R1 
                 MOV R1, 40d
-                MOV M[argumento_pos_coluna_Printbarra], R1      
+                MOV M[argumento_pos_coluna_Printchar], R1      
                 MOV R1, bola    
-                MOV M[argumento_string_Printbarra], R1   
+                MOV M[argumento_char_Printchar], R1   
+                CALL Printchar
+
                 CALL Printbarra
-
-;           Define a posição do inicio e fim da barra ****
-
-                MOV R1, 34
-                MOV M[posicao_inicio_barra], R1
-                ADD R1, TAMANHO_BARRA
-                MOV M[posicao_fim_barra], R1     
-
-                MOV     R1, TEMPO_DE_ATUALIZACAO
-                MOV     M[TIMER_COUNT], R1
-                MOV     R1, 1
-                MOV     M[TIMER_PORT], R1
 
 Cycle: 			BR		Cycle	
 Halt:           BR		Halt

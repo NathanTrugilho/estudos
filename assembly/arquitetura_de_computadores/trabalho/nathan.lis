@@ -19,10 +19,11 @@
 	COLUMN_SHIFT                     0008         CONSTANT
 	TAMANHO_BARRA                    000C         CONSTANT
 	POSICAO_LINHA_BARRA              0016         CONSTANT
+	COLUNA_COMECO_BARRA              0022         CONSTANT
 	TEMPO_DE_ATUALIZACAO             0003         CONSTANT
 	argumento_pos_linha_Printbarra   8000         VARIABLE
 	argumento_pos_coluna_Printbarra   8001         VARIABLE
-	argumento_string_Printbarra      8002         VARIABLE
+	argumento_string_Printmenu       8002         VARIABLE
 	argumento_pos_linha_Printchar    8003         VARIABLE
 	argumento_pos_coluna_Printchar   8004         VARIABLE
 	argumento_char_Printchar         8005         VARIABLE
@@ -62,12 +63,12 @@
 	final_if_movimenta_barra_direita   0055            LABEL
 	Printchar                        0059            LABEL
 	Printbarra                       006A            LABEL
-	loop_Printbarra                  0079            LABEL
-	fim_loop_Printbarra              0085            LABEL
-	Printmenu                        008B            LABEL
-	loop_Printmenu                   0097            LABEL
-	LOOP_NEXT_LINE                   00A4            LABEL
-	fim_loop_Printmenu               00AE            LABEL
-	Main                             00B5            LABEL
-	Cycle                            00E1            LABEL
-	Halt                             00E2            LABEL
+	loop_Printbarra                  007F            LABEL
+	fim_loop_Printbarra              008A            LABEL
+	Printmenu                        008F            LABEL
+	loop_Printmenu                   009D            LABEL
+	LOOP_NEXT_LINE                   00AA            LABEL
+	fim_loop_Printmenu               00B4            LABEL
+	Main                             00BB            LABEL
+	Cycle                            00D5            LABEL
+	Halt                             00D6            LABEL
