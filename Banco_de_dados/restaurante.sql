@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.34, for Linux (x86_64)
 --
--- Host: localhost    Database: nathan
+-- Host: localhost    Database: restaurante
 -- ------------------------------------------------------
 -- Server version	8.0.34-0ubuntu0.22.04.1
 
@@ -205,4 +205,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-14 11:36:17
+-- Dump completed on 2023-09-19  7:29:53

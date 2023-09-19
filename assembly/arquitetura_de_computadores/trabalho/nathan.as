@@ -1,29 +1,31 @@
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 ; ZONA LIXEIRA: partes de códigos que não sei se vou usar em algum momento, mas
 ; vou salvá-los aqui caso necessário no futuro 
-;------------------------------------------------------------------------------
-;           Printa a barra **************************
-; 
-;           CALL Printbarra
+;-------------------------------------------------------------------------------
 ;
+;-------------------------------------------------------------------------------
+; Função Timer - Função que inicia o jogo                    
+;-------------------------------------------------------------------------------
+;Timer:      PUSH R1
+;            PUSH R2
+;
+;            MOV R1, 12d
+;            MOV R2, 40d
+;            SHL R1, 8d
+;            OR R1, R2
+;
+;            MOV M[ CURSOR ], R1
+;            MOV R2, M[ bola ]
+;            MOV M[ IO_WRITE ], R2
+;            INC M[ bola ]
+;
+;            CALL SetTimer
+;
+;           POP R2
+;           POP R1
+;           RTI 
 ;           
 ;********************************************************************************
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
 ;------------------------------------------------------------------------------
 ; ZONA 0: compilar e rodar programa
 ; Linux:        ./p3as-linux nathan.as; java -jar p3sim.jar nathan.exe
@@ -33,10 +35,9 @@
 ;         Pseudo-instrucao : EQU
 ;------------------------------------------------------------------------------
 ; Constantes do Sistema
-
 CR              EQU     0Ah
-TIMER_COUNT     EQU     FFF6h
-TIMER_PORT      EQU     FFF7h
+TIMER_COUNTER   EQU     FFF6h
+ACTIVATE_TIMER  EQU     FFF7h
 FIM_TEXTO       EQU     '@'
 IO_READ         EQU     FFFFh
 IO_WRITE        EQU     FFFEh
@@ -51,10 +52,12 @@ COLUMN_SHIFT	EQU		8d
 ;------------------------------------------------------------------------------
 ; Constantes do jogo
 
-TAMANHO_BARRA   EQU     12d
-POSICAO_LINHA_BARRA     EQU     22d
-COLUNA_COMECO_BARRA     EQU     34d
-TEMPO_DE_ATUALIZACAO    EQU     3d
+TAMANHO_BARRA               EQU     12d
+POSICAO_LINHA_BARRA         EQU     22d
+COLUNA_COMECO_BARRA         EQU     34d
+COORDENADA_INICIAL_X_BOLA   EQU     21d
+COORDENADA_INICIAL_Y_BOLA   EQU     40d
+TEMPO_DE_ATUALIZACAO        EQU     5d
 
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de variaveis
@@ -73,6 +76,9 @@ argumento_string_Printmenu         WORD    0d
 argumento_pos_linha_Printchar      WORD    0d
 argumento_pos_coluna_Printchar     WORD    0d
 argumento_char_Printchar           WORD    0d
+
+proxima_posicao_X_bola             WORD    21d ;COORDENADA_INICIAL_X_BOLA
+proxima_posicao_Y_bola             WORD    40d ;COORDENADA_INICIAL_Y_BOLA
 
 posicao_inicio_barra               WORD    0d
 posicao_fim_barra                  WORD    0d
@@ -102,15 +108,17 @@ Line22          STR     '|                                                      
 Line23          STR     '|                                                                              |'
 Line24          STR     '\______________________________________________________________________________/', FIM_TEXTO
 
-bola            STR     'O'
-   
+bola            WORD     'O'   
 ;------------------------------------------------------------------------------
 ; ZONA III: definicao de tabela de interrupções
 ;------------------------------------------------------------------------------
                 ORIG    FE00h
 INT0            WORD    movimenta_barra_esquerda
 INT1            WORD    movimenta_barra_direita
-;
+
+                ORIG    FE0Fh
+INT15           WORD    Timer
+
 ;------------------------------------------------------------------------------
 ; ZONA IV: codigo
 ;        conjunto de instrucoes Assembly, ordenadas de forma a realizar
@@ -118,7 +126,6 @@ INT1            WORD    movimenta_barra_direita
 ;------------------------------------------------------------------------------
                 ORIG    0000h
                 JMP     Main
-
 ;------------------------------------------------------------------------------
 ; Função esqueleto
 ;------------------------------------------------------------------------------
@@ -152,7 +159,7 @@ movimenta_barra_esquerda:  PUSH R1
 
             MOV R1, ' '
             MOV M[argumento_char_Printchar], R1
-            Call Printchar
+            CALL Printchar
 
             DEC M[posicao_inicio_barra]
             MOV R1, M[posicao_inicio_barra]
@@ -160,7 +167,7 @@ movimenta_barra_esquerda:  PUSH R1
 
             MOV R1, '='
             MOV M[argumento_char_Printchar], R1
-            Call Printchar
+            CALL Printchar
 
             final_if_movimenta_barra_esquerda: NOP
             POP R2
@@ -188,7 +195,7 @@ movimenta_barra_direita:  PUSH R1
 
             MOV R1, ' '
             MOV M[argumento_char_Printchar], R1
-            Call Printchar
+            CALL Printchar
 
             MOV R1, M[posicao_fim_barra]
             INC M[posicao_fim_barra]
@@ -196,7 +203,7 @@ movimenta_barra_direita:  PUSH R1
 
             MOV R1, '='
             MOV M[argumento_char_Printchar], R1
-            Call Printchar
+            CALL Printchar
 
             final_if_movimenta_barra_direita: NOP
             POP R2
@@ -227,14 +234,15 @@ Printchar:  PUSH R1
             RET
 
 ;-----------------------------------------------------------------------------------------
-; Função Printbarra - Imprime os caracteres de uma string a partir de uma posição N até 
-; o marcador "FIM_TEXTO" ser encontrado
+; Função Printbarra - Imprime a barra com a posição especificada pelas 
+; constantes "POSICAO_LINHA_BARRA", "COLUNA_COMECO_BARRA" com o tamanho definido 
+; em "TAMANHO_BARRA"
 ;
 ; Recebe como parâmetros: a posição da linha guardada em "argumento_pos_linha_Printbarra"
 ;                         a posição da coluna guardada em "argumento_pos_coluna_Printbarra"
 ;-----------------------------------------------------------------------------------------
 
-Printbarra:   PUSH R1
+Printbarra: PUSH R1
             PUSH R2
             PUSH R3
 
@@ -266,7 +274,6 @@ Printbarra:   PUSH R1
             POP R2
             POP R1
             RET
-
 
 ;-------------------------------------------------------------------------------
 ; Função Printmenu - Imprime a janela do menu do jogo 
@@ -315,6 +322,48 @@ Printmenu:  PUSH R1
             POP R1
             RET
 
+;-------------------------------------------------------------------------------
+; Função SetTimer - Função que configura uma interrupção                     
+;-------------------------------------------------------------------------------
+
+SetTimer:   PUSH R1
+
+            MOV R1, TEMPO_DE_ATUALIZACAO
+            MOV M[ TIMER_COUNTER ], R1
+            MOV R1, 1d 
+            MOV M[ ACTIVATE_TIMER ], R1   
+
+            POP R1
+            RET
+
+;-------------------------------------------------------------------------------
+; Função Timer - Função que inicia o jogo                    
+;-------------------------------------------------------------------------------
+Timer:      PUSH R1
+            PUSH R2
+
+            MOV R1, M[proxima_posicao_X_bola]
+            DEC R1
+            MOV M[proxima_posicao_X_bola], R1
+
+            MOV M[argumento_pos_linha_Printchar], R1 
+
+            MOV R1, M[proxima_posicao_Y_bola]
+            INC R1
+            MOV M[proxima_posicao_Y_bola], R1
+
+            MOV M[argumento_pos_coluna_Printchar], R1      
+            MOV R1, bola   
+            MOV R1, M[R1] 
+            MOV M[argumento_char_Printchar], R1   
+            CALL Printchar
+
+            CALL SetTimer
+
+            POP R2
+            POP R1
+            RTI 
+
 ;------------------------------------------------------------------------------
 ; Função Main
 ;------------------------------------------------------------------------------
@@ -325,22 +374,28 @@ Main:			ENI
 				MOV		R1, CURSOR_INIT		; We need to initialize the cursor 
 				MOV		M[ CURSOR ], R1		; with value CURSOR_INIT
                 
-
 ;           Printa o menu ********************************
 
                 CALL Printmenu
                             
 ;           Printa a bola ********************************
 
-                MOV R1, 21d
+                MOV R1, COORDENADA_INICIAL_X_BOLA
                 MOV M[argumento_pos_linha_Printchar], R1 
-                MOV R1, 40d
+                MOV R1, COORDENADA_INICIAL_Y_BOLA
                 MOV M[argumento_pos_coluna_Printchar], R1      
-                MOV R1, bola    
+                MOV R1, bola   
+                MOV R1, M[R1] 
                 MOV M[argumento_char_Printchar], R1   
                 CALL Printchar
 
+;           Printa a barra *******************************
+
                 CALL Printbarra
+
+;           Comeca o jogo ********************************
+
+                CALL SetTimer           
 
 Cycle: 			BR		Cycle	
 Halt:           BR		Halt

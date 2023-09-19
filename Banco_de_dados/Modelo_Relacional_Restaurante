@@ -1,4 +1,4 @@
-\! mysqldump nathan > a.sql (Pra salvar)
+\! mysqldump (nome do banco) > (nome do arquivo).sql (Pra salvar)
 
 create table cliente
 (
