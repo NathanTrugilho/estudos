@@ -52,12 +52,12 @@ COLUMN_SHIFT	EQU		8d
 ;------------------------------------------------------------------------------
 ; Constantes do jogo
 
-TAMANHO_BARRA               EQU     12d
+TAMANHO_BARRA               EQU     12d ;Deve ser um múltiplo de 3
 POSICAO_LINHA_BARRA         EQU     22d
 COLUNA_COMECO_BARRA         EQU     34d
-COORDENADA_INICIAL_X_BOLA   EQU     21d
-COORDENADA_INICIAL_Y_BOLA   EQU     40d
-TEMPO_DE_ATUALIZACAO        EQU     5d
+COORDENADA_INICIAL_X_BOLA   EQU     40d
+COORDENADA_INICIAL_Y_BOLA   EQU     17d
+TEMPO_DE_ATUALIZACAO        EQU     10d
 
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de variaveis
@@ -67,6 +67,7 @@ TEMPO_DE_ATUALIZACAO        EQU     5d
 ;------------------------------------------------------------------------------
 
                 ORIG    8000h
+tamanho_pedaco_barra               WORD    0d
 
 argumento_pos_linha_Printbarra     WORD    0d
 argumento_pos_coluna_Printbarra    WORD    0d
@@ -77,9 +78,13 @@ argumento_pos_linha_Printchar      WORD    0d
 argumento_pos_coluna_Printchar     WORD    0d
 argumento_char_Printchar           WORD    0d
 
-proxima_posicao_X_bola             WORD    21d ;COORDENADA_INICIAL_X_BOLA
-proxima_posicao_Y_bola             WORD    40d ;COORDENADA_INICIAL_Y_BOLA
-
+movimentacao_X_bola                WORD    -1d
+movimentacao_Y_bola                WORD    1d
+posicao_anterior_X_bola            WORD    0d
+posicao_anterior_Y_bola            WORD    0d
+posicao_atual_X_bola               WORD    COORDENADA_INICIAL_X_BOLA
+posicao_atual_Y_bola               WORD    COORDENADA_INICIAL_Y_BOLA 
+    
 posicao_inicio_barra               WORD    0d
 posicao_fim_barra                  WORD    0d
 
@@ -270,6 +275,11 @@ Printbarra: PUSH R1
             JMP loop_Printbarra
             fim_loop_Printbarra: NOP
             
+            MOV R1, TAMANHO_BARRA
+            MOV R2, 3
+            DIV R1, R2
+            MOV M[tamanho_pedaco_barra], R1
+
             POP R3
             POP R2
             POP R1
@@ -341,23 +351,99 @@ SetTimer:   PUSH R1
 ;-------------------------------------------------------------------------------
 Timer:      PUSH R1
             PUSH R2
+            
+; Faz o processo de movimento da bola com base nas "direções" que ela vai seguir. Os argumentos de direção estão guardados em "movimentacao_X_bola" e "movimentacao_Y_bola"
 
-            MOV R1, M[proxima_posicao_X_bola]
-            DEC R1
-            MOV M[proxima_posicao_X_bola], R1
+            MOV R1, M[posicao_atual_X_bola]
+            MOV M[posicao_anterior_X_bola], R1
+            ADD R1, M[movimentacao_X_bola]
+            MOV M[posicao_atual_X_bola], R1
 
-            MOV M[argumento_pos_linha_Printchar], R1 
-
-            MOV R1, M[proxima_posicao_Y_bola]
-            INC R1
-            MOV M[proxima_posicao_Y_bola], R1
-
-            MOV M[argumento_pos_coluna_Printchar], R1      
-            MOV R1, bola   
-            MOV R1, M[R1] 
-            MOV M[argumento_char_Printchar], R1   
+            MOV R2, M[posicao_atual_Y_bola]
+            MOV M[posicao_anterior_Y_bola], R2
+            ADD R2, M[movimentacao_Y_bola]
+            MOV M[posicao_atual_Y_bola], R2
+            
+            MOV M[argumento_pos_linha_Printchar], R2
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R1, bola
+            MOV R1, M[R1]
+            MOV M[argumento_char_Printchar], R1
             CALL Printchar
 
+            MOV R1, M[posicao_anterior_X_bola]
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R2, M[posicao_anterior_Y_bola]
+            MOV M[argumento_pos_linha_Printchar], R2
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            CALL Printchar
+
+; Verifica se a bola bateu na barra e faz o cálculo de sua nova direção caso verdade 
+            
+        ;Detecta a colisão da bola com a barra ********************
+
+            MOV R1, M[posicao_atual_Y_bola]
+            ADD R1, M[movimentacao_Y_bola]
+            CMP R1, POSICAO_LINHA_BARRA
+            JMP.NZ fim_if_colisao_barra
+            
+            MOV R2, M[posicao_atual_X_bola]
+            ADD R2, M[movimentacao_X_bola]
+            CMP R2, M[posicao_inicio_barra]
+            JMP.N fim_if_colisao_barra
+            MOV R1, M[posicao_fim_barra]
+            DEC R1
+            CMP R2, R1
+            JMP.P fim_if_colisao_barra
+
+        ;Faz o cálculo da nova direção da bola após a colisão *****
+
+            ; Lado esquerdo da barra ------------------------------
+
+            MOV R1, M[posicao_atual_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            MOV R2, M[posicao_inicio_barra]
+            ADD R2, M[tamanho_pedaco_barra]
+
+            CMP R1, R2
+            JMP.P fim_if_colisao_esquerda_barra
+            MOV R1, M[movimentacao_X_bola]
+            DEC R1
+            CMP R1, -2
+            JMP.NZ fim_if_correcao_esquerda_barra
+            INC R1
+            fim_if_correcao_esquerda_barra: NOP
+            MOV M[movimentacao_X_bola], R1
+            fim_if_colisao_esquerda_barra: NOP
+
+            ; Lado direito da barra ------------------------------
+
+            MOV R1, M[posicao_atual_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            MOV R2, M[posicao_fim_barra]
+            DEC R2
+            SUB R2, M[tamanho_pedaco_barra]
+
+            CMP R1, R2
+            JMP.N fim_if_colisao_direita_barra
+            MOV R1, M[movimentacao_X_bola]
+            INC R1
+            CMP R1, 2
+            JMP.NZ fim_if_correcao_direita_barra
+            DEC R1
+            fim_if_correcao_direita_barra: NOP
+            MOV M[movimentacao_X_bola], R1
+            fim_if_colisao_direita_barra: NOP
+
+            ; Caso geral (bater no meio da barra)-----------------
+
+            MOV R1, -1
+            MOV M[movimentacao_Y_bola], R1
+
+        ;Caso não haja colisões, o código vem para cá *************
+        
+            fim_if_colisao_barra: NOP
             CALL SetTimer
 
             POP R2
@@ -379,10 +465,10 @@ Main:			ENI
                 CALL Printmenu
                             
 ;           Printa a bola ********************************
-
-                MOV R1, COORDENADA_INICIAL_X_BOLA
-                MOV M[argumento_pos_linha_Printchar], R1 
+                
                 MOV R1, COORDENADA_INICIAL_Y_BOLA
+                MOV M[argumento_pos_linha_Printchar], R1 
+                MOV R1, COORDENADA_INICIAL_X_BOLA
                 MOV M[argumento_pos_coluna_Printchar], R1      
                 MOV R1, bola   
                 MOV R1, M[R1] 
