@@ -379,6 +379,16 @@ Timer:      PUSH R1
             MOV M[argumento_char_Printchar], R1
             CALL Printchar
 
+; Verifica se a bola colidiu com as paredes laterais, o teto ou o chão
+
+            MOV R1, M[posicao_atual_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            CMP R1, 0
+            JMP.NZ fim_if_colisao_parede_esquerda
+            MOV R1, 1
+            MOV M[movimentacao_X_bola], R1
+            fim_if_colisao_parede_esquerda: NOP
+
 ; Verifica se a bola bateu na barra e faz o cálculo de sua nova direção caso verdade 
             
         ;Detecta a colisão da bola com a barra ********************
