@@ -24,6 +24,31 @@
 ;           POP R2
 ;           POP R1
 ;           RTI 
+
+; Verifica se a bola colidiu com as paredes laterais, o teto ou o chão
+
+;            MOV R1, M[posicao_atual_X_bola]
+;            ADD R1, M[movimentacao_X_bola]
+;            CMP R1, 0
+;            JMP.NZ fim_if_colisao_parede_esquerda
+;            MOV R1, 1
+;            MOV M[movimentacao_X_bola], R1
+;            fim_if_colisao_parede_esquerda: NOP
+;
+;            MOV M[argumento_pos_linha_Printchar], R2
+;            MOV M[argumento_pos_coluna_Printchar], R1
+;            MOV R1, bola
+;            MOV R1, M[R1]
+;            MOV M[argumento_char_Printchar], R1
+;            CALL Printchar
+;
+;            MOV R1, M[posicao_anterior_X_bola]
+;            MOV M[argumento_pos_coluna_Printchar], R1
+;            MOV R2, M[posicao_anterior_Y_bola]
+;            MOV M[argumento_pos_linha_Printchar], R2
+;            MOV R1, ' '
+;            MOV M[argumento_char_Printchar], R1
+;            CALL Printchar
 ;           
 ;********************************************************************************
 ;------------------------------------------------------------------------------
@@ -55,7 +80,7 @@ COLUMN_SHIFT	EQU		8d
 TAMANHO_BARRA               EQU     12d ;Deve ser um múltiplo de 3
 POSICAO_LINHA_BARRA         EQU     22d
 COLUNA_COMECO_BARRA         EQU     34d
-COORDENADA_INICIAL_X_BOLA   EQU     40d
+COORDENADA_INICIAL_X_BOLA   EQU     30d
 COORDENADA_INICIAL_Y_BOLA   EQU     17d
 TEMPO_DE_ATUALIZACAO        EQU     10d
 
@@ -78,7 +103,7 @@ argumento_pos_linha_Printchar      WORD    0d
 argumento_pos_coluna_Printchar     WORD    0d
 argumento_char_Printchar           WORD    0d
 
-movimentacao_X_bola                WORD    -1d
+movimentacao_X_bola                WORD    0d
 movimentacao_Y_bola                WORD    1d
 posicao_anterior_X_bola            WORD    0d
 posicao_anterior_Y_bola            WORD    0d
@@ -158,9 +183,9 @@ movimenta_barra_esquerda:  PUSH R1
             MOV R1, POSICAO_LINHA_BARRA
             MOV M[argumento_pos_linha_Printchar], R1
 
-            DEC M[posicao_fim_barra]
             MOV R1, M[posicao_fim_barra]
             MOV M[argumento_pos_coluna_Printchar], R1
+            DEC M[posicao_fim_barra]
 
             MOV R1, ' '
             MOV M[argumento_char_Printchar], R1
@@ -188,7 +213,7 @@ movimenta_barra_direita:  PUSH R1
             PUSH R2
             
             MOV R1, M[posicao_fim_barra]
-            CMP R1, 79
+            CMP R1, 78
             JMP.Z final_if_movimenta_barra_direita
 
             MOV R1, POSICAO_LINHA_BARRA
@@ -205,6 +230,7 @@ movimenta_barra_direita:  PUSH R1
             MOV R1, M[posicao_fim_barra]
             INC M[posicao_fim_barra]
             MOV M[argumento_pos_coluna_Printchar], R1
+            INC M[argumento_pos_coluna_Printchar]
 
             MOV R1, '='
             MOV M[argumento_char_Printchar], R1
@@ -256,6 +282,7 @@ Printbarra: PUSH R1
             MOV R1, COLUNA_COMECO_BARRA
             MOV M[posicao_inicio_barra], R1
             ADD R1, TAMANHO_BARRA
+            DEC R1
             MOV M[posicao_fim_barra], R1         
         ;______________________________________________
 
@@ -363,47 +390,18 @@ Timer:      PUSH R1
             MOV M[posicao_anterior_Y_bola], R2
             ADD R2, M[movimentacao_Y_bola]
             MOV M[posicao_atual_Y_bola], R2
-            
-            MOV M[argumento_pos_linha_Printchar], R2
-            MOV M[argumento_pos_coluna_Printchar], R1
-            MOV R1, bola
-            MOV R1, M[R1]
-            MOV M[argumento_char_Printchar], R1
-            CALL Printchar
-
-            MOV R1, M[posicao_anterior_X_bola]
-            MOV M[argumento_pos_coluna_Printchar], R1
-            MOV R2, M[posicao_anterior_Y_bola]
-            MOV M[argumento_pos_linha_Printchar], R2
-            MOV R1, ' '
-            MOV M[argumento_char_Printchar], R1
-            CALL Printchar
-
-; Verifica se a bola colidiu com as paredes laterais, o teto ou o chão
-
-            MOV R1, M[posicao_atual_X_bola]
-            ADD R1, M[movimentacao_X_bola]
-            CMP R1, 0
-            JMP.NZ fim_if_colisao_parede_esquerda
-            MOV R1, 1
-            MOV M[movimentacao_X_bola], R1
-            fim_if_colisao_parede_esquerda: NOP
 
 ; Verifica se a bola bateu na barra e faz o cálculo de sua nova direção caso verdade 
-            
-        ;Detecta a colisão da bola com a barra ********************
 
             MOV R1, M[posicao_atual_Y_bola]
-            ADD R1, M[movimentacao_Y_bola]
             CMP R1, POSICAO_LINHA_BARRA
             JMP.NZ fim_if_colisao_barra
             
             MOV R2, M[posicao_atual_X_bola]
-            ADD R2, M[movimentacao_X_bola]
             CMP R2, M[posicao_inicio_barra]
             JMP.N fim_if_colisao_barra
             MOV R1, M[posicao_fim_barra]
-            DEC R1
+
             CMP R2, R1
             JMP.P fim_if_colisao_barra
 

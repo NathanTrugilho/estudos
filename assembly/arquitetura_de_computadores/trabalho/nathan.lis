@@ -19,8 +19,8 @@
 	COLUMN_SHIFT                     0008         CONSTANT
 	TAMANHO_BARRA                    000C         CONSTANT
 	POSICAO_LINHA_BARRA              0016         CONSTANT
-	COLUNA_COMECO_BARRA              0028         CONSTANT
-	COORDENADA_INICIAL_X_BOLA        000A         CONSTANT
+	COLUNA_COMECO_BARRA              0022         CONSTANT
+	COORDENADA_INICIAL_X_BOLA        001E         CONSTANT
 	COORDENADA_INICIAL_Y_BOLA        0011         CONSTANT
 	TEMPO_DE_ATUALIZACAO             000A         CONSTANT
 	tamanho_pedaco_barra             8000         VARIABLE
@@ -70,23 +70,22 @@
 	movimenta_barra_esquerda         0009            LABEL
 	final_if_movimenta_barra_esquerda   002D            LABEL
 	movimenta_barra_direita          0031            LABEL
-	final_if_movimenta_barra_direita   0055            LABEL
-	Printchar                        0059            LABEL
-	Printbarra                       006A            LABEL
-	loop_Printbarra                  007F            LABEL
-	fim_loop_Printbarra              008A            LABEL
-	Printmenu                        0096            LABEL
-	loop_Printmenu                   00A4            LABEL
-	LOOP_NEXT_LINE                   00B1            LABEL
-	fim_loop_Printmenu               00BB            LABEL
-	SetTimer                         00C2            LABEL
-	Timer                            00CD            LABEL
-	fim_if_colisao_parede_esquerda   0104            LABEL
-	fim_if_correcao_esquerda_barra   012E            LABEL
-	fim_if_colisao_esquerda_barra    0131            LABEL
-	fim_if_correcao_direita_barra    0146            LABEL
-	fim_if_colisao_direita_barra     0149            LABEL
-	fim_if_colisao_barra             014E            LABEL
-	Main                             0154            LABEL
-	Cycle                            0171            LABEL
-	Halt                             0172            LABEL
+	final_if_movimenta_barra_direita   0057            LABEL
+	Printchar                        005B            LABEL
+	Printbarra                       006C            LABEL
+	loop_Printbarra                  0082            LABEL
+	fim_loop_Printbarra              008D            LABEL
+	Printmenu                        0099            LABEL
+	loop_Printmenu                   00A7            LABEL
+	LOOP_NEXT_LINE                   00B4            LABEL
+	fim_loop_Printmenu               00BE            LABEL
+	SetTimer                         00C5            LABEL
+	Timer                            00D0            LABEL
+	fim_if_correcao_esquerda_barra   0106            LABEL
+	fim_if_colisao_esquerda_barra    0109            LABEL
+	fim_if_correcao_direita_barra    011E            LABEL
+	fim_if_colisao_direita_barra     0121            LABEL
+	fim_if_colisao_barra             0126            LABEL
+	Main                             012C            LABEL
+	Cycle                            0149            LABEL
+	Halt                             014A            LABEL
