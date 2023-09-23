@@ -35,6 +35,7 @@ CREATE TABLE `cliente` (
 
 LOCK TABLES `cliente` WRITE;
 /*!40000 ALTER TABLE `cliente` DISABLE KEYS */;
+INSERT INTO `cliente` VALUES (1,'Nathan'),(2,'Camila'),(3,'Babi'),(4,'Layla'),(5,'Messi'),(6,'Tiquinho'),(7,'Lucas'),(8,'Eduardo'),(9,'Segovia'),(10,'Adryelson');
 /*!40000 ALTER TABLE `cliente` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -62,6 +63,7 @@ CREATE TABLE `contem` (
 
 LOCK TABLES `contem` WRITE;
 /*!40000 ALTER TABLE `contem` DISABLE KEYS */;
+INSERT INTO `contem` VALUES (1,5,2),(1,9,1),(1,10,1),(2,1,1),(2,15,2),(3,8,1);
 /*!40000 ALTER TABLE `contem` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -88,6 +90,7 @@ CREATE TABLE `itemConsumo` (
 
 LOCK TABLES `itemConsumo` WRITE;
 /*!40000 ALTER TABLE `itemConsumo` DISABLE KEYS */;
+INSERT INTO `itemConsumo` VALUES (1,'agua',2.00,'muito refrescante','bebida'),(2,'guaravita',3.00,'doce como mel','bebida'),(3,'coca-cola',6.50,'inimiga dos diabeticos','bebida'),(4,'suco de caju',9.99,'bom pra dor de barriga','bebida'),(5,'vinho',20.00,'para um jantar romantico','bebida'),(6,'suco de uva',9.99,'vinho para criancas','bebida'),(7,'cafe',4.00,'para quem vive cansado','bebida'),(8,'pizza',42.00,'nao pode faltar','massa'),(9,'macarrao',17.00,'amigo do marombeiro','massa'),(10,'lasanha',15.00,'bem recheada','massa'),(11,'nhoque',22.00,'amarelo como o sol','massa'),(12,'bolo de chocolate',5.00,'vem com morango','sobremesa'),(13,'pudim',14.00,'cheio de calda','sobremesa'),(14,'pave',14.00,'ou pra comer ?','sobremesa'),(15,'brownie',6.20,'vale cada moeda','sobremesa'),(16,'picole',1.50,'fica mais caro no verao','sobremesa');
 /*!40000 ALTER TABLE `itemConsumo` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -112,6 +115,7 @@ CREATE TABLE `mesa` (
 
 LOCK TABLES `mesa` WRITE;
 /*!40000 ALTER TABLE `mesa` DISABLE KEYS */;
+INSERT INTO `mesa` VALUES (1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9),(10,10);
 /*!40000 ALTER TABLE `mesa` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -138,6 +142,7 @@ CREATE TABLE `nota` (
 
 LOCK TABLES `nota` WRITE;
 /*!40000 ALTER TABLE `nota` DISABLE KEYS */;
+INSERT INTO `nota` VALUES (10,'2023-02-05',1);
 /*!40000 ALTER TABLE `nota` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -169,6 +174,7 @@ CREATE TABLE `pedido` (
 
 LOCK TABLES `pedido` WRITE;
 /*!40000 ALTER TABLE `pedido` DISABLE KEYS */;
+INSERT INTO `pedido` VALUES (1,1,1,'2023-02-05',NULL,'aprovado'),(2,2,1,'2023-02-05',NULL,'aprovado'),(3,4,2,'2023-02-05',NULL,'aprovado');
 /*!40000 ALTER TABLE `pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -205,4 +211,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-19  7:29:53
+-- Dump completed on 2023-09-23 20:40:45
