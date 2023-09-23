@@ -20,9 +20,9 @@
 	TAMANHO_BARRA                    000C         CONSTANT
 	POSICAO_LINHA_BARRA              0016         CONSTANT
 	COLUNA_COMECO_BARRA              0022         CONSTANT
-	COORDENADA_INICIAL_X_BOLA        001E         CONSTANT
+	COORDENADA_INICIAL_X_BOLA        0028         CONSTANT
 	COORDENADA_INICIAL_Y_BOLA        0011         CONSTANT
-	TEMPO_DE_ATUALIZACAO             000A         CONSTANT
+	TEMPO_DE_ATUALIZACAO             0005         CONSTANT
 	tamanho_pedaco_barra             8000         VARIABLE
 	argumento_pos_linha_Printbarra   8001         VARIABLE
 	argumento_pos_coluna_Printbarra   8002         VARIABLE
@@ -81,11 +81,11 @@
 	fim_loop_Printmenu               00BE            LABEL
 	SetTimer                         00C5            LABEL
 	Timer                            00D0            LABEL
-	fim_if_correcao_esquerda_barra   0106            LABEL
-	fim_if_colisao_esquerda_barra    0109            LABEL
-	fim_if_correcao_direita_barra    011E            LABEL
-	fim_if_colisao_direita_barra     0121            LABEL
-	fim_if_colisao_barra             0126            LABEL
-	Main                             012C            LABEL
-	Cycle                            0149            LABEL
-	Halt                             014A            LABEL
+	fim_if_correcao_esquerda_barra   0104            LABEL
+	fim_if_colisao_esquerda_barra    0107            LABEL
+	fim_if_correcao_direita_barra    011A            LABEL
+	fim_if_colisao_direita_barra     011D            LABEL
+	fim_if_colisao_barra             0136            LABEL
+	Main                             0159            LABEL
+	Cycle                            0176            LABEL
+	Halt                             0177            LABEL
