@@ -3,53 +3,6 @@
 ; vou salvá-los aqui caso necessário no futuro 
 ;-------------------------------------------------------------------------------
 ;
-;-------------------------------------------------------------------------------
-; Função Timer - Função que inicia o jogo                    
-;-------------------------------------------------------------------------------
-;Timer:      PUSH R1
-;            PUSH R2
-;
-;            MOV R1, 12d
-;            MOV R2, 40d
-;            SHL R1, 8d
-;            OR R1, R2
-;
-;            MOV M[ CURSOR ], R1
-;            MOV R2, M[ bola ]
-;            MOV M[ IO_WRITE ], R2
-;            INC M[ bola ]
-;
-;            CALL SetTimer
-;
-;           POP R2
-;           POP R1
-;           RTI 
-
-; Verifica se a bola colidiu com as paredes laterais, o teto ou o chão
-
-;            MOV R1, M[posicao_atual_X_bola]
-;            ADD R1, M[movimentacao_X_bola]
-;            CMP R1, 0
-;            JMP.NZ fim_if_colisao_parede_esquerda
-;            MOV R1, 1
-;            MOV M[movimentacao_X_bola], R1
-;            fim_if_colisao_parede_esquerda: NOP
-;
-;            MOV M[argumento_pos_linha_Printchar], R2
-;            MOV M[argumento_pos_coluna_Printchar], R1
-;            MOV R1, bola
-;            MOV R1, M[R1]
-;            MOV M[argumento_char_Printchar], R1
-;            CALL Printchar
-;
-;            MOV R1, M[posicao_anterior_X_bola]
-;            MOV M[argumento_pos_coluna_Printchar], R1
-;            MOV R2, M[posicao_anterior_Y_bola]
-;            MOV M[argumento_pos_linha_Printchar], R2
-;            MOV R1, ' '
-;            MOV M[argumento_char_Printchar], R1
-;            CALL Printchar
-;
 ;********************************************************************************
 ;------------------------------------------------------------------------------
 ; ZONA 0: compilar e rodar programa
@@ -78,7 +31,8 @@ COLUMN_SHIFT	EQU		8d
 ; Constantes do jogo
 
 TAMANHO_BARRA               EQU     12d ;Deve ser um múltiplo de 3
-POSICAO_LINHA_BARRA         EQU     22d
+QTD_CARACTERES_LINHA        EQU     80d
+POSICAO_LINHA_BARRA         EQU     21d
 COLUNA_COMECO_BARRA         EQU     34d
 COORDENADA_INICIAL_X_BOLA   EQU     40d
 COORDENADA_INICIAL_Y_BOLA   EQU     17d
@@ -93,6 +47,8 @@ TEMPO_DE_ATUALIZACAO        EQU     5d
 
                 ORIG    8000h
 tamanho_pedaco_barra               WORD    0d
+posicao_inicio_barra               WORD    0d
+posicao_fim_barra                  WORD    0d
 
 argumento_pos_linha_Printbarra     WORD    0d
 argumento_pos_coluna_Printbarra    WORD    0d
@@ -110,26 +66,25 @@ posicao_anterior_Y_bola            WORD    0d
 posicao_atual_X_bola               WORD    COORDENADA_INICIAL_X_BOLA
 posicao_atual_Y_bola               WORD    COORDENADA_INICIAL_Y_BOLA 
     
-posicao_inicio_barra               WORD    0d
-posicao_fim_barra                  WORD    0d
+quantidade_blocos_destruidos       WORD    0d
 
 Line1           STR     '+==================+===========================================+===============+'
 Line2           STR     '| Bolas: O - O - O |               Nathan                      | Pontos: 00000 |'
 Line3           STR     '+==================+===========================================+===============+'
 Line4           STR     '|                                                                              |'
 Line5           STR     '|                                                                              |'
-Line6           STR     '|       ################################################################       |'
-Line7           STR     '|       ################################################################       |'
-Line8           STR     '|       ################################################################       |'
-Line9           STR     '|       ################################################################       |'
-Line10          STR     '|       ################################################################       |'
-Line11          STR     '|       ################################################################       |'
-Line12          STR     '|       ################################################################       |'
-Line13          STR     '|       ################################################################       |'  
-Line14          STR     '|       ################################################################       |'
-Line15          STR     '|       ################################################################       |'
-Line16          STR     '|       ################################################################       |'
-Line17          STR     '|       ################################################################       |'
+Line6           STR     '|                                                                              |'
+Line7           STR     '|          ##########################################################          |'
+Line8           STR     '|          ##########################################################          |'
+Line9           STR     '|          ##########################################################          |'
+Line10          STR     '|          ##########################################################          |'
+Line11          STR     '|          ##########################################################          |'
+Line12          STR     '|          ##########################################################          |'
+Line13          STR     '|          ##########################################################          |'  
+Line14          STR     '|          ##########################################################          |'
+Line15          STR     '|          ##########################################################          |'
+Line16          STR     '|          ##########################################################          |'
+Line17          STR     '|                                                                              |'
 Line18          STR     '|                                                                              |'
 Line19          STR     '|                                                                              |'
 Line20          STR     '|                                                                              |'
@@ -138,7 +93,10 @@ Line22          STR     '|                                                      
 Line23          STR     '|                                                                              |'
 Line24          STR     '\______________________________________________________________________________/', FIM_TEXTO
 
-bola            WORD     'O'   
+bola                    WORD    'O'   
+vidas                   WORD    3d
+posicao_indice_vidas    WORD    17d
+
 ;------------------------------------------------------------------------------
 ; ZONA III: definicao de tabela de interrupções
 ;------------------------------------------------------------------------------
@@ -254,7 +212,7 @@ Printchar:  PUSH R1
 
             MOV R2, M[argumento_pos_linha_Printchar]
             SHL R2, 8d
-            MOV R1, M[argumento_pos_coluna_Printchar]  
+            MOV R1, M[argumento_pos_coluna_Printchar] 
             OR R2, R1
             MOV R1, M[argumento_char_Printchar] 
             MOV M[CURSOR], R2
@@ -306,6 +264,33 @@ Printbarra: PUSH R1
             MOV R2, 3
             DIV R1, R2
             MOV M[tamanho_pedaco_barra], R1
+
+            POP R3
+            POP R2
+            POP R1
+            RET
+;------------------------------------------------------------------------------------------------
+; Função Limpabarra - nome óbvio, não é mesmo ?
+;------------------------------------------------------------------------------------------------
+Limpabarra: PUSH R1
+            PUSH R2
+            PUSH R3
+
+            MOV R3, POSICAO_LINHA_BARRA
+            SHL R3, 8d
+            MOV R2, M[posicao_inicio_barra]
+            OR R3, R2
+            MOV R2, TAMANHO_BARRA
+            MOV R1, ' '
+
+            loop_Limpabarra: CMP R2, R0
+            JMP.Z fim_loop_Limpabarra
+            MOV M[CURSOR], R3
+            MOV M[IO_WRITE], R1
+            DEC R2
+            INC R3
+            JMP loop_Limpabarra
+            fim_loop_Limpabarra: NOP
 
             POP R3
             POP R2
@@ -379,7 +364,8 @@ SetTimer:   PUSH R1
 Timer:      PUSH R1
             PUSH R2
             
-; Faz o processo de movimento da bola com base nas "direções" que ela vai seguir. Os argumentos de direção estão guardados em "movimentacao_X_bola" e "movimentacao_Y_bola"
+; Faz o processo de movimento da bola com base nas "direções" que ela vai seguir. Os argumentos de direção 
+; estão guardados em "movimentacao_X_bola" e "movimentacao_Y_bola"
 
             MOV R1, M[posicao_atual_X_bola]
             MOV M[posicao_anterior_X_bola], R1
@@ -391,7 +377,150 @@ Timer:      PUSH R1
             ADD R2, M[movimentacao_Y_bola]
             MOV M[posicao_atual_Y_bola], R2
 
-; Verifica se a bola bateu na barra e faz o cálculo de sua nova direção caso verdade
+; Detecta a colisão com os blocos ******************************************
+
+    ; Colisões verticais --------------------------------------------------------
+
+            MOV R1, QTD_CARACTERES_LINHA
+            MOV R2, M[posicao_atual_Y_bola]
+            MUL R1, R2
+            MOV R1, M[posicao_anterior_X_bola]
+            ADD R1, R2
+            MOV R2, Line1
+            ADD R1, R2
+            MOV R2, M[R1]
+
+            CMP R2, '#'
+            JMP.NZ fim_if_colisao_bloco_vertical
+
+            INC M[quantidade_blocos_destruidos]
+            MOV M[R1], R0
+            MOV R2, M[posicao_atual_Y_bola]
+            MOV R1, M[posicao_anterior_X_bola]
+            MOV M[argumento_pos_linha_Printchar], R2
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            CALL Printchar
+
+            MOV R2, M[movimentacao_Y_bola]
+            MOV R1, -1
+            MUL R2, R1
+            MOV M[movimentacao_Y_bola], R1
+
+            MOV R2, M[posicao_anterior_Y_bola]
+            MOV M[posicao_atual_Y_bola], R2
+            ADD R2, M[movimentacao_Y_bola]
+            MOV M[posicao_atual_Y_bola], R2
+
+            fim_if_colisao_bloco_vertical: NOP
+
+    ; Colisões horizontais --------------------------------------------------------
+
+            MOV R1, QTD_CARACTERES_LINHA
+            MOV R2, M[posicao_anterior_Y_bola]
+            MUL R1, R2
+            MOV R1, M[posicao_atual_X_bola]
+            ADD R1, R2
+            MOV R2, Line1
+            ADD R1, R2
+            MOV R2, M[R1]
+
+            CMP R2, '#'
+            JMP.NZ fim_if_colisao_bloco_horizontal
+
+            INC M[quantidade_blocos_destruidos]
+            MOV M[R1], R0
+            MOV R2, M[posicao_anterior_Y_bola]
+            MOV R1, M[posicao_atual_X_bola]
+            MOV M[argumento_pos_linha_Printchar], R2
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            CALL Printchar
+
+            MOV R2, M[movimentacao_X_bola]
+            MOV R1, -1
+            MUL R2, R1
+            MOV M[movimentacao_X_bola], R1
+
+            MOV R2, M[posicao_anterior_X_bola]
+            MOV M[posicao_atual_X_bola], R2
+            ADD R2, M[movimentacao_X_bola]
+            MOV M[posicao_atual_X_bola], R2
+
+            fim_if_colisao_bloco_horizontal: NOP
+
+
+
+
+; Detecta a colisão com as bordas ******************************************
+
+    ; Borda esquerda -------------------------------------------------------
+
+            MOV R1, M[posicao_atual_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            CMP R1, 0
+            JMP.NZ fim_if_colisao_parede_esquerda
+            MOV R1, 1
+            MOV M[movimentacao_X_bola], R1
+
+            fim_if_colisao_parede_esquerda: NOP
+    
+    ; Borda direita -------------------------------------------------------
+
+            MOV R1, M[posicao_atual_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            CMP R1, 79
+            JMP.NZ fim_if_colisao_parede_direita
+            MOV R1, -1
+            MOV M[movimentacao_X_bola], R1
+
+            fim_if_colisao_parede_direita: NOP
+
+    ; Teto ----------------------------------------------------------------
+                                                                
+            MOV R1, M[posicao_atual_Y_bola]                      
+            ADD R1, M[movimentacao_Y_bola]
+            CMP R1, 2
+            JMP.NZ fim_if_colisao_teto
+            MOV R1, 1
+            MOV M[movimentacao_Y_bola], R1
+
+            fim_if_colisao_teto: NOP
+
+    ; Chao --------------------------------------------------------------
+
+            MOV R1, M[posicao_atual_Y_bola]
+            ADD R1, M[movimentacao_Y_bola]
+            CMP R1, 24
+            JMP.NZ fim_if_colisao_chao
+
+            CMP R0, M[vidas]
+            JMP.NZ continua_jogo
+
+            continua_jogo: NOP
+
+            DEC M[vidas]
+
+            MOV M[movimentacao_X_bola], R0
+            MOV R1, COORDENADA_INICIAL_Y_BOLA
+            MOV M[posicao_atual_Y_bola], R1
+            MOV M[argumento_pos_linha_Printchar], R1 
+            MOV R1, COORDENADA_INICIAL_X_BOLA
+            MOV M[posicao_atual_X_bola], R1
+            MOV M[argumento_pos_coluna_Printchar], R1      
+            MOV R1, bola   
+            MOV R1, M[R1] 
+            MOV M[argumento_char_Printchar], R1   
+            CALL Printchar
+
+            CALL Limpabarra
+            CALL Printbarra
+
+            fim_if_colisao_chao: NOP
+
+; Verifica se a bola bateu na barra e faz o cálculo de sua nova direção caso verdade ******
 
             MOV R1, M[posicao_atual_Y_bola]
             CMP R1, POSICAO_LINHA_BARRA
@@ -406,61 +535,79 @@ Timer:      PUSH R1
 
             ; Extremidade esquerda da barra ------------------------------
 
-            MOV R1, M[posicao_atual_X_bola]
+            MOV R1, M[posicao_anterior_X_bola]
             MOV R2, M[posicao_inicio_barra]
             ADD R2, M[tamanho_pedaco_barra]
             CMP R1, R2
-            JMP.P fim_if_colisao_esquerda_barra
+            JMP.NN fim_if_colisao_esquerda_barra
 
             MOV R1, M[movimentacao_X_bola]
             DEC R1
-
-            CMP R1, -2
+            CMP R1, -2 ; Preciso fazer a correção para a bola não se mover dois pixels por vez
             JMP.NZ fim_if_correcao_esquerda_barra
             INC R1
             fim_if_correcao_esquerda_barra: NOP
             MOV M[movimentacao_X_bola], R1
 
+            MOV R1, M[posicao_anterior_X_bola]
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R2, M[posicao_anterior_Y_bola]
+            MOV M[argumento_pos_linha_Printchar], R2
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            CALL Printchar
+
             fim_if_colisao_esquerda_barra: NOP
 
             ; Extremidade direita da barra ------------------------------
 
-            MOV R1, M[posicao_atual_X_bola]
+            MOV R1, M[posicao_anterior_X_bola]
             MOV R2, M[posicao_fim_barra]
-            DEC R2
             SUB R2, M[tamanho_pedaco_barra]
-
             CMP R1, R2
-            JMP.N fim_if_colisao_direita_barra
+            JMP.NP fim_if_colisao_direita_barra
+
             MOV R1, M[movimentacao_X_bola]
             INC R1
-            CMP R1, 2
+            CMP R1, 2 ; Preciso fazer a correção para a bola não se mover dois pixels por vez
             JMP.NZ fim_if_correcao_direita_barra
             DEC R1
             fim_if_correcao_direita_barra: NOP
             MOV M[movimentacao_X_bola], R1
+
+            MOV R2, M[posicao_anterior_Y_bola]
+            MOV M[argumento_pos_linha_Printchar], R2
+            MOV R1, M[posicao_anterior_X_bola]
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            CALL Printchar
+
             fim_if_colisao_direita_barra: NOP
 
-            ; Caso geral de colisão (bater no meio da barra)-------------
+            ; Caso geral de colisão (bater no meio da barra)---------------
 
             MOV R1, -1 
             MOV M[movimentacao_Y_bola], R1
 
+            MOV R1, M[posicao_anterior_X_bola]
+            MOV M[posicao_atual_X_bola], R1
             MOV R1, M[posicao_anterior_Y_bola]
             MOV M[posicao_atual_Y_bola], R1
-
             MOV R1, M[posicao_atual_X_bola]
-            MOV M[posicao_anterior_X_bola], R1
             ADD R1, M[movimentacao_X_bola]
             MOV M[posicao_atual_X_bola], R1
+
             MOV R2, M[posicao_atual_Y_bola]
             MOV M[posicao_anterior_Y_bola], R2
             ADD R2, M[movimentacao_Y_bola]
             MOV M[posicao_atual_Y_bola], R2
 
-        ;Caso não haja colisões, o código vem para cá *************
+        ; Caso não haja colisões, o código vem para cá ***********************
         
             fim_if_colisao_barra: NOP
+
+        ; Imprime na tela a nova direção da bola *****************************
 
             MOV R1, M[posicao_atual_X_bola]
             MOV M[argumento_pos_coluna_Printchar], R1
@@ -517,6 +664,25 @@ Main:			ENI
 ;           Comeca o jogo ********************************
 
                 CALL SetTimer           
+
+               MOV R1, QTD_CARACTERES_LINHA
+               MOV R2, 15
+               MUL R1, R2
+               MOV R1, 10
+               ADD R1, R2
+               MOV R2, Line1
+               ADD R1, R2
+               MOV R1, M[R1]
+
+               MOV R1, QTD_CARACTERES_LINHA
+               MOV R2, 15
+               MUL R1, R2
+               MOV R1, 11
+               ADD R1, R2
+               MOV R2, Line1
+               ADD R1, R2
+               MOV R1, M[R1]
+
 
 Cycle: 			BR		Cycle	
 Halt:           BR		Halt

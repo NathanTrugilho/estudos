@@ -1,4 +1,5 @@
 \! mysqldump (nome do banco) > (nome do arquivo).sql (Pra salvar)
+describe (nome tabela)
 
 create table cliente
 (

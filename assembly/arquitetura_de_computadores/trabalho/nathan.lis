@@ -18,51 +18,55 @@
 	ROW_SHIFT                        0008         CONSTANT
 	COLUMN_SHIFT                     0008         CONSTANT
 	TAMANHO_BARRA                    000C         CONSTANT
-	POSICAO_LINHA_BARRA              0016         CONSTANT
+	QTD_CARACTERES_LINHA             0050         CONSTANT
+	POSICAO_LINHA_BARRA              0015         CONSTANT
 	COLUNA_COMECO_BARRA              0022         CONSTANT
 	COORDENADA_INICIAL_X_BOLA        0028         CONSTANT
 	COORDENADA_INICIAL_Y_BOLA        0011         CONSTANT
 	TEMPO_DE_ATUALIZACAO             0005         CONSTANT
 	tamanho_pedaco_barra             8000         VARIABLE
-	argumento_pos_linha_Printbarra   8001         VARIABLE
-	argumento_pos_coluna_Printbarra   8002         VARIABLE
-	argumento_string_Printmenu       8003         VARIABLE
-	argumento_pos_linha_Printchar    8004         VARIABLE
-	argumento_pos_coluna_Printchar   8005         VARIABLE
-	argumento_char_Printchar         8006         VARIABLE
-	movimentacao_X_bola              8007         VARIABLE
-	movimentacao_Y_bola              8008         VARIABLE
-	posicao_anterior_X_bola          8009         VARIABLE
-	posicao_anterior_Y_bola          800A         VARIABLE
-	posicao_atual_X_bola             800B         VARIABLE
-	posicao_atual_Y_bola             800C         VARIABLE
-	posicao_inicio_barra             800D         VARIABLE
-	posicao_fim_barra                800E         VARIABLE
-	Line1                            800F           STRING
-	Line2                            805F           STRING
-	Line3                            80AF           STRING
-	Line4                            80FF           STRING
-	Line5                            814F           STRING
-	Line6                            819F           STRING
-	Line7                            81EF           STRING
-	Line8                            823F           STRING
-	Line9                            828F           STRING
-	Line10                           82DF           STRING
-	Line11                           832F           STRING
-	Line12                           837F           STRING
-	Line13                           83CF           STRING
-	Line14                           841F           STRING
-	Line15                           846F           STRING
-	Line16                           84BF           STRING
-	Line17                           850F           STRING
-	Line18                           855F           STRING
-	Line19                           85AF           STRING
-	Line20                           85FF           STRING
-	Line21                           864F           STRING
-	Line22                           869F           STRING
-	Line23                           86EF           STRING
-	Line24                           873F           STRING
-	bola                             8790         VARIABLE
+	posicao_inicio_barra             8001         VARIABLE
+	posicao_fim_barra                8002         VARIABLE
+	argumento_pos_linha_Printbarra   8003         VARIABLE
+	argumento_pos_coluna_Printbarra   8004         VARIABLE
+	argumento_string_Printmenu       8005         VARIABLE
+	argumento_pos_linha_Printchar    8006         VARIABLE
+	argumento_pos_coluna_Printchar   8007         VARIABLE
+	argumento_char_Printchar         8008         VARIABLE
+	movimentacao_X_bola              8009         VARIABLE
+	movimentacao_Y_bola              800A         VARIABLE
+	posicao_anterior_X_bola          800B         VARIABLE
+	posicao_anterior_Y_bola          800C         VARIABLE
+	posicao_atual_X_bola             800D         VARIABLE
+	posicao_atual_Y_bola             800E         VARIABLE
+	quantidade_blocos_destruidos     800F         VARIABLE
+	Line1                            8010           STRING
+	Line2                            8060           STRING
+	Line3                            80B0           STRING
+	Line4                            8100           STRING
+	Line5                            8150           STRING
+	Line6                            81A0           STRING
+	Line7                            81F0           STRING
+	Line8                            8240           STRING
+	Line9                            8290           STRING
+	Line10                           82E0           STRING
+	Line11                           8330           STRING
+	Line12                           8380           STRING
+	Line13                           83D0           STRING
+	Line14                           8420           STRING
+	Line15                           8470           STRING
+	Line16                           84C0           STRING
+	Line17                           8510           STRING
+	Line18                           8560           STRING
+	Line19                           85B0           STRING
+	Line20                           8600           STRING
+	Line21                           8650           STRING
+	Line22                           86A0           STRING
+	Line23                           86F0           STRING
+	Line24                           8740           STRING
+	bola                             8791         VARIABLE
+	vidas                            8792         VARIABLE
+	posicao_indice_vidas             8793         VARIABLE
 	INT0                             FE00         VARIABLE
 	INT1                             FE01         VARIABLE
 	INT15                            FE0F         VARIABLE
@@ -75,17 +79,27 @@
 	Printbarra                       006C            LABEL
 	loop_Printbarra                  0082            LABEL
 	fim_loop_Printbarra              008D            LABEL
-	Printmenu                        0099            LABEL
-	loop_Printmenu                   00A7            LABEL
-	LOOP_NEXT_LINE                   00B4            LABEL
-	fim_loop_Printmenu               00BE            LABEL
-	SetTimer                         00C5            LABEL
-	Timer                            00D0            LABEL
-	fim_if_correcao_esquerda_barra   0104            LABEL
-	fim_if_colisao_esquerda_barra    0107            LABEL
-	fim_if_correcao_direita_barra    011A            LABEL
-	fim_if_colisao_direita_barra     011D            LABEL
-	fim_if_colisao_barra             0136            LABEL
-	Main                             0159            LABEL
-	Cycle                            0176            LABEL
-	Halt                             0177            LABEL
+	Limpabarra                       0099            LABEL
+	loop_Limpabarra                  00A6            LABEL
+	fim_loop_Limpabarra              00B1            LABEL
+	Printmenu                        00B6            LABEL
+	loop_Printmenu                   00C4            LABEL
+	LOOP_NEXT_LINE                   00D1            LABEL
+	fim_loop_Printmenu               00DB            LABEL
+	SetTimer                         00E2            LABEL
+	Timer                            00ED            LABEL
+	fim_if_colisao_bloco_vertical    012F            LABEL
+	fim_if_colisao_bloco_horizontal   0160            LABEL
+	fim_if_colisao_parede_esquerda   016D            LABEL
+	fim_if_colisao_parede_direita    017A            LABEL
+	fim_if_colisao_teto              0187            LABEL
+	continua_jogo                    0194            LABEL
+	fim_if_colisao_chao              01B0            LABEL
+	fim_if_correcao_esquerda_barra   01D3            LABEL
+	fim_if_colisao_esquerda_barra    01E4            LABEL
+	fim_if_correcao_direita_barra    01F6            LABEL
+	fim_if_colisao_direita_barra     0207            LABEL
+	fim_if_colisao_barra             0222            LABEL
+	Main                             0245            LABEL
+	Cycle                            027A            LABEL
+	Halt                             027B            LABEL
