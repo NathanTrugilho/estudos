@@ -23,7 +23,7 @@
 	COLUNA_COMECO_BARRA              0022         CONSTANT
 	COORDENADA_INICIAL_X_BOLA        0028         CONSTANT
 	COORDENADA_INICIAL_Y_BOLA        0011         CONSTANT
-	TEMPO_DE_ATUALIZACAO             0005         CONSTANT
+	TEMPO_DE_ATUALIZACAO             0003         CONSTANT
 	tamanho_pedaco_barra             8000         VARIABLE
 	posicao_inicio_barra             8001         VARIABLE
 	posicao_fim_barra                8002         VARIABLE
@@ -90,16 +90,17 @@
 	Timer                            00ED            LABEL
 	fim_if_colisao_bloco_vertical    012F            LABEL
 	fim_if_colisao_bloco_horizontal   0160            LABEL
-	fim_if_colisao_parede_esquerda   016D            LABEL
-	fim_if_colisao_parede_direita    017A            LABEL
-	fim_if_colisao_teto              0187            LABEL
-	continua_jogo                    0194            LABEL
-	fim_if_colisao_chao              01B0            LABEL
-	fim_if_correcao_esquerda_barra   01D3            LABEL
-	fim_if_colisao_esquerda_barra    01E4            LABEL
-	fim_if_correcao_direita_barra    01F6            LABEL
-	fim_if_colisao_direita_barra     0207            LABEL
-	fim_if_colisao_barra             0222            LABEL
-	Main                             0245            LABEL
-	Cycle                            027A            LABEL
-	Halt                             027B            LABEL
+	fim_if_colisao_bloco_diagonal    01A0            LABEL
+	fim_if_colisao_parede_esquerda   01B7            LABEL
+	fim_if_colisao_parede_direita    01CE            LABEL
+	fim_if_colisao_teto              01E5            LABEL
+	continua_jogo                    01F2            LABEL
+	fim_if_colisao_chao              020E            LABEL
+	fim_if_correcao_esquerda_barra   0231            LABEL
+	fim_if_colisao_esquerda_barra    0242            LABEL
+	fim_if_correcao_direita_barra    0254            LABEL
+	fim_if_colisao_direita_barra     0265            LABEL
+	fim_if_colisao_barra             0280            LABEL
+	Main                             02A3            LABEL
+	Cycle                            02D8            LABEL
+	Halt                             02D9            LABEL

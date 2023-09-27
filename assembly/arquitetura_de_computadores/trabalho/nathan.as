@@ -36,7 +36,7 @@ POSICAO_LINHA_BARRA         EQU     21d
 COLUNA_COMECO_BARRA         EQU     34d
 COORDENADA_INICIAL_X_BOLA   EQU     40d
 COORDENADA_INICIAL_Y_BOLA   EQU     17d
-TEMPO_DE_ATUALIZACAO        EQU     5d
+TEMPO_DE_ATUALIZACAO        EQU     3d
 
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de variaveis
@@ -71,19 +71,19 @@ quantidade_blocos_destruidos       WORD    0d
 Line1           STR     '+==================+===========================================+===============+'
 Line2           STR     '| Bolas: O - O - O |               Nathan                      | Pontos: 00000 |'
 Line3           STR     '+==================+===========================================+===============+'
-Line4           STR     '|                                                                              |'
-Line5           STR     '|                                                                              |'
-Line6           STR     '|                                                                              |'
-Line7           STR     '|          ##########################################################          |'
-Line8           STR     '|          ##########################################################          |'
-Line9           STR     '|          ##########################################################          |'
-Line10          STR     '|          ##########################################################          |'
-Line11          STR     '|          ##########################################################          |'
-Line12          STR     '|          ##########################################################          |'
-Line13          STR     '|          ##########################################################          |'  
-Line14          STR     '|          ##########################################################          |'
-Line15          STR     '|          ##########################################################          |'
-Line16          STR     '|          ##########################################################          |'
+Line4           STR     '|                                                  ############################|'
+Line5           STR     '|                                                  ##  # # # # # #           ##|'
+Line6           STR     '|                                                  ## # # #                  ##|'
+Line7           STR     '|                                                  ##  # # #        ##       ##|'
+Line8           STR     '|                                                  ## # # # # #     ##    #  ##|'
+Line9           STR     '|                                                  ###################      ###|'
+Line10          STR     '|                                                              #####         ##|'
+Line11          STR     '|        ###########################################################         ##|'
+Line12          STR     '|        ###########################################################         ##|'
+Line13          STR     '|        ##           #                                                      ##|'  ;78 espaços
+Line14          STR     '|        ##                                                                  ##|'
+Line15          STR     '|        ##    ################################################################|'
+Line16          STR     '|        ##   #################################################################|'
 Line17          STR     '|                                                                              |'
 Line18          STR     '|                                                                              |'
 Line19          STR     '|                                                                              |'
@@ -452,40 +452,99 @@ Timer:      PUSH R1
             fim_if_colisao_bloco_horizontal: NOP
 
 
+    ; Colisões diagonais --------------------------------------------------------
 
+            MOV R1, QTD_CARACTERES_LINHA
+            MOV R2, M[posicao_atual_Y_bola]
+            MUL R1, R2
+            MOV R1, M[posicao_atual_X_bola]
+            ADD R1, R2
+            MOV R2, Line1
+            ADD R1, R2
+            MOV R2, M[R1]
+
+            CMP R2, '#'
+            JMP.NZ fim_if_colisao_bloco_diagonal
+
+            INC M[quantidade_blocos_destruidos]
+            MOV M[R1], R0
+            MOV R2, M[posicao_atual_Y_bola]
+            MOV R1, M[posicao_atual_X_bola]
+            MOV M[argumento_pos_linha_Printchar], R2
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            CALL Printchar
+
+            MOV R2, M[movimentacao_X_bola]
+            MOV R1, -1
+            MUL R2, R1
+            MOV M[movimentacao_X_bola], R1
+
+            MOV R2, M[movimentacao_Y_bola]
+            MOV R1, -1
+            MUL R2, R1
+            MOV M[movimentacao_Y_bola], R1
+
+            MOV R2, M[posicao_anterior_X_bola]
+            MOV M[posicao_atual_X_bola], R2
+            ADD R2, M[movimentacao_X_bola]
+            MOV M[posicao_atual_X_bola], R2
+
+            MOV R2, M[posicao_anterior_Y_bola]
+            MOV M[posicao_atual_Y_bola], R2
+            ADD R2, M[movimentacao_Y_bola]
+            MOV M[posicao_atual_Y_bola], R2
+
+            fim_if_colisao_bloco_diagonal: NOP
 
 ; Detecta a colisão com as bordas ******************************************
 
     ; Borda esquerda -------------------------------------------------------
 
             MOV R1, M[posicao_atual_X_bola]
-            ADD R1, M[movimentacao_X_bola]
             CMP R1, 0
             JMP.NZ fim_if_colisao_parede_esquerda
             MOV R1, 1
             MOV M[movimentacao_X_bola], R1
+            MOV R1, M[posicao_anterior_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            MOV M[posicao_atual_X_bola], R1
+            MOV R1, M[posicao_anterior_Y_bola]
+            ADD R1, M[movimentacao_Y_bola]
+            MOV M[posicao_atual_Y_bola], R1
 
             fim_if_colisao_parede_esquerda: NOP
     
     ; Borda direita -------------------------------------------------------
 
             MOV R1, M[posicao_atual_X_bola]
-            ADD R1, M[movimentacao_X_bola]
             CMP R1, 79
             JMP.NZ fim_if_colisao_parede_direita
             MOV R1, -1
             MOV M[movimentacao_X_bola], R1
+            MOV R1, M[posicao_anterior_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            MOV M[posicao_atual_X_bola], R1
+            MOV R1, M[posicao_anterior_Y_bola]
+            ADD R1, M[movimentacao_Y_bola]
+            MOV M[posicao_atual_Y_bola], R1
 
             fim_if_colisao_parede_direita: NOP
 
     ; Teto ----------------------------------------------------------------
                                                                 
             MOV R1, M[posicao_atual_Y_bola]                      
-            ADD R1, M[movimentacao_Y_bola]
             CMP R1, 2
             JMP.NZ fim_if_colisao_teto
             MOV R1, 1
             MOV M[movimentacao_Y_bola], R1
+            MOV R1, M[posicao_anterior_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            MOV M[posicao_atual_X_bola], R1
+            MOV R1, M[posicao_anterior_Y_bola]
+            ADD R1, M[movimentacao_Y_bola]
+            MOV M[posicao_atual_Y_bola], R1
 
             fim_if_colisao_teto: NOP
 
