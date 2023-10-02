@@ -67,3 +67,4 @@ create table contem
 	foreign key (idPedido) references pedido (idPedido),
 	foreign key (idItem) references itemConsumo (idItem)
 );
+

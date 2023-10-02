@@ -63,7 +63,7 @@ CREATE TABLE `contem` (
 
 LOCK TABLES `contem` WRITE;
 /*!40000 ALTER TABLE `contem` DISABLE KEYS */;
-INSERT INTO `contem` VALUES (1,5,2),(1,9,1),(1,10,1),(2,1,1),(2,15,2),(3,8,1);
+INSERT INTO `contem` VALUES (1,5,2),(1,9,1),(1,10,1),(2,1,1),(2,15,2),(3,8,1),(4,1,2),(4,12,3),(5,11,2);
 /*!40000 ALTER TABLE `contem` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -174,7 +174,7 @@ CREATE TABLE `pedido` (
 
 LOCK TABLES `pedido` WRITE;
 /*!40000 ALTER TABLE `pedido` DISABLE KEYS */;
-INSERT INTO `pedido` VALUES (1,1,1,'2023-02-05',NULL,'aprovado'),(2,2,1,'2023-02-05',NULL,'aprovado'),(3,4,2,'2023-02-05',NULL,'aprovado');
+INSERT INTO `pedido` VALUES (1,1,1,'2023-02-05',NULL,'aprovado'),(2,2,1,'2023-02-05',NULL,'aprovado'),(3,4,2,'2023-02-05',NULL,'aprovado'),(4,5,3,'2023-03-11',NULL,'aprovado'),(5,10,9,'2023-02-09',NULL,'aprovado');
 /*!40000 ALTER TABLE `pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -211,4 +211,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-23 20:40:45
+-- Dump completed on 2023-10-02  8:35:43
