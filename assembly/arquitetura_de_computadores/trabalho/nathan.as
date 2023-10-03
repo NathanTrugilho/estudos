@@ -36,7 +36,11 @@ POSICAO_LINHA_BARRA         EQU     21d
 COLUNA_COMECO_BARRA         EQU     34d
 COORDENADA_INICIAL_X_BOLA   EQU     40d
 COORDENADA_INICIAL_Y_BOLA   EQU     17d
-TEMPO_DE_ATUALIZACAO        EQU     3d
+TEMPO_DE_ATUALIZACAO        EQU      3d
+LINHA_LABEL_MENU            EQU      1d
+BASE_ASCII                  EQU     48d
+COLUNA_MENSAGEM_FIM_JOGO    EQU     28d
+LINHA_MENSAGEM_FIM_JOGO     EQU     18d
 
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de variaveis
@@ -59,6 +63,10 @@ argumento_pos_linha_Printchar      WORD    0d
 argumento_pos_coluna_Printchar     WORD    0d
 argumento_char_Printchar           WORD    0d
 
+argumento_pos_linha_Printstr       WORD    0d
+argumento_pos_coluna_Printstr      WORD    0d
+argumento_string_Printstr          WORD    0d
+
 movimentacao_X_bola                WORD    0d
 movimentacao_Y_bola                WORD    1d
 posicao_anterior_X_bola            WORD    0d
@@ -68,9 +76,9 @@ posicao_atual_Y_bola               WORD    COORDENADA_INICIAL_Y_BOLA
     
 quantidade_blocos_destruidos       WORD    0d
 
-Line1           STR     '+==================+===========================================+===============+'
-Line2           STR     '| Bolas: O - O - O |               Nathan                      | Pontos: 00000 |'
-Line3           STR     '+==================+===========================================+===============+'
+Line1           STR     '+==================+=============================================+=============+'
+Line2           STR     '| Bolas: O - O - O |      O melhor trabalho de arquitetura       | Pontos: 000 |'
+Line3           STR     '+==================+=============================================+=============+'
 Line4           STR     '|                                                  ############################|'
 Line5           STR     '|                                                  ##  # # # # # #           ##|'
 Line6           STR     '|                                                  ## # # #                  ##|'
@@ -96,6 +104,8 @@ Line24          STR     '\______________________________________________________
 bola                    WORD    'O'   
 vidas                   WORD    3d
 posicao_indice_vidas    WORD    17d
+mensagem_derrota        STR     'Voce perdeu, Parabens! :D', FIM_TEXTO
+mensagem_vitoria        STR     'Que legal, voce ganhou!', FIM_TEXTO
 
 ;------------------------------------------------------------------------------
 ; ZONA III: definicao de tabela de interrupções
@@ -223,6 +233,44 @@ Printchar:  PUSH R1
             RET
 
 ;-----------------------------------------------------------------------------------------
+; Função Printstr - Imprime uma string
+;
+; Recebe como parâmetros: a posição da linha guardada em "argumento_pos_linha_Printstr"
+;                         a posição da coluna guardada em "argumento_pos_coluna_Printstr"
+;                         o endereço da string guardado em "argumento_string_Printstr"
+;-----------------------------------------------------------------------------------------
+
+Printstr:   PUSH R1
+            PUSH R2
+            PUSH R3
+
+            MOV R2, M[argumento_pos_linha_Printstr]
+            SHL R2, 8d
+            MOV R1, M[argumento_pos_coluna_Printstr] 
+            OR R2, R1
+            MOV R3, M[argumento_string_Printstr] 
+            MOV R1, M[R3]
+
+            loop_Printstr: NOP
+
+            CMP R1, FIM_TEXTO
+            JMP.Z fim_loop_Printstr
+            MOV M[CURSOR], R2
+            MOV M[IO_WRITE], R1
+            INC R2
+            INC R3
+            MOV R1, M[R3]
+            JMP loop_Printstr
+
+            fim_loop_Printstr: NOP
+
+            POP R3
+            POP R2
+            POP R1
+            RET
+
+
+;-----------------------------------------------------------------------------------------
 ; Função Printbarra - Imprime a barra com a posição especificada pelas 
 ; constantes "POSICAO_LINHA_BARRA", "COLUNA_COMECO_BARRA" com o tamanho definido 
 ; em "TAMANHO_BARRA"
@@ -241,9 +289,10 @@ Printbarra: PUSH R1
             MOV M[posicao_inicio_barra], R1
             ADD R1, TAMANHO_BARRA
             DEC R1
-            MOV M[posicao_fim_barra], R1         
-        ;______________________________________________
+            MOV M[posicao_fim_barra], R1  
 
+        ; Faz a impressão 
+        
             MOV R3, POSICAO_LINHA_BARRA
             SHL R3, 8d
             MOV R2, COLUNA_COMECO_BARRA
@@ -558,9 +607,33 @@ Timer:      PUSH R1
             CMP R0, M[vidas]
             JMP.NZ continua_jogo
 
+            MOV R1, LINHA_MENSAGEM_FIM_JOGO
+            MOV M[argumento_pos_linha_Printstr], R1
+            MOV R2, COLUNA_MENSAGEM_FIM_JOGO
+            MOV M[argumento_pos_coluna_Printstr], R2
+            MOV R1, mensagem_derrota
+            MOV M[argumento_string_Printstr], R1
+            Call Printstr
+            JMP Halt
+
             continua_jogo: NOP
 
             DEC M[vidas]
+
+        ; Apaga as as vidas (bolas) mostradas ao display
+
+            MOV R1, LINHA_LABEL_MENU
+            MOV M[argumento_pos_linha_Printchar], R1
+            MOV R2, M[posicao_indice_vidas]
+            MOV M[argumento_pos_coluna_Printchar], R2
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            Call Printchar
+
+            MOV R1, 4 ; O número quatro representa a quantidade de espaços que separa uma bola do índice da outra
+            SUB M[posicao_indice_vidas], R1
+
+        ; Reinicia o jogo após usar uma vida
 
             MOV M[movimentacao_X_bola], R0
             MOV R1, COORDENADA_INICIAL_Y_BOLA
@@ -722,25 +795,25 @@ Main:			ENI
 
 ;           Comeca o jogo ********************************
 
-                CALL SetTimer           
+                CALL SetTimer          
 
-               MOV R1, QTD_CARACTERES_LINHA
-               MOV R2, 15
-               MUL R1, R2
-               MOV R1, 10
-               ADD R1, R2
-               MOV R2, Line1
-               ADD R1, R2
-               MOV R1, M[R1]
+                MOV R1, QTD_CARACTERES_LINHA
+                MOV R2, 15
+                MUL R1, R2
+                MOV R1, 10
+                ADD R1, R2
+                MOV R2, Line1
+                ADD R1, R2
+                MOV R1, M[R1]
 
-               MOV R1, QTD_CARACTERES_LINHA
-               MOV R2, 15
-               MUL R1, R2
-               MOV R1, 11
-               ADD R1, R2
-               MOV R2, Line1
-               ADD R1, R2
-               MOV R1, M[R1]
+                MOV R1, QTD_CARACTERES_LINHA
+                MOV R2, 15
+                MUL R1, R2
+                MOV R1, 11
+                ADD R1, R2
+                MOV R2, Line1
+                ADD R1, R2
+                MOV R1, M[R1]
 
 
 Cycle: 			BR		Cycle	
