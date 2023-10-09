@@ -17,17 +17,21 @@
 	COL_POSITION                     0000         CONSTANT
 	ROW_SHIFT                        0008         CONSTANT
 	COLUMN_SHIFT                     0008         CONSTANT
-	TAMANHO_BARRA                    0009         CONSTANT
-	QTD_CARACTERES_LINHA             0050         CONSTANT
+	TAMANHO_BARRA                    000C         CONSTANT
 	POSICAO_LINHA_BARRA              0015         CONSTANT
 	COLUNA_COMECO_BARRA              0022         CONSTANT
+	QUANTIDADE_CARACTERES_LINHA      0050         CONSTANT
+	LINHA_LABEL_MENU                 0001         CONSTANT
 	COORDENADA_INICIAL_X_BOLA        0028         CONSTANT
 	COORDENADA_INICIAL_Y_BOLA        0011         CONSTANT
 	TEMPO_DE_ATUALIZACAO             0003         CONSTANT
-	LINHA_LABEL_MENU                 0001         CONSTANT
 	BASE_ASCII                       0030         CONSTANT
+	QUANTIDADE_BLOCOS                0002         CONSTANT
 	COLUNA_MENSAGEM_FIM_JOGO         001C         CONSTANT
 	LINHA_MENSAGEM_FIM_JOGO          0012         CONSTANT
+	COLUNA_CENTENA_PONTOS            004B         CONSTANT
+	COLUNA_DEZENA_PONTOS             004C         CONSTANT
+	COLUNA_UNIDADE_PONTOS            004D         CONSTANT
 	tamanho_pedaco_barra             8000         VARIABLE
 	posicao_inicio_barra             8001         VARIABLE
 	posicao_fim_barra                8002         VARIABLE
@@ -73,7 +77,7 @@
 	Line24                           8743           STRING
 	bola                             8794         VARIABLE
 	vidas                            8795         VARIABLE
-	posicao_indice_vidas             8796         VARIABLE
+	posicao_mostrador_vidas          8796         VARIABLE
 	mensagem_derrota                 8797           STRING
 	mensagem_vitoria                 87B1           STRING
 	INT0                             FE00         VARIABLE
@@ -100,19 +104,20 @@
 	fim_loop_Printmenu               00FA            LABEL
 	SetTimer                         0101            LABEL
 	Timer                            010C            LABEL
-	fim_if_colisao_bloco_vertical    014E            LABEL
-	fim_if_colisao_bloco_horizontal   017F            LABEL
-	fim_if_colisao_bloco_diagonal    01BF            LABEL
-	fim_if_colisao_parede_esquerda   01D6            LABEL
-	fim_if_colisao_parede_direita    01ED            LABEL
-	fim_if_colisao_teto              0204            LABEL
-	continua_jogo                    0221            LABEL
-	fim_if_colisao_chao              024F            LABEL
-	fim_if_correcao_esquerda_barra   0272            LABEL
-	fim_if_colisao_esquerda_barra    0283            LABEL
-	fim_if_correcao_direita_barra    0295            LABEL
-	fim_if_colisao_direita_barra     02A6            LABEL
-	fim_if_colisao_barra             02C1            LABEL
-	Main                             02E4            LABEL
-	Cycle                            0319            LABEL
-	Halt                             031A            LABEL
+	fim_if_colisao_bloco_vertical    017B            LABEL
+	fim_if_colisao_bloco_horizontal   01D9            LABEL
+	fim_if_colisao_bloco_diagonal    0246            LABEL
+	continua_jogo_not_ganhador       025E            LABEL
+	fim_if_colisao_parede_esquerda   0275            LABEL
+	fim_if_colisao_parede_direita    028C            LABEL
+	fim_if_colisao_teto              02A3            LABEL
+	continua_jogo                    02C0            LABEL
+	fim_if_colisao_chao              02EE            LABEL
+	fim_if_correcao_esquerda_barra   0311            LABEL
+	fim_if_colisao_esquerda_barra    0322            LABEL
+	fim_if_correcao_direita_barra    0334            LABEL
+	fim_if_colisao_direita_barra     0345            LABEL
+	fim_if_colisao_barra             0360            LABEL
+	Main                             0383            LABEL
+	Cycle                            03A0            LABEL
+	Halt                             03A1            LABEL

@@ -13,6 +13,7 @@
 ;         Pseudo-instrucao : EQU
 ;------------------------------------------------------------------------------
 ; Constantes do Sistema
+
 CR              EQU     0Ah
 TIMER_COUNTER   EQU     FFF6h
 ACTIVATE_TIMER  EQU     FFF7h
@@ -31,16 +32,27 @@ COLUMN_SHIFT	EQU		8d
 ; Constantes do jogo
 
 TAMANHO_BARRA               EQU     12d ;Deve ser um múltiplo de 3
-QTD_CARACTERES_LINHA        EQU     80d
 POSICAO_LINHA_BARRA         EQU     21d
 COLUNA_COMECO_BARRA         EQU     34d
+
+QUANTIDADE_CARACTERES_LINHA EQU     80d
+LINHA_LABEL_MENU            EQU      1d
+
 COORDENADA_INICIAL_X_BOLA   EQU     40d
 COORDENADA_INICIAL_Y_BOLA   EQU     17d
+
 TEMPO_DE_ATUALIZACAO        EQU      3d
-LINHA_LABEL_MENU            EQU      1d
+
 BASE_ASCII                  EQU     48d
+
+QUANTIDADE_BLOCOS           EQU      2d
+
 COLUNA_MENSAGEM_FIM_JOGO    EQU     28d
 LINHA_MENSAGEM_FIM_JOGO     EQU     18d
+
+COLUNA_CENTENA_PONTOS       EQU     75d
+COLUNA_DEZENA_PONTOS        EQU     76d
+COLUNA_UNIDADE_PONTOS       EQU     77d
 
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de variaveis
@@ -79,20 +91,20 @@ quantidade_blocos_destruidos       WORD    0d
 Line1           STR     '+==================+=============================================+=============+'
 Line2           STR     '| Bolas: O - O - O |      O melhor trabalho de arquitetura       | Pontos: 000 |'
 Line3           STR     '+==================+=============================================+=============+'
-Line4           STR     '|                                                  ############################|'
-Line5           STR     '|                                                  ##  # # # # # #           ##|'
-Line6           STR     '|                                                  ## # # #                  ##|'
-Line7           STR     '|                                                  ##  # # #        ##       ##|'
-Line8           STR     '|                                                  ## # # # # #     ##    #  ##|'
-Line9           STR     '|                                                  ###################      ###|'
-Line10          STR     '|                                                              #####         ##|'
-Line11          STR     '|        ###########################################################         ##|'
-Line12          STR     '|        ###########################################################         ##|'
-Line13          STR     '|        ##           #                                                      ##|'  ;78 espaços
-Line14          STR     '|        ##                                                                  ##|'
-Line15          STR     '|        ##    ################################################################|'
-Line16          STR     '|        ##   #################################################################|'
-Line17          STR     '|                                                                              |'
+Line4           STR     '|                                                                              |'
+Line5           STR     '|                                                                              |'
+Line6           STR     '|                                                                              |'
+Line7           STR     '|                                                                              |'
+Line8           STR     '|                                                                              |'
+Line9           STR     '|                                                                              |'
+Line10          STR     '|                                                                              |'
+Line11          STR     '|                                                                              |'
+Line12          STR     '|##############################################################################|'
+Line13          STR     '|##############################################################################|'  ;78 espaços
+Line14          STR     '|##############################################################################|'
+Line15          STR     '|##############################################################################|'
+Line16          STR     '|##############################################################################|'
+Line17          STR     '|##############################################################################|'
 Line18          STR     '|                                                                              |'
 Line19          STR     '|                                                                              |'
 Line20          STR     '|                                                                              |'
@@ -101,11 +113,13 @@ Line22          STR     '|                                                      
 Line23          STR     '|                                                                              |'
 Line24          STR     '\______________________________________________________________________________/', FIM_TEXTO
 
-bola                    WORD    'O'   
-vidas                   WORD    3d
-posicao_indice_vidas    WORD    17d
-mensagem_derrota        STR     'Voce perdeu, Parabens! :D', FIM_TEXTO
-mensagem_vitoria        STR     'Que legal, voce ganhou!', FIM_TEXTO
+bola                     WORD    'O'   
+vidas                    WORD    3d
+posicao_mostrador_vidas  WORD    17d
+
+mensagem_derrota         STR     'Voce perdeu, parabens! :D', FIM_TEXTO
+mensagem_vitoria         STR     'Voce ganhou, que legal!', FIM_TEXTO
+
 
 ;------------------------------------------------------------------------------
 ; ZONA III: definicao de tabela de interrupções
@@ -430,7 +444,7 @@ Timer:      PUSH R1
 
     ; Colisões verticais --------------------------------------------------------
 
-            MOV R1, QTD_CARACTERES_LINHA
+            MOV R1, QUANTIDADE_CARACTERES_LINHA
             MOV R2, M[posicao_atual_Y_bola]
             MUL R1, R2
             MOV R1, M[posicao_anterior_X_bola]
@@ -461,12 +475,42 @@ Timer:      PUSH R1
             MOV M[posicao_atual_Y_bola], R2
             ADD R2, M[movimentacao_Y_bola]
             MOV M[posicao_atual_Y_bola], R2
+        
+        ; Calcula e atualiza o mostrador de pontos ----------------------------------
 
+            MOV R1, LINHA_LABEL_MENU
+            MOV M[argumento_pos_linha_Printchar], R1
+            MOV R1, COLUNA_CENTENA_PONTOS
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R2, M[quantidade_blocos_destruidos]
+
+            MOV R1, 100
+            DIV R2, R1
+            ADD R2, BASE_ASCII
+            MOV M[argumento_char_Printchar], R2
+            CALL Printchar
+
+            MOV R2, COLUNA_DEZENA_PONTOS
+            MOV M[argumento_pos_coluna_Printchar], R2
+            MOV R2, 10
+            DIV R1, R2
+            ADD R1, BASE_ASCII
+            MOV M[argumento_char_Printchar], R1
+            CALL Printchar
+
+            MOV R1, COLUNA_UNIDADE_PONTOS
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R1, 1
+            DIV R2, R1
+            ADD R2, BASE_ASCII
+            MOV M[argumento_char_Printchar], R2
+            CALL Printchar
+            
             fim_if_colisao_bloco_vertical: NOP
 
     ; Colisões horizontais --------------------------------------------------------
 
-            MOV R1, QTD_CARACTERES_LINHA
+            MOV R1, QUANTIDADE_CARACTERES_LINHA
             MOV R2, M[posicao_anterior_Y_bola]
             MUL R1, R2
             MOV R1, M[posicao_atual_X_bola]
@@ -498,12 +542,42 @@ Timer:      PUSH R1
             ADD R2, M[movimentacao_X_bola]
             MOV M[posicao_atual_X_bola], R2
 
+        ; Calcula e atualiza o mostrador de pontos ------------------------------
+
+            MOV R1, LINHA_LABEL_MENU
+            MOV M[argumento_pos_linha_Printchar], R1
+            MOV R1, COLUNA_CENTENA_PONTOS
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R2, M[quantidade_blocos_destruidos]
+
+            MOV R1, 100
+            DIV R2, R1
+            ADD R2, BASE_ASCII
+            MOV M[argumento_char_Printchar], R2
+            CALL Printchar
+
+            MOV R2, COLUNA_DEZENA_PONTOS
+            MOV M[argumento_pos_coluna_Printchar], R2
+            MOV R2, 10
+            DIV R1, R2
+            ADD R1, BASE_ASCII
+            MOV M[argumento_char_Printchar], R1
+            CALL Printchar
+
+            MOV R1, COLUNA_UNIDADE_PONTOS
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R1, 1
+            DIV R2, R1
+            ADD R2, BASE_ASCII
+            MOV M[argumento_char_Printchar], R2
+            CALL Printchar
+            
             fim_if_colisao_bloco_horizontal: NOP
 
 
     ; Colisões diagonais --------------------------------------------------------
 
-            MOV R1, QTD_CARACTERES_LINHA
+            MOV R1, QUANTIDADE_CARACTERES_LINHA
             MOV R2, M[posicao_atual_Y_bola]
             MUL R1, R2
             MOV R1, M[posicao_atual_X_bola]
@@ -545,7 +619,55 @@ Timer:      PUSH R1
             ADD R2, M[movimentacao_Y_bola]
             MOV M[posicao_atual_Y_bola], R2
 
+        ; Calcula e atualiza o mostrador de pontos ----------------------
+
+            MOV R1, LINHA_LABEL_MENU
+            MOV M[argumento_pos_linha_Printchar], R1
+            MOV R1, COLUNA_CENTENA_PONTOS
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R2, M[quantidade_blocos_destruidos]
+
+            MOV R1, 100
+            DIV R2, R1
+            ADD R2, BASE_ASCII
+            MOV M[argumento_char_Printchar], R2
+            CALL Printchar
+
+            MOV R2, COLUNA_DEZENA_PONTOS
+            MOV M[argumento_pos_coluna_Printchar], R2
+            MOV R2, 10
+            DIV R1, R2
+            ADD R1, BASE_ASCII
+            MOV M[argumento_char_Printchar], R1
+            CALL Printchar
+
+            MOV R1, COLUNA_UNIDADE_PONTOS
+            MOV M[argumento_pos_coluna_Printchar], R1
+            MOV R1, 1
+            DIV R2, R1
+            ADD R2, BASE_ASCII
+            MOV M[argumento_char_Printchar], R2
+            CALL Printchar
+            
             fim_if_colisao_bloco_diagonal: NOP
+
+        ; Verifica se o jogador destruiu todos os blocos e, por isso, ganhou ----
+
+            MOV R1, QUANTIDADE_BLOCOS
+            MOV R2, M[quantidade_blocos_destruidos]
+            CMP R2, R1
+            JMP.NZ continua_jogo_not_ganhador
+
+            MOV R1, LINHA_MENSAGEM_FIM_JOGO
+            MOV M[argumento_pos_linha_Printstr], R1
+            MOV R2, COLUNA_MENSAGEM_FIM_JOGO
+            MOV M[argumento_pos_coluna_Printstr], R2
+            MOV R1, mensagem_vitoria
+            MOV M[argumento_string_Printstr], R1
+            CALL Printstr
+            JMP Halt
+
+            continua_jogo_not_ganhador: NOP
 
 ; Detecta a colisão com as bordas ******************************************
 
@@ -613,7 +735,7 @@ Timer:      PUSH R1
             MOV M[argumento_pos_coluna_Printstr], R2
             MOV R1, mensagem_derrota
             MOV M[argumento_string_Printstr], R1
-            Call Printstr
+            CALL Printstr
             JMP Halt
 
             continua_jogo: NOP
@@ -624,14 +746,14 @@ Timer:      PUSH R1
 
             MOV R1, LINHA_LABEL_MENU
             MOV M[argumento_pos_linha_Printchar], R1
-            MOV R2, M[posicao_indice_vidas]
+            MOV R2, M[posicao_mostrador_vidas]
             MOV M[argumento_pos_coluna_Printchar], R2
             MOV R1, ' '
             MOV M[argumento_char_Printchar], R1
-            Call Printchar
+            CALL Printchar
 
             MOV R1, 4 ; O número quatro representa a quantidade de espaços que separa uma bola do índice da outra
-            SUB M[posicao_indice_vidas], R1
+            SUB M[posicao_mostrador_vidas], R1
 
         ; Reinicia o jogo após usar uma vida
 
@@ -796,25 +918,6 @@ Main:			ENI
 ;           Comeca o jogo ********************************
 
                 CALL SetTimer          
-
-                MOV R1, QTD_CARACTERES_LINHA
-                MOV R2, 15
-                MUL R1, R2
-                MOV R1, 10
-                ADD R1, R2
-                MOV R2, Line1
-                ADD R1, R2
-                MOV R1, M[R1]
-
-                MOV R1, QTD_CARACTERES_LINHA
-                MOV R2, 15
-                MUL R1, R2
-                MOV R1, 11
-                ADD R1, R2
-                MOV R2, Line1
-                ADD R1, R2
-                MOV R1, M[R1]
-
 
 Cycle: 			BR		Cycle	
 Halt:           BR		Halt
