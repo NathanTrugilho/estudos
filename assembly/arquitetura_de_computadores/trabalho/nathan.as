@@ -2,8 +2,7 @@
 ; ZONA LIXEIRA: partes de códigos que não sei se vou usar em algum momento, mas
 ; vou salvá-los aqui caso necessário no futuro 
 ;-------------------------------------------------------------------------------
-;
-;********************************************************************************
+
 ;------------------------------------------------------------------------------
 ; ZONA 0: compilar e rodar programa
 ; Linux:        ./p3as-linux nathan.as; java -jar p3sim.jar nathan.exe
@@ -30,29 +29,28 @@ ROW_SHIFT		EQU		8d
 COLUMN_SHIFT	EQU		8d
 ;------------------------------------------------------------------------------
 ; Constantes do jogo
-
-TAMANHO_BARRA               EQU     12d ;Deve ser um múltiplo de 3
-POSICAO_LINHA_BARRA         EQU     21d
-COLUNA_COMECO_BARRA         EQU     34d
-
-QUANTIDADE_CARACTERES_LINHA EQU     80d
-LINHA_LABEL_MENU            EQU      1d
-
-COORDENADA_INICIAL_X_BOLA   EQU     40d
-COORDENADA_INICIAL_Y_BOLA   EQU     17d
-
-TEMPO_DE_ATUALIZACAO        EQU      3d
+;------------------------------------------------------------------------------
 
 BASE_ASCII                  EQU     48d
 
-QUANTIDADE_BLOCOS           EQU      2d
-
+COLUNA_CENTENA_PONTOS       EQU     75d
+COLUNA_COMECO_BARRA         EQU     34d
+COLUNA_DEZENA_PONTOS        EQU     76d
 COLUNA_MENSAGEM_FIM_JOGO    EQU     28d
+COLUNA_UNIDADE_PONTOS       EQU     77d
+COORDENADA_INICIAL_X_BOLA   EQU     40d
+COORDENADA_INICIAL_Y_BOLA   EQU     17d
+
+LINHA_LABEL_MENU            EQU      1d
 LINHA_MENSAGEM_FIM_JOGO     EQU     18d
 
-COLUNA_CENTENA_PONTOS       EQU     75d
-COLUNA_DEZENA_PONTOS        EQU     76d
-COLUNA_UNIDADE_PONTOS       EQU     77d
+POSICAO_LINHA_BARRA         EQU     21d
+
+QUANTIDADE_BLOCOS           EQU      4d
+QUANTIDADE_CARACTERES_LINHA EQU     80d
+
+TAMANHO_BARRA               EQU     12d     ;Deve ser um múltiplo de 3
+TEMPO_DE_ATUALIZACAO        EQU      1d
 
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de variaveis
@@ -62,31 +60,37 @@ COLUNA_UNIDADE_PONTOS       EQU     77d
 ;------------------------------------------------------------------------------
 
                 ORIG    8000h
-tamanho_pedaco_barra               WORD    0d
-posicao_inicio_barra               WORD    0d
-posicao_fim_barra                  WORD    0d
-
-argumento_pos_linha_Printbarra     WORD    0d
-argumento_pos_coluna_Printbarra    WORD    0d
-
-argumento_string_Printmenu         WORD    0d
-
-argumento_pos_linha_Printchar      WORD    0d
-argumento_pos_coluna_Printchar     WORD    0d
 argumento_char_Printchar           WORD    0d
-
-argumento_pos_linha_Printstr       WORD    0d
+argumento_pos_coluna_Printbarra    WORD    0d
+argumento_pos_coluna_Printchar     WORD    0d
 argumento_pos_coluna_Printstr      WORD    0d
+argumento_pos_linha_Printbarra     WORD    0d
+argumento_pos_linha_Printchar      WORD    0d
+argumento_pos_linha_Printstr       WORD    0d
+argumento_string_Printmenu         WORD    0d
 argumento_string_Printstr          WORD    0d
 
+bola                               WORD    'O'   
+
+mensagem_derrota                   STR     'Voce perdeu! Shame on you ', FIM_TEXTO
+mensagem_vitoria                   STR     'Voce ganhou, que legal! :P', FIM_TEXTO
 movimentacao_X_bola                WORD    0d
 movimentacao_Y_bola                WORD    1d
+
 posicao_anterior_X_bola            WORD    0d
 posicao_anterior_Y_bola            WORD    0d
 posicao_atual_X_bola               WORD    COORDENADA_INICIAL_X_BOLA
 posicao_atual_Y_bola               WORD    COORDENADA_INICIAL_Y_BOLA 
+posicao_fim_barra                  WORD    0d
+posicao_inicio_barra               WORD    0d
+posicao_mostrador_vidas            WORD    17d
     
 quantidade_blocos_destruidos       WORD    0d
+
+tamanho_pedaco_barra               WORD    0d
+
+vidas                    WORD    3d
+
 
 Line1           STR     '+==================+=============================================+=============+'
 Line2           STR     '| Bolas: O - O - O |      O melhor trabalho de arquitetura       | Pontos: 000 |'
@@ -99,12 +103,12 @@ Line8           STR     '|                                                      
 Line9           STR     '|                                                                              |'
 Line10          STR     '|                                                                              |'
 Line11          STR     '|                                                                              |'
-Line12          STR     '|##############################################################################|'
-Line13          STR     '|##############################################################################|'  ;78 espaços
-Line14          STR     '|##############################################################################|'
-Line15          STR     '|##############################################################################|'
-Line16          STR     '|##############################################################################|'
-Line17          STR     '|##############################################################################|'
+Line12          STR     '|                                                                              |'
+Line13          STR     '|                                                                              |'  ;78 espaços
+Line14          STR     '|                                                                              |'
+Line15          STR     '|                                                                              |'
+Line16          STR     '|                                                                              |'
+Line17          STR     '|                                                                              |'
 Line18          STR     '|                                                                              |'
 Line19          STR     '|                                                                              |'
 Line20          STR     '|                                                                              |'
@@ -113,20 +117,14 @@ Line22          STR     '|                                                      
 Line23          STR     '|                                                                              |'
 Line24          STR     '\______________________________________________________________________________/', FIM_TEXTO
 
-bola                     WORD    'O'   
-vidas                    WORD    3d
-posicao_mostrador_vidas  WORD    17d
-
-mensagem_derrota         STR     'Voce perdeu, parabens! :D', FIM_TEXTO
-mensagem_vitoria         STR     'Voce ganhou, que legal!', FIM_TEXTO
-
-
 ;------------------------------------------------------------------------------
 ; ZONA III: definicao de tabela de interrupções
 ;------------------------------------------------------------------------------
                 ORIG    FE00h
 INT0            WORD    movimenta_barra_esquerda
 INT1            WORD    movimenta_barra_direita
+INT2            WORD    movimento_longo_barra_esquerda
+INT3            WORD    movimento_longo_barra_direita
 
                 ORIG    FE0Fh
 INT15           WORD    Timer
@@ -141,22 +139,20 @@ INT15           WORD    Timer
 ;------------------------------------------------------------------------------
 ; Função esqueleto
 ;------------------------------------------------------------------------------
+;
+;Esqueleto:  PUSH R1
+;            PUSH R2
+;
+;            POP R2
+;            POP R1
+;            RET
 
-Esqueleto:  PUSH R1
-            PUSH R2
-            PUSH R3
-
-            POP R3
-            POP R2
-            POP R1
-            RET
 ;-----------------------------------------------------------------------------------------
 ; Função movimenta_barra_esquerda - O nome é bem óbvio, não preciso explicar
 ;                                  Usar o caractere 'a' em IVAD0 no simulador
 ;-----------------------------------------------------------------------------------------
 
 movimenta_barra_esquerda:  PUSH R1
-            PUSH R2
             
             MOV R1, M[posicao_inicio_barra]
             CMP R1, 1
@@ -165,24 +161,25 @@ movimenta_barra_esquerda:  PUSH R1
             MOV R1, POSICAO_LINHA_BARRA
             MOV M[argumento_pos_linha_Printchar], R1
 
+        ; Parte mais à direita da barra -----------------------------
+
             MOV R1, M[posicao_fim_barra]
             MOV M[argumento_pos_coluna_Printchar], R1
             DEC M[posicao_fim_barra]
-
             MOV R1, ' '
             MOV M[argumento_char_Printchar], R1
             CALL Printchar
 
+        ; Parte mais à esquerda da barra ----------------------------
+
             DEC M[posicao_inicio_barra]
             MOV R1, M[posicao_inicio_barra]
             MOV M[argumento_pos_coluna_Printchar], R1
-
             MOV R1, '='
             MOV M[argumento_char_Printchar], R1
             CALL Printchar
 
             final_if_movimenta_barra_esquerda: NOP
-            POP R2
             POP R1
             RTI
 
@@ -192,7 +189,6 @@ movimenta_barra_esquerda:  PUSH R1
 ;-----------------------------------------------------------------------------------------
 
 movimenta_barra_direita:  PUSH R1
-            PUSH R2
             
             MOV R1, M[posicao_fim_barra]
             CMP R1, 78
@@ -201,25 +197,138 @@ movimenta_barra_direita:  PUSH R1
             MOV R1, POSICAO_LINHA_BARRA
             MOV M[argumento_pos_linha_Printchar], R1
 
+        ; Parte mais à esquerda da barra ----------------------------
+
             MOV R1, M[posicao_inicio_barra]
             INC M[posicao_inicio_barra]
             MOV M[argumento_pos_coluna_Printchar], R1
-
             MOV R1, ' '
             MOV M[argumento_char_Printchar], R1
             CALL Printchar
+
+        ; Parte mais à direita da barra -----------------------------
 
             MOV R1, M[posicao_fim_barra]
             INC M[posicao_fim_barra]
             MOV M[argumento_pos_coluna_Printchar], R1
             INC M[argumento_pos_coluna_Printchar]
-
             MOV R1, '='
             MOV M[argumento_char_Printchar], R1
             CALL Printchar
 
             final_if_movimenta_barra_direita: NOP
-            POP R2
+            POP R1
+            RTI
+
+;-----------------------------------------------------------------------------------------
+; função movimento_longo_barra_esquerda - Movimenta 3 colunas por vez
+;                                         Usar o caractere 'q' em IVAD2 no simulador
+;-----------------------------------------------------------------------------------------
+
+movimento_longo_barra_esquerda: PUSH R1
+            
+            MOV R1, M[posicao_inicio_barra]
+            CMP R1, 3
+            JMP.NP final_if_movimento_longo_barra_esquerda
+
+            MOV R1, POSICAO_LINHA_BARRA
+            MOV M[argumento_pos_linha_Printchar], R1
+
+        ; Parte mais à direita da barra -----------------------------
+
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            MOV R1, M[posicao_fim_barra]
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+            DEC R1
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+            DEC R1
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+
+        ; Parte mais à esquerda da barra ----------------------------
+
+            MOV R1, '='
+            MOV M[argumento_char_Printchar], R1
+            MOV R1, M[posicao_inicio_barra]
+            DEC R1
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+            DEC R1
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+            DEC R1
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+
+        ; Ajusta as novas posições do incício e do fim da barra -----
+
+            MOV R1, M[posicao_fim_barra]
+            SUB R1, 3
+            MOV M[posicao_fim_barra], R1
+            MOV R1, M[posicao_inicio_barra]
+            SUB R1, 3
+            MOV M[posicao_inicio_barra], R1
+
+            final_if_movimento_longo_barra_esquerda: NOP
+            POP R1
+            RTI
+
+;-----------------------------------------------------------------------------------------
+; função movimento_longo_barra_direita - Movimenta 3 colunas por vez
+;                                        Usar o caractere 'e' em IVAD3 no simulador
+;-----------------------------------------------------------------------------------------
+
+movimento_longo_barra_direita: PUSH R1
+            MOV R1, M[posicao_fim_barra]
+            CMP R1, 76
+            JMP.NN final_if_movimento_longo_barra_direita
+
+            MOV R1, POSICAO_LINHA_BARRA
+            MOV M[argumento_pos_linha_Printchar], R1
+
+        ; Parte mais à direita da barra -----------------------------
+
+            MOV R1, '='
+            MOV M[argumento_char_Printchar], R1
+            MOV R1, M[posicao_fim_barra]
+            INC R1
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+            INC R1
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+            INC R1
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+
+        ; Parte mais à esquerda da barra ----------------------------
+
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            MOV R1, M[posicao_inicio_barra]
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+            INC R1
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+            INC R1
+            MOV M[argumento_pos_coluna_Printchar], R1
+            CALL Printchar
+
+        ; Ajusta as novas posições do incício e do fim da barra -----
+
+            MOV R1, M[posicao_fim_barra]
+            ADD R1, 3
+            MOV M[posicao_fim_barra], R1
+
+            MOV R1, M[posicao_inicio_barra]
+            ADD R1, 3
+            MOV M[posicao_inicio_barra], R1
+
+            final_if_movimento_longo_barra_direita: NOP
             POP R1
             RTI
 
@@ -265,9 +374,7 @@ Printstr:   PUSH R1
             MOV R3, M[argumento_string_Printstr] 
             MOV R1, M[R3]
 
-            loop_Printstr: NOP
-
-            CMP R1, FIM_TEXTO
+            loop_Printstr:  CMP R1, FIM_TEXTO
             JMP.Z fim_loop_Printstr
             MOV M[CURSOR], R2
             MOV M[IO_WRITE], R1
@@ -283,10 +390,9 @@ Printstr:   PUSH R1
             POP R1
             RET
 
-
 ;-----------------------------------------------------------------------------------------
 ; Função Printbarra - Imprime a barra com a posição especificada pelas 
-; constantes "POSICAO_LINHA_BARRA", "COLUNA_COMECO_BARRA" com o tamanho definido 
+; constantes "POSICAO_LINHA_BARRA", "COLUNA_COMECO_BARRA" e com o tamanho definido 
 ; em "TAMANHO_BARRA"
 ;
 ; Recebe como parâmetros: a posição da linha guardada em "argumento_pos_linha_Printbarra"
@@ -297,7 +403,7 @@ Printbarra: PUSH R1
             PUSH R2
             PUSH R3
 
-        ;Define a posição do inicio e fim da barra
+        ;Define a posição do inicio e fim da barra -----------
 
             MOV R1, COLUNA_COMECO_BARRA
             MOV M[posicao_inicio_barra], R1
@@ -305,7 +411,7 @@ Printbarra: PUSH R1
             DEC R1
             MOV M[posicao_fim_barra], R1  
 
-        ; Faz a impressão 
+        ; Faz a impressão ------------------------------------
         
             MOV R3, POSICAO_LINHA_BARRA
             SHL R3, 8d
@@ -333,11 +439,15 @@ Printbarra: PUSH R1
             POP R1
             RET
 ;------------------------------------------------------------------------------------------------
-; Função Limpabarra - nome óbvio, não é mesmo ?
+; Função Limpabarra - nome óbvio, não é mesmo? Mesmo assim, serve para limpar a barra da tela   
+; quando o jogador perde uma vida.
 ;------------------------------------------------------------------------------------------------
+
 Limpabarra: PUSH R1
             PUSH R2
             PUSH R3
+
+        ; Calcula a posição do cursor --------------------------
 
             MOV R3, POSICAO_LINHA_BARRA
             SHL R3, 8d
@@ -346,6 +456,8 @@ Limpabarra: PUSH R1
             MOV R2, TAMANHO_BARRA
             MOV R1, ' '
 
+        ; Imprime espaços para limpar a barra ------------------
+        
             loop_Limpabarra: CMP R2, R0
             JMP.Z fim_loop_Limpabarra
             MOV M[CURSOR], R3
