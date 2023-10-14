@@ -28,7 +28,7 @@
 	LINHA_LABEL_MENU                 0001         CONSTANT
 	LINHA_MENSAGEM_FIM_JOGO          0012         CONSTANT
 	POSICAO_LINHA_BARRA              0015         CONSTANT
-	QUANTIDADE_BLOCOS                0004         CONSTANT
+	QUANTIDADE_BLOCOS                0120         CONSTANT
 	QUANTIDADE_CARACTERES_LINHA      0050         CONSTANT
 	TAMANHO_BARRA                    000C         CONSTANT
 	TEMPO_DE_ATUALIZACAO             0001         CONSTANT
@@ -100,29 +100,30 @@
 	Printbarra                       0105            LABEL
 	loop_Printbarra                  011B            LABEL
 	fim_loop_Printbarra              0126            LABEL
-	Limpabarra                       0132            LABEL
-	loop_Limpabarra                  013F            LABEL
-	fim_loop_Limpabarra              014A            LABEL
-	Printmenu                        014F            LABEL
-	loop_Printmenu                   015D            LABEL
-	LOOP_NEXT_LINE                   016A            LABEL
-	fim_loop_Printmenu               0174            LABEL
-	SetTimer                         017B            LABEL
-	Timer                            0186            LABEL
-	fim_if_colisao_bloco_vertical    01F5            LABEL
-	fim_if_colisao_bloco_horizontal   0253            LABEL
-	fim_if_colisao_bloco_diagonal    02C0            LABEL
-	continua_jogo_not_ganhador       02D8            LABEL
-	fim_if_colisao_parede_esquerda   02EF            LABEL
-	fim_if_colisao_parede_direita    0306            LABEL
-	fim_if_colisao_teto              031D            LABEL
-	continua_jogo                    033A            LABEL
-	fim_if_colisao_chao              0368            LABEL
-	fim_if_correcao_esquerda_barra   038B            LABEL
-	fim_if_colisao_esquerda_barra    039C            LABEL
-	fim_if_correcao_direita_barra    03AE            LABEL
-	fim_if_colisao_direita_barra     03BF            LABEL
-	fim_if_colisao_barra             03DA            LABEL
-	Main                             03FD            LABEL
-	Cycle                            041A            LABEL
-	Halt                             041B            LABEL
+	Limpabarra                       0133            LABEL
+	loop_Limpabarra                  0140            LABEL
+	fim_loop_Limpabarra              014B            LABEL
+	Printmenu                        0150            LABEL
+	loop_Printmenu                   015E            LABEL
+	proxima_linha_Printmenu          016B            LABEL
+	fim_loop_Printmenu               0175            LABEL
+	DisplayPontos                    017C            LABEL
+	SetTimer                         01AE            LABEL
+	Timer                            01B9            LABEL
+	fim_if_colisao_bloco_vertical    01FD            LABEL
+	fim_if_colisao_bloco_horizontal   0230            LABEL
+	fim_if_colisao_bloco_diagonal    0272            LABEL
+	continua_jogo_not_ganhador       028A            LABEL
+	fim_if_correcao_esquerda_barra   02AD            LABEL
+	fim_if_colisao_esquerda_barra    02BE            LABEL
+	fim_if_correcao_direita_barra    02D0            LABEL
+	fim_if_colisao_direita_barra     02E1            LABEL
+	fim_if_colisao_barra             02FC            LABEL
+	fim_if_colisao_parede_esquerda   0313            LABEL
+	fim_if_colisao_parede_direita    032A            LABEL
+	fim_if_colisao_teto              0341            LABEL
+	continua_jogo                    035E            LABEL
+	fim_if_colisao_chao              038C            LABEL
+	Main                             03AF            LABEL
+	Cycle                            03CC            LABEL
+	Halt                             03CD            LABEL

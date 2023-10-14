@@ -31,26 +31,26 @@ COLUMN_SHIFT	EQU		8d
 ; Constantes do jogo
 ;------------------------------------------------------------------------------
 
-BASE_ASCII                  EQU     48d
-
-COLUNA_CENTENA_PONTOS       EQU     75d
-COLUNA_COMECO_BARRA         EQU     34d
-COLUNA_DEZENA_PONTOS        EQU     76d
-COLUNA_MENSAGEM_FIM_JOGO    EQU     28d
-COLUNA_UNIDADE_PONTOS       EQU     77d
-COORDENADA_INICIAL_X_BOLA   EQU     40d
-COORDENADA_INICIAL_Y_BOLA   EQU     17d
-
-LINHA_LABEL_MENU            EQU      1d
-LINHA_MENSAGEM_FIM_JOGO     EQU     18d
-
-POSICAO_LINHA_BARRA         EQU     21d
-
-QUANTIDADE_BLOCOS           EQU      4d
-QUANTIDADE_CARACTERES_LINHA EQU     80d
-
-TAMANHO_BARRA               EQU     12d     ;Deve ser um múltiplo de 3
-TEMPO_DE_ATUALIZACAO        EQU      1d
+BASE_ASCII                   EQU     48d
+ 
+COLUNA_CENTENA_PONTOS        EQU     75d
+COLUNA_COMECO_BARRA          EQU     34d
+COLUNA_DEZENA_PONTOS         EQU     76d
+COLUNA_MENSAGEM_FIM_JOGO     EQU     28d
+COLUNA_UNIDADE_PONTOS        EQU     77d
+COORDENADA_INICIAL_X_BOLA    EQU     40d
+COORDENADA_INICIAL_Y_BOLA    EQU     17d
+ 
+LINHA_LABEL_MENU             EQU      1d
+LINHA_MENSAGEM_FIM_JOGO      EQU     18d
+ 
+POSICAO_LINHA_BARRA          EQU     21d
+ 
+QUANTIDADE_BLOCOS            EQU     278d
+QUANTIDADE_CARACTERES_LINHA  EQU     80d
+ 
+TAMANHO_BARRA                EQU     12d     ;Deve ser um múltiplo de 3
+TEMPO_DE_ATUALIZACAO         EQU      1d
 
 ;------------------------------------------------------------------------------
 ; ZONA II: definicao de variaveis
@@ -89,26 +89,25 @@ quantidade_blocos_destruidos       WORD    0d
 
 tamanho_pedaco_barra               WORD    0d
 
-vidas                    WORD    3d
-
+vidas                              WORD    3d
 
 Line1           STR     '+==================+=============================================+=============+'
 Line2           STR     '| Bolas: O - O - O |      O melhor trabalho de arquitetura       | Pontos: 000 |'
 Line3           STR     '+==================+=============================================+=============+'
 Line4           STR     '|                                                                              |'
-Line5           STR     '|                                                                              |'
-Line6           STR     '|                                                                              |'
-Line7           STR     '|                                                                              |'
-Line8           STR     '|                                                                              |'
-Line9           STR     '|                                                                              |'
-Line10          STR     '|                                                                              |'
-Line11          STR     '|                                                                              |'
-Line12          STR     '|                                                                              |'
-Line13          STR     '|                                                                              |'  ;78 espaços
-Line14          STR     '|                                                                              |'
-Line15          STR     '|                                                                              |'
-Line16          STR     '|                                                                              |'
-Line17          STR     '|                                                                              |'
+Line5           STR     '|                      #####                        #####                      |'
+Line6           STR     '|                           ##                    ##                           |'
+Line7           STR     '|                           ########################                           |'
+Line8           STR     '|                         ############################                         |'
+Line9           STR     '|                       ########  ############  ########                       |'
+Line10          STR     '|                       ########  ############  ########                       |'
+Line11          STR     '|                     ####################################                     |'  ;78 espaços
+Line12          STR     '|                     ############   ######   ############                     |'
+Line13          STR     '|                     ############     ##     ############                     |'
+Line14          STR     '|                     ##   ##########################   ##                     |'
+Line15          STR     '|                     ##   ##                      ##   ##                     |'
+Line16          STR     '|                     ##   #####                #####   ##                     |'
+Line17          STR     '|                            ######          ######                            |'
 Line18          STR     '|                                                                              |'
 Line19          STR     '|                                                                              |'
 Line20          STR     '|                                                                              |'
@@ -146,14 +145,16 @@ INT15           WORD    Timer
 ;            POP R2
 ;            POP R1
 ;            RET
-
+;
 ;-----------------------------------------------------------------------------------------
 ; Função movimenta_barra_esquerda - O nome é bem óbvio, não preciso explicar
 ;                                  Usar o caractere 'a' em IVAD0 no simulador
 ;-----------------------------------------------------------------------------------------
 
 movimenta_barra_esquerda:  PUSH R1
-            
+        
+        ; Faz a verificação para movimentar -------------------------
+
             MOV R1, M[posicao_inicio_barra]
             CMP R1, 1
             JMP.Z final_if_movimenta_barra_esquerda
@@ -189,7 +190,9 @@ movimenta_barra_esquerda:  PUSH R1
 ;-----------------------------------------------------------------------------------------
 
 movimenta_barra_direita:  PUSH R1
-            
+        
+        ; Faz a verificação para movimentar -------------------------
+
             MOV R1, M[posicao_fim_barra]
             CMP R1, 78
             JMP.Z final_if_movimenta_barra_direita
@@ -226,7 +229,9 @@ movimenta_barra_direita:  PUSH R1
 ;-----------------------------------------------------------------------------------------
 
 movimento_longo_barra_esquerda: PUSH R1
-            
+        
+        ; Faz a verificação para movimentar -------------------------
+
             MOV R1, M[posicao_inicio_barra]
             CMP R1, 3
             JMP.NP final_if_movimento_longo_barra_esquerda
@@ -282,6 +287,9 @@ movimento_longo_barra_esquerda: PUSH R1
 ;-----------------------------------------------------------------------------------------
 
 movimento_longo_barra_direita: PUSH R1
+
+        ; Faz a verificação para movimentar -------------------------
+
             MOV R1, M[posicao_fim_barra]
             CMP R1, 76
             JMP.NN final_if_movimento_longo_barra_direita
@@ -403,7 +411,7 @@ Printbarra: PUSH R1
             PUSH R2
             PUSH R3
 
-        ;Define a posição do inicio e fim da barra -----------
+        ; Define a posição do inicio e fim da barra -----------
 
             MOV R1, COLUNA_COMECO_BARRA
             MOV M[posicao_inicio_barra], R1
@@ -411,8 +419,8 @@ Printbarra: PUSH R1
             DEC R1
             MOV M[posicao_fim_barra], R1  
 
-        ; Faz a impressão ------------------------------------
-        
+        ; Calcula a posição de impressão ----------------------
+
             MOV R3, POSICAO_LINHA_BARRA
             SHL R3, 8d
             MOV R2, COLUNA_COMECO_BARRA
@@ -420,6 +428,8 @@ Printbarra: PUSH R1
             MOV R2, TAMANHO_BARRA
             MOV R1, '='
 
+        ; Faz a impressão -------------------------------------
+        
             loop_Printbarra: CMP R2, R0
             JMP.Z fim_loop_Printbarra
             MOV M[CURSOR], R3
@@ -432,6 +442,7 @@ Printbarra: PUSH R1
             MOV R1, TAMANHO_BARRA
             MOV R2, 3
             DIV R1, R2
+            DEC R1
             MOV M[tamanho_pedaco_barra], R1
 
             POP R3
@@ -439,8 +450,8 @@ Printbarra: PUSH R1
             POP R1
             RET
 ;------------------------------------------------------------------------------------------------
-; Função Limpabarra - nome óbvio, não é mesmo? Mesmo assim, serve para limpar a barra da tela   
-; quando o jogador perde uma vida.
+; Função Limpabarra - nome óbvio, não é mesmo? De qualquer jeito, serve para limpar a barra da   
+; tela quando o jogador perde uma vida.
 ;------------------------------------------------------------------------------------------------
 
 Limpabarra: PUSH R1
@@ -489,20 +500,26 @@ Printmenu:  PUSH R1
             MOV R1, M[R5] 
             MOV R2, FIM_TEXTO
             MOV R3, R0 ; POSIÇÃO DE PRINT  
-            MOV R4, R0
+            MOV R4, R0 ; CONTADOR
+
+        ; Contador para saber quando deve-se pular para a próxima linha -----------
 
             loop_Printmenu: CMP R1, R2
             JMP.Z fim_loop_Printmenu
             CMP R4, 80
 
-            JMP.NZ LOOP_NEXT_LINE       ; SE FOR ZERO, DEVE PASSAR PARA A PRÓXIMA LINHA
+        ; Faz os ajustes necessários quando vou para a próxima linha --------------
+
+            JMP.NZ proxima_linha_Printmenu   ; if zero, next line
             SUB R3, R4
             MOV R4, 1
             SHL R4, 8
             ADD R3, R4
             MOV R4, R0
+            proxima_linha_Printmenu: MOV M[CURSOR], R3
 
-            LOOP_NEXT_LINE: MOV M[CURSOR], R3
+        ; Imprime o conteúdo ------------------------------------------------------
+
             MOV M[IO_WRITE], R1
             INC R3
             INC R4
@@ -518,6 +535,45 @@ Printmenu:  PUSH R1
             POP R2
             POP R1
             RET
+
+;-------------------------------------------------------------------------------
+; Função DisplayPontos - Função para atualizar o contador de pontos                    
+;-------------------------------------------------------------------------------
+
+DisplayPontos:  PUSH R1
+                PUSH R2
+
+                MOV R1, LINHA_LABEL_MENU
+                MOV M[argumento_pos_linha_Printchar], R1
+                MOV R1, COLUNA_CENTENA_PONTOS
+                MOV M[argumento_pos_coluna_Printchar], R1
+                MOV R2, M[quantidade_blocos_destruidos]
+
+                MOV R1, 100
+                DIV R2, R1
+                ADD R2, BASE_ASCII
+                MOV M[argumento_char_Printchar], R2
+                CALL Printchar
+
+                MOV R2, COLUNA_DEZENA_PONTOS
+                MOV M[argumento_pos_coluna_Printchar], R2
+                MOV R2, 10
+                DIV R1, R2
+                ADD R1, BASE_ASCII
+                MOV M[argumento_char_Printchar], R1
+                CALL Printchar
+
+                MOV R1, COLUNA_UNIDADE_PONTOS
+                MOV M[argumento_pos_coluna_Printchar], R1
+                MOV R1, 1
+                DIV R2, R1
+                ADD R2, BASE_ASCII
+                MOV M[argumento_char_Printchar], R2
+                CALL Printchar
+
+                POP R2
+                POP R1
+                RET
 
 ;-------------------------------------------------------------------------------
 ; Função SetTimer - Função que configura uma interrupção                     
@@ -588,35 +644,9 @@ Timer:      PUSH R1
             ADD R2, M[movimentacao_Y_bola]
             MOV M[posicao_atual_Y_bola], R2
         
-        ; Calcula e atualiza o mostrador de pontos ----------------------------------
+        ; Chama a função do mostrador de pontos ----------------------------------
 
-            MOV R1, LINHA_LABEL_MENU
-            MOV M[argumento_pos_linha_Printchar], R1
-            MOV R1, COLUNA_CENTENA_PONTOS
-            MOV M[argumento_pos_coluna_Printchar], R1
-            MOV R2, M[quantidade_blocos_destruidos]
-
-            MOV R1, 100
-            DIV R2, R1
-            ADD R2, BASE_ASCII
-            MOV M[argumento_char_Printchar], R2
-            CALL Printchar
-
-            MOV R2, COLUNA_DEZENA_PONTOS
-            MOV M[argumento_pos_coluna_Printchar], R2
-            MOV R2, 10
-            DIV R1, R2
-            ADD R1, BASE_ASCII
-            MOV M[argumento_char_Printchar], R1
-            CALL Printchar
-
-            MOV R1, COLUNA_UNIDADE_PONTOS
-            MOV M[argumento_pos_coluna_Printchar], R1
-            MOV R1, 1
-            DIV R2, R1
-            ADD R2, BASE_ASCII
-            MOV M[argumento_char_Printchar], R2
-            CALL Printchar
+            CALL DisplayPontos
             
             fim_if_colisao_bloco_vertical: NOP
 
@@ -654,38 +684,11 @@ Timer:      PUSH R1
             ADD R2, M[movimentacao_X_bola]
             MOV M[posicao_atual_X_bola], R2
 
-        ; Calcula e atualiza o mostrador de pontos ------------------------------
+        ; Chama a função do mostrador de pontos ----------------------------------
 
-            MOV R1, LINHA_LABEL_MENU
-            MOV M[argumento_pos_linha_Printchar], R1
-            MOV R1, COLUNA_CENTENA_PONTOS
-            MOV M[argumento_pos_coluna_Printchar], R1
-            MOV R2, M[quantidade_blocos_destruidos]
-
-            MOV R1, 100
-            DIV R2, R1
-            ADD R2, BASE_ASCII
-            MOV M[argumento_char_Printchar], R2
-            CALL Printchar
-
-            MOV R2, COLUNA_DEZENA_PONTOS
-            MOV M[argumento_pos_coluna_Printchar], R2
-            MOV R2, 10
-            DIV R1, R2
-            ADD R1, BASE_ASCII
-            MOV M[argumento_char_Printchar], R1
-            CALL Printchar
-
-            MOV R1, COLUNA_UNIDADE_PONTOS
-            MOV M[argumento_pos_coluna_Printchar], R1
-            MOV R1, 1
-            DIV R2, R1
-            ADD R2, BASE_ASCII
-            MOV M[argumento_char_Printchar], R2
-            CALL Printchar
+            CALL DisplayPontos
             
             fim_if_colisao_bloco_horizontal: NOP
-
 
     ; Colisões diagonais --------------------------------------------------------
 
@@ -731,39 +734,13 @@ Timer:      PUSH R1
             ADD R2, M[movimentacao_Y_bola]
             MOV M[posicao_atual_Y_bola], R2
 
-        ; Calcula e atualiza o mostrador de pontos ----------------------
+        ; Chama a função do mostrador de pontos ----------------------------------
 
-            MOV R1, LINHA_LABEL_MENU
-            MOV M[argumento_pos_linha_Printchar], R1
-            MOV R1, COLUNA_CENTENA_PONTOS
-            MOV M[argumento_pos_coluna_Printchar], R1
-            MOV R2, M[quantidade_blocos_destruidos]
-
-            MOV R1, 100
-            DIV R2, R1
-            ADD R2, BASE_ASCII
-            MOV M[argumento_char_Printchar], R2
-            CALL Printchar
-
-            MOV R2, COLUNA_DEZENA_PONTOS
-            MOV M[argumento_pos_coluna_Printchar], R2
-            MOV R2, 10
-            DIV R1, R2
-            ADD R1, BASE_ASCII
-            MOV M[argumento_char_Printchar], R1
-            CALL Printchar
-
-            MOV R1, COLUNA_UNIDADE_PONTOS
-            MOV M[argumento_pos_coluna_Printchar], R1
-            MOV R1, 1
-            DIV R2, R1
-            ADD R2, BASE_ASCII
-            MOV M[argumento_char_Printchar], R2
-            CALL Printchar
+            CALL DisplayPontos
             
             fim_if_colisao_bloco_diagonal: NOP
 
-        ; Verifica se o jogador destruiu todos os blocos e, por isso, ganhou ----
+        ; Verifica se o jogador destruiu todos os blocos e, por isso, ganhou -----
 
             MOV R1, QUANTIDADE_BLOCOS
             MOV R2, M[quantidade_blocos_destruidos]
@@ -780,111 +757,6 @@ Timer:      PUSH R1
             JMP Halt
 
             continua_jogo_not_ganhador: NOP
-
-; Detecta a colisão com as bordas ******************************************
-
-    ; Borda esquerda -------------------------------------------------------
-
-            MOV R1, M[posicao_atual_X_bola]
-            CMP R1, 0
-            JMP.NZ fim_if_colisao_parede_esquerda
-            MOV R1, 1
-            MOV M[movimentacao_X_bola], R1
-            MOV R1, M[posicao_anterior_X_bola]
-            ADD R1, M[movimentacao_X_bola]
-            MOV M[posicao_atual_X_bola], R1
-            MOV R1, M[posicao_anterior_Y_bola]
-            ADD R1, M[movimentacao_Y_bola]
-            MOV M[posicao_atual_Y_bola], R1
-
-            fim_if_colisao_parede_esquerda: NOP
-    
-    ; Borda direita -------------------------------------------------------
-
-            MOV R1, M[posicao_atual_X_bola]
-            CMP R1, 79
-            JMP.NZ fim_if_colisao_parede_direita
-            MOV R1, -1
-            MOV M[movimentacao_X_bola], R1
-            MOV R1, M[posicao_anterior_X_bola]
-            ADD R1, M[movimentacao_X_bola]
-            MOV M[posicao_atual_X_bola], R1
-            MOV R1, M[posicao_anterior_Y_bola]
-            ADD R1, M[movimentacao_Y_bola]
-            MOV M[posicao_atual_Y_bola], R1
-
-            fim_if_colisao_parede_direita: NOP
-
-    ; Teto ----------------------------------------------------------------
-                                                                
-            MOV R1, M[posicao_atual_Y_bola]                      
-            CMP R1, 2
-            JMP.NZ fim_if_colisao_teto
-            MOV R1, 1
-            MOV M[movimentacao_Y_bola], R1
-            MOV R1, M[posicao_anterior_X_bola]
-            ADD R1, M[movimentacao_X_bola]
-            MOV M[posicao_atual_X_bola], R1
-            MOV R1, M[posicao_anterior_Y_bola]
-            ADD R1, M[movimentacao_Y_bola]
-            MOV M[posicao_atual_Y_bola], R1
-
-            fim_if_colisao_teto: NOP
-
-    ; Chao --------------------------------------------------------------
-
-            MOV R1, M[posicao_atual_Y_bola]
-            ADD R1, M[movimentacao_Y_bola]
-            CMP R1, 24
-            JMP.NZ fim_if_colisao_chao
-
-            CMP R0, M[vidas]
-            JMP.NZ continua_jogo
-
-            MOV R1, LINHA_MENSAGEM_FIM_JOGO
-            MOV M[argumento_pos_linha_Printstr], R1
-            MOV R2, COLUNA_MENSAGEM_FIM_JOGO
-            MOV M[argumento_pos_coluna_Printstr], R2
-            MOV R1, mensagem_derrota
-            MOV M[argumento_string_Printstr], R1
-            CALL Printstr
-            JMP Halt
-
-            continua_jogo: NOP
-
-            DEC M[vidas]
-
-        ; Apaga as as vidas (bolas) mostradas ao display
-
-            MOV R1, LINHA_LABEL_MENU
-            MOV M[argumento_pos_linha_Printchar], R1
-            MOV R2, M[posicao_mostrador_vidas]
-            MOV M[argumento_pos_coluna_Printchar], R2
-            MOV R1, ' '
-            MOV M[argumento_char_Printchar], R1
-            CALL Printchar
-
-            MOV R1, 4 ; O número quatro representa a quantidade de espaços que separa uma bola do índice da outra
-            SUB M[posicao_mostrador_vidas], R1
-
-        ; Reinicia o jogo após usar uma vida
-
-            MOV M[movimentacao_X_bola], R0
-            MOV R1, COORDENADA_INICIAL_Y_BOLA
-            MOV M[posicao_atual_Y_bola], R1
-            MOV M[argumento_pos_linha_Printchar], R1 
-            MOV R1, COORDENADA_INICIAL_X_BOLA
-            MOV M[posicao_atual_X_bola], R1
-            MOV M[argumento_pos_coluna_Printchar], R1      
-            MOV R1, bola   
-            MOV R1, M[R1] 
-            MOV M[argumento_char_Printchar], R1   
-            CALL Printchar
-
-            CALL Limpabarra
-            CALL Printbarra
-
-            fim_if_colisao_chao: NOP
 
 ; Verifica se a bola bateu na barra e faz o cálculo de sua nova direção caso verdade ******
 
@@ -969,9 +841,116 @@ Timer:      PUSH R1
             ADD R2, M[movimentacao_Y_bola]
             MOV M[posicao_atual_Y_bola], R2
 
-        ; Caso não haja colisões, o código vem para cá ***********************
+        ; Caso não haja colisões, o código vem para cá ---------------------
         
             fim_if_colisao_barra: NOP
+
+; Detecta a colisão com as bordas ******************************************
+
+    ; Borda esquerda -------------------------------------------------------
+
+            MOV R1, M[posicao_atual_X_bola]
+            CMP R1, 0
+            JMP.NZ fim_if_colisao_parede_esquerda
+            MOV R1, 1
+            MOV M[movimentacao_X_bola], R1
+            MOV R1, M[posicao_anterior_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            MOV M[posicao_atual_X_bola], R1
+            MOV R1, M[posicao_anterior_Y_bola]
+            ADD R1, M[movimentacao_Y_bola]
+            MOV M[posicao_atual_Y_bola], R1
+
+            fim_if_colisao_parede_esquerda: NOP
+    
+    ; Borda direita -------------------------------------------------------
+
+            MOV R1, M[posicao_atual_X_bola]
+            CMP R1, 79
+            JMP.NZ fim_if_colisao_parede_direita
+            MOV R1, -1
+            MOV M[movimentacao_X_bola], R1
+            MOV R1, M[posicao_anterior_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            MOV M[posicao_atual_X_bola], R1
+            MOV R1, M[posicao_anterior_Y_bola]
+            ADD R1, M[movimentacao_Y_bola]
+            MOV M[posicao_atual_Y_bola], R1
+
+            fim_if_colisao_parede_direita: NOP
+
+    ; Teto ----------------------------------------------------------------
+                                                                
+            MOV R1, M[posicao_atual_Y_bola]                      
+            CMP R1, 2
+            JMP.NZ fim_if_colisao_teto
+            MOV R1, 1
+            MOV M[movimentacao_Y_bola], R1
+            MOV R1, M[posicao_anterior_X_bola]
+            ADD R1, M[movimentacao_X_bola]
+            MOV M[posicao_atual_X_bola], R1
+            MOV R1, M[posicao_anterior_Y_bola]
+            ADD R1, M[movimentacao_Y_bola]
+            MOV M[posicao_atual_Y_bola], R1
+
+            fim_if_colisao_teto: NOP
+
+    ; Chao --------------------------------------------------------------
+
+            MOV R1, M[posicao_atual_Y_bola]
+            ADD R1, M[movimentacao_Y_bola]
+            CMP R1, 24
+            JMP.NZ fim_if_colisao_chao
+
+            CMP R0, M[vidas]
+            JMP.NZ continua_jogo
+
+            MOV R1, LINHA_MENSAGEM_FIM_JOGO
+            MOV M[argumento_pos_linha_Printstr], R1
+            MOV R2, COLUNA_MENSAGEM_FIM_JOGO
+            MOV M[argumento_pos_coluna_Printstr], R2
+            MOV R1, mensagem_derrota
+            MOV M[argumento_string_Printstr], R1
+            CALL Printstr
+            JMP Halt
+
+            continua_jogo: NOP
+
+            DEC M[vidas]
+
+        ; Apaga as as vidas (bolas) mostradas ao display -----------------
+
+            MOV R1, LINHA_LABEL_MENU
+            MOV M[argumento_pos_linha_Printchar], R1
+            MOV R2, M[posicao_mostrador_vidas]
+            MOV M[argumento_pos_coluna_Printchar], R2
+            MOV R1, ' '
+            MOV M[argumento_char_Printchar], R1
+            CALL Printchar
+
+            MOV R1, 4 ; O número quatro representa a quantidade de espaços que separa uma bola do índice da outra
+            SUB M[posicao_mostrador_vidas], R1
+
+        ; Reinicia o jogo após usar uma vida -----------------------------
+
+            MOV M[movimentacao_X_bola], R0
+            MOV R1, COORDENADA_INICIAL_Y_BOLA
+            MOV M[posicao_atual_Y_bola], R1
+            MOV M[argumento_pos_linha_Printchar], R1 
+            MOV R1, COORDENADA_INICIAL_X_BOLA
+            MOV M[posicao_atual_X_bola], R1
+            MOV M[argumento_pos_coluna_Printchar], R1      
+            MOV R1, bola   
+            MOV R1, M[R1] 
+            MOV M[argumento_char_Printchar], R1   
+            CALL Printchar
+
+            CALL Limpabarra
+            CALL Printbarra
+
+            fim_if_colisao_chao: NOP
+
+
 
         ; Imprime na tela a nova direção da bola *****************************
 
