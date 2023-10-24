@@ -28,7 +28,7 @@
 	LINHA_LABEL_MENU                 0001         CONSTANT
 	LINHA_MENSAGEM_FIM_JOGO          0012         CONSTANT
 	POSICAO_LINHA_BARRA              0015         CONSTANT
-	QUANTIDADE_BLOCOS                0120         CONSTANT
+	QUANTIDADE_BLOCOS                0116         CONSTANT
 	QUANTIDADE_CARACTERES_LINHA      0050         CONSTANT
 	TAMANHO_BARRA                    000C         CONSTANT
 	TEMPO_DE_ATUALIZACAO             0001         CONSTANT
@@ -84,6 +84,7 @@
 	INT1                             FE01         VARIABLE
 	INT2                             FE02         VARIABLE
 	INT3                             FE03         VARIABLE
+	INT4                             FE04         VARIABLE
 	INT15                            FE0F         VARIABLE
 	movimenta_barra_esquerda         0002            LABEL
 	final_if_movimenta_barra_esquerda   0025            LABEL
@@ -124,6 +125,7 @@
 	fim_if_colisao_teto              0341            LABEL
 	continua_jogo                    035E            LABEL
 	fim_if_colisao_chao              038C            LABEL
-	Main                             03AF            LABEL
-	Cycle                            03CC            LABEL
-	Halt                             03CD            LABEL
+	StartGame                        03AF            LABEL
+	Main                             03B2            LABEL
+	Cycle                            03CD            LABEL
+	Halt                             03CE            LABEL

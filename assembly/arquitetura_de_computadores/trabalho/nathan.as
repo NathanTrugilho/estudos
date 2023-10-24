@@ -124,6 +124,7 @@ INT0            WORD    movimenta_barra_esquerda
 INT1            WORD    movimenta_barra_direita
 INT2            WORD    movimento_longo_barra_esquerda
 INT3            WORD    movimento_longo_barra_direita
+INT4            WORD    StartGame
 
                 ORIG    FE0Fh
 INT15           WORD    Timer
@@ -976,6 +977,12 @@ Timer:      PUSH R1
             POP R2
             POP R1
             RTI 
+            
+;------------------------------------------------------------------------------
+; StartGame - Começa o jogo
+;------------------------------------------------------------------------------
+StartGame:  CALL SetTimer
+            RTI
 
 ;------------------------------------------------------------------------------
 ; Função Main
@@ -1005,10 +1012,6 @@ Main:			ENI
 ;           Printa a barra *******************************
 
                 CALL Printbarra
-
-;           Comeca o jogo ********************************
-
-                CALL SetTimer          
 
 Cycle: 			BR		Cycle	
 Halt:           BR		Halt
