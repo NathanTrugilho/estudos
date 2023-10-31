@@ -35,7 +35,7 @@ CREATE TABLE `cliente` (
 
 LOCK TABLES `cliente` WRITE;
 /*!40000 ALTER TABLE `cliente` DISABLE KEYS */;
-INSERT INTO `cliente` VALUES (1,'Nathan'),(2,'Camila'),(3,'Babi'),(4,'Layla'),(5,'Messi'),(6,'Tiquinho'),(7,'Lucas'),(8,'Eduardo'),(9,'Segovia'),(10,'Adryelson');
+INSERT INTO `cliente` VALUES (1,'Nathan'),(2,'Camila'),(3,'Babi'),(4,'Layla'),(5,'Messi'),(6,'Tiquinho'),(7,'Lucas'),(8,'Eduardo'),(9,'Segovia'),(10,'Adryelson'),(11,'Giselle');
 /*!40000 ALTER TABLE `cliente` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -90,9 +90,24 @@ CREATE TABLE `itemConsumo` (
 
 LOCK TABLES `itemConsumo` WRITE;
 /*!40000 ALTER TABLE `itemConsumo` DISABLE KEYS */;
-INSERT INTO `itemConsumo` VALUES (1,'agua',2.00,'muito refrescante','bebida'),(2,'guaravita',3.00,'doce como mel','bebida'),(3,'coca-cola',6.50,'inimiga dos diabeticos','bebida'),(4,'suco de caju',9.99,'bom pra dor de barriga','bebida'),(5,'vinho',20.00,'para um jantar romantico','bebida'),(6,'suco de uva',9.99,'vinho para criancas','bebida'),(7,'cafe',4.00,'para quem vive cansado','bebida'),(8,'pizza',42.00,'nao pode faltar','massa'),(9,'macarrao',17.00,'amigo do marombeiro','massa'),(10,'lasanha',15.00,'bem recheada','massa'),(11,'nhoque',22.00,'amarelo como o sol','massa'),(12,'bolo de chocolate',5.00,'vem com morango','sobremesa'),(13,'pudim',14.00,'cheio de calda','sobremesa'),(14,'pave',14.00,'ou pra comer ?','sobremesa'),(15,'brownie',6.20,'vale cada moeda','sobremesa'),(16,'picole',1.50,'fica mais caro no verao','sobremesa');
+INSERT INTO `itemConsumo` VALUES (1,'agua',2.00,'muito refrescante','bebida'),(2,'guaravita',3.00,'doce como mel','bebida'),(3,'coca-cola',6.50,'inimiga dos diabeticos','bebida'),(4,'suco de caju',9.99,'bom pra dor de barriga','bebida'),(5,'vinho',20.00,'para um jantar romantico','bebida'),(6,'suco de uva',9.99,'vinho para criancas','bebida'),(7,'cafe',4.00,'para quem vive cansado','bebida'),(8,'pizza',42.00,'nao pode faltar','massa'),(9,'macarrao',17.00,'amigo do marombeiro','massa'),(10,'lasanha',15.00,'bem recheada','massa'),(11,'nhoque',22.00,'amarelo como o sol','massa'),(12,'bolo de chocolate',5.00,'vem com morango','sobremesa'),(13,'pudim',14.00,'cheio de calda','sobremesa'),(14,'pave',14.00,'ou pra comer ?','sobremesa'),(15,'brownie',6.20,'vale cada moeda','sobremesa'),(16,'picole',1.50,'fica mais caro no verao','sobremesa'),(17,'fandangos',5.00,'milho','comida');
 /*!40000 ALTER TABLE `itemConsumo` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `preco_novo_produto` AFTER INSERT ON `itemConsumo` FOR EACH ROW begin insert into cliente values(11, "Giselle") ; end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `mesa`
@@ -179,6 +194,19 @@ INSERT INTO `pedido` VALUES (1,1,1,'2023-02-05',NULL,'aprovado'),(2,2,1,'2023-02
 UNLOCK TABLES;
 
 --
+-- Temporary view structure for view `pedidosCliente`
+--
+
+DROP TABLE IF EXISTS `pedidosCliente`;
+/*!50001 DROP VIEW IF EXISTS `pedidosCliente`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `pedidosCliente` AS SELECT 
+ 1 AS `idPedido`,
+ 1 AS `nomeCliente`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `telCliente`
 --
 
@@ -201,6 +229,24 @@ LOCK TABLES `telCliente` WRITE;
 /*!40000 ALTER TABLE `telCliente` DISABLE KEYS */;
 /*!40000 ALTER TABLE `telCliente` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Final view structure for view `pedidosCliente`
+--
+
+/*!50001 DROP VIEW IF EXISTS `pedidosCliente`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `pedidosCliente` (`idPedido`,`nomeCliente`) AS select `pedido`.`idPedido` AS `idPedido`,`cliente`.`nomeCliente` AS `nomeCliente` from (`pedido` join `cliente` on((`pedido`.`idCliente` = `cliente`.`idCliente`))) where (`cliente`.`nomeCliente` = 'Nathan') */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -211,4 +257,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-10-02  8:35:43
+-- Dump completed on 2023-10-30  8:43:07
