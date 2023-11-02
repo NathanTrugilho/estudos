@@ -610,7 +610,15 @@ Timer:      PUSH R1
             MOV M[posicao_atual_Y_bola], R2
 
 ; Detecta a colisão com os blocos ******************************************
-
+;   
+;   #
+;   #
+;   # O
+;   #
+;
+;   O tipo de colisão (vertical, horizontal, diagonal) é dado pela verificação na memória com base nas    
+;   posições de memória (posicao_atual_X_bola/posicao_anterior_X_bola e posicao_atual_Y_bola/posicao_anterior_Y_bola)
+;
     ; Colisões verticais --------------------------------------------------------
 
             MOV R1, QUANTIDADE_CARACTERES_LINHA
