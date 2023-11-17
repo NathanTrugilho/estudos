@@ -1,17 +1,17 @@
-;-------------------------------------------------------------------------------
-; ZONA LIXEIRA: partes de códigos que não sei se vou usar em algum momento, mas
-; vou salvá-los aqui caso necessário no futuro 
-;-------------------------------------------------------------------------------
-
-;------------------------------------------------------------------------------
+;==============================================================================
 ; ZONA 0: compilar e rodar programa
 ; Linux:        ./p3as-linux nathan.as; java -jar p3sim.jar nathan.exe
 ; Windows:      .\p3as-win.exe .\nathan.as ; java -jar .\p3sim.jar .\nathan.exe
+;
+;           Lembrar de definir uma IVAD4 para iniciar o jogo !!!!!!!!
+;==============================================================================
+
 ;------------------------------------------------------------------------------
 ; ZONA I: Definicao de constantes
 ;         Pseudo-instrucao : EQU
 ;------------------------------------------------------------------------------
 ; Constantes do Sistema
+;------------------------------------------------------------------------------
 
 CR              EQU     0Ah
 TIMER_COUNTER   EQU     FFF6h
@@ -136,17 +136,7 @@ INT15           WORD    Timer
 ;------------------------------------------------------------------------------
                 ORIG    0000h
                 JMP     Main
-;------------------------------------------------------------------------------
-; Função esqueleto
-;------------------------------------------------------------------------------
-;
-;Esqueleto:  PUSH R1
-;            PUSH R2
-;
-;            POP R2
-;            POP R1
-;            RET
-;
+
 ;-----------------------------------------------------------------------------------------
 ; Função movimenta_barra_esquerda - O nome é bem óbvio, não preciso explicar
 ;                                  Usar o caractere 'a' em IVAD0 no simulador
@@ -450,6 +440,7 @@ Printbarra: PUSH R1
             POP R2
             POP R1
             RET
+
 ;------------------------------------------------------------------------------------------------
 ; Função Limpabarra - nome óbvio, não é mesmo? De qualquer jeito, serve para limpar a barra da   
 ; tela quando o jogador perde uma vida.
@@ -959,8 +950,6 @@ Timer:      PUSH R1
 
             fim_if_colisao_chao: NOP
 
-
-
         ; Imprime na tela a nova direção da bola *****************************
 
             MOV R1, M[posicao_atual_X_bola]
@@ -1002,11 +991,11 @@ Main:			ENI
 				MOV		R1, CURSOR_INIT		; We need to initialize the cursor 
 				MOV		M[ CURSOR ], R1		; with value CURSOR_INIT
                 
-;           Printa o menu ********************************
+          ; Printa o menu ---------------------------------
 
                 CALL Printmenu
                             
-;           Printa a bola ********************************
+          ; Printa a bola ---------------------------------
                 
                 MOV R1, COORDENADA_INICIAL_Y_BOLA
                 MOV M[argumento_pos_linha_Printchar], R1 
@@ -1017,7 +1006,7 @@ Main:			ENI
                 MOV M[argumento_char_Printchar], R1   
                 CALL Printchar
 
-;           Printa a barra *******************************
+          ; Printa a barra --------------------------------
 
                 CALL Printbarra
 
