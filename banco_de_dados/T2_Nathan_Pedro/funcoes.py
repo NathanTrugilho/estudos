@@ -12,7 +12,57 @@ def janela_login():
         [psg.Button("Sair", size=(12, 1), button_color=("white", "#333333"), key="sair", pad=((0, 0), (20, 15)))]
     ]
     return psg.Window("Login", layout_login, background_color="white", element_justification='c')
-    
+
+def janela_sistema_usuario():
+    psg.theme('Reddit')
+    layout_sistema_usuario = [
+        [psg.Text("Página de Compras",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30)))],
+        #[psg.Image('camisapreta.jpg',expand_x=True, expand_y=True ),psg.Text("Camisa preta")],
+        [psg.Text("Camisa",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["social preta","social branca","regata branca","regata estampada","camisa polo preta"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_camisa"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))],
+
+        [psg.Text("Camiseta",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["vermelha","verde","preta","azul","branca"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_camiseta"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))],
+        
+        [psg.Text("casaco",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["vermelho","branco","preto","verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_casaco"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))],
+
+        [psg.Text("cropped",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["Preta","Branca","Verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_cropped"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))],
+        
+        [psg.Text("calça",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["Preta","Branca","Verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_calça"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))],
+       
+        [psg.Text("bermuda",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["Preta","Branca","Verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_bermuda"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))],
+        
+        [psg.Text("saia",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["Preta","Branca","Verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_saia"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))],
+        
+        [psg.Text("tênis",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["Preta","Branca","Verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_tênis"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))],
+        
+        [psg.Text("sapato",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["Preta","Branca","Verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_sapato"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))],
+       
+        [psg.Text("sapatilha",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["Preta","Branca","Verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_sapatilha"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))]
+
+
+    ]
+    return psg.Window("Login de usuário", layout_sistema_usuario, background_color="white", element_justification='c')
+
+
 def janela_login_usuario():
     psg.theme('Reddit')
     layout_login_usuario = [
@@ -55,6 +105,11 @@ def sistema_atendente():
     layout_logado_atendente = [
         [psg.Text("Atendente",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30)))],
         [psg.Button("Resgitrar usuário", size=(20, 2), button_color=("White", "#2E8B57"), key="registrar_usuario_atendente", pad=((0, 0), (10, 10)))],
+        [psg.Text("Página de Compras",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30)))],
+        #[psg.Image('camisapreta.jpg',expand_x=True, expand_y=True ),psg.Text("Camisa preta")],
+        [psg.Text("Camisa",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30))),
+        psg.Listbox(["Preta","Branca","Verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE), psg.Text("Quantidade:"), psg.Input(size=(10,1), key= "qtd_camisa"),
+        psg.Button("Adicionar ao Carrinho", size=(20, 2), button_color=("White", "Green"), key="comprar", pad=((0, 0), (10, 10)))],
         [psg.Button("Voltar", size=(12, 1), button_color=("white", "#000080"), key="voltar_login_atendente", pad=((0, 0), (20, 15)))]
     ]
     return psg.Window("Atendente", layout_logado_atendente, background_color="white", element_justification='c')

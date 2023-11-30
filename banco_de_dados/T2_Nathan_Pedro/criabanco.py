@@ -63,8 +63,7 @@ def criabanco():
         ]
 
         for cpf_usuario, nome_login, senha in data:
-            cursor.execute("""
-            INSERT INTO usuario_web (cpf_usuario, nome_login, senha)
+            cursor.execute("""INSERT INTO usuario_web (cpf_usuario, nome_login, senha)
             VALUES (%s, %s, %s)
             """, (cpf_usuario, nome_login, senha))
 
@@ -133,7 +132,8 @@ def criabanco():
         CREATE TABLE pagamento (
             id INT AUTO_INCREMENT,
             id_pedido INT, 
-            pagamento DECIMAL(8,2) NOT NULL,
+            forma_pagamento VARCHAR(30),
+            preco DECIMAL(8,2) NOT NULL,
             PRIMARY KEY (id, id_pedido),
             FOREIGN KEY (id_pedido) REFERENCES pedido(id)
         )
@@ -191,6 +191,40 @@ def criabanco():
         ("2","camisa regata branca", "100"),
         ("2","camisa regata estampada", "100"),
         ("2","camisa polo preta", "100"),
+        ("3","casaco vermelho", "100"),
+        ("3","casaco branco", "100"),
+        ("3","casaco preto", "100"),
+        ("3","casaco verde", "100"),
+        ("4","cropped vermelho", "100"),
+        ("4","cropped branco", "100"),
+        ("4","cropped preto", "100"),
+        ("4","cropped verde", "100"),
+        ("5","calça vermelho", "100"),
+        ("5","calça branco", "100"),
+        ("5","calça preto", "100"),
+        ("5","calça verde", "100"),
+        ("6","bermuda vermelho", "100"),
+        ("6","bermuda branco", "100"),
+        ("6","bermuda preto", "100"),
+        ("6","bermuda verde", "100"),
+        ("7","saia vermelho", "100"),
+        ("7","saia branco", "100"),
+        ("7","saia preto", "100"),
+        ("7","saia verde", "100"),
+        ("8","tênis vermelho", "100"),
+        ("8","tênis branco", "100"),
+        ("8","tênis preto", "100"),
+        ("8","tênis verde", "100"),
+        ("9","sapato vermelho", "100"),
+        ("9","sapato branco", "100"),
+        ("9","sapato preto", "100"),
+        ("9","sapato verde", "100"),
+        ("10","sapatilha vermelho", "100"),
+        ("10","sapatilha branco", "100"),
+        ("10","sapatilha preto", "100"),
+        ("10","sapatilha verde", "100"),
+        
+        
   
         ]
 
@@ -239,6 +273,7 @@ def criabanco():
         CREATE TABLE relacao_item_pedido (
             id_pedido INT,
             id_item INT,
+            quantidade_item INT,
             PRIMARY KEY (id_pedido, id_item),
             FOREIGN KEY (id_pedido) REFERENCES pedido(id),
             FOREIGN KEY (id_item) REFERENCES item(id)

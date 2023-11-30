@@ -35,7 +35,7 @@ while connection:
     # LOGIN USUARIO ===========================================(Desenvolvimento)==========================================================
     elif eventos == "login_usuario":
         janela.close()
-        janela = janela_login_usuario()
+        janela = janela_sistema_usuario()
 
         while True:
             # Atualizar a janela
@@ -46,6 +46,13 @@ while connection:
                 janela.close()
                 janela = janela_login()
                 break
+            elif eventos == "comprar":
+                print(valores)
+                #print("Você selecionou a Branca !")
+
+                if 'Branca' in  valores[0]:
+                    print("Você selecionou a Branca !") 
+
 
             # Se o usuário clicar no botão "Login"
             elif eventos == "usuario_logou":
@@ -71,7 +78,7 @@ while connection:
                     psg.popup("Senha incorreta!")
                     continue
 
-                psg.popup("Acesso concedido!")
+                
                 #fazer a parte principal do código !!!!!!!
 
     # REGISTRAR USUARIO =============================================(Feito)====================================================
@@ -242,7 +249,11 @@ while connection:
                                 psg.popup("Usuário registrado com sucesso!")
                                 sub_janela.close()
                                 break
-                        
+
+                    elif eventos == "lista_produtos_atendente":
+                        cursor.execute("SELECT nome FROM produto")
+                        janela["pica"].update(cursor.fetchall())  
+
     # LOGIN GERENTE =====================================================================================================
     elif eventos == "login_gerente":
         janela.close()
