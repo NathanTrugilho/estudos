@@ -245,6 +245,13 @@ def criabanco():
             FOREIGN KEY (id_conta) REFERENCES conta(id)
         )
     """)
+        data = [
+        (1,1)
+        ]
+
+        for id_carrinho , id_conta in data:
+            cursor.execute(""" INSERT INTO carrinho_de_compras VALUES (%s,%s)""", (id_carrinho,id_conta))
+        #Aplica as modificações
     
     
     #tabela de relação entre item e carrinho de compras ============

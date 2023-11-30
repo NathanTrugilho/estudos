@@ -40,19 +40,26 @@ while connection:
         while True:
             # Atualizar a janela
             eventos, valores = janela.read()
-
+            id_conta = 1
             # Se o usuário clicar no botão "Fechar"
             if eventos == psg.WINDOW_CLOSED or eventos == "voltar_login_usuario":
                 janela.close()
                 janela = janela_login()
                 break
+            #==============================================Lidando com compras===============================================
+
             elif eventos == "comprar":
                 print(valores)
-                #print("Você selecionou a Branca !")
-
-                if 'Branca' in  valores[0]:
-                    print("Você selecionou a Branca !") 
-
+                '''if 'Branca' in  valores[0]:
+                    print("Você selecionou a Branca !") '''
+                produto_comprado = valores[0]
+                produto_comprado = produto_comprado[0]
+                qtd_produto = int(valores['qtd_camisa'])
+                print(qtd_produto)
+                if qtd_produto != 0:
+                    cursor.execute("INSERT INTO relacao_carrinho_item VALUES(1,1,1,%s)",(qtd_produto,))
+                    connection.commit()
+            #==============================================Lidando com compras===============================================
 
             # Se o usuário clicar no botão "Login"
             elif eventos == "usuario_logou":
@@ -249,10 +256,18 @@ while connection:
                                 psg.popup("Usuário registrado com sucesso!")
                                 sub_janela.close()
                                 break
+                            
+                    elif eventos == "adic_carrinho":
+                        nome_item = valores['lista'][0]
+                        quantidade = valores['qtd']
 
-                    elif eventos == "lista_produtos_atendente":
-                        cursor.execute("SELECT nome FROM produto")
-                        janela["pica"].update(cursor.fetchall())  
+                        cursor.execute(f"SELECT id FROM item WHERE nome = 'camisa {nome_item}'")
+                        resultado = cursor.fetchone()
+                        id_item = resultado[0]
+                        print(id_item)
+                    
+                        
+  
 
     # LOGIN GERENTE =====================================================================================================
     elif eventos == "login_gerente":
