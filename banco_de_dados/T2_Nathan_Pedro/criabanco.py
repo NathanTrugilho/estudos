@@ -146,24 +146,27 @@ def criabanco():
         cursor.execute("""
         CREATE TABLE produto (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            nome VARCHAR(50)
+            nome VARCHAR(50),
+            valor DECIMAL(8,2)
         )
     """)
+        # MUDEI OS PREÇOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOS
         data = [
-        ("camiseta",),
-        ("camisa",),
-        ("casaco",),
-        ("cropped",),
-        ("calça",),
-        ("bermuda",),
-        ("saia",),
-        ("tênis",),
-        ("sapato",),
-        ("sapatilha",),
+        ("camiseta","30"),
+        ("camisa","40"),
+        ("casaco","75"),
+        ("cropped","15"),
+        ("calça","60"),
+        ("bermuda","50"),
+        ("saia","120"),
+        ("tênis","300"),
+        ("sapato","380"),
+        ("sapatilha","200"),
         ]
 
-        for nome in data:
-            cursor.execute(""" INSERT INTO produto(nome) VALUES (%s)""", (nome))
+        # MUDEI PRA INSERIR O PREÇOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+        for nome, valor in data:
+            cursor.execute(""" INSERT INTO produto(nome, valor) VALUES (%s, %s)""", (nome, valor))
         #Aplica as modificações se o bd não existir
         connection.commit()
 
@@ -199,17 +202,17 @@ def criabanco():
         ("4","cropped branco", "100"),
         ("4","cropped preto", "100"),
         ("4","cropped verde", "100"),
-        ("5","calça vermelho", "100"),
-        ("5","calça branco", "100"),
-        ("5","calça preto", "100"),
+        ("5","calça vermelha", "100"),
+        ("5","calça branca", "100"),
+        ("5","calça preta", "100"),
         ("5","calça verde", "100"),
-        ("6","bermuda vermelho", "100"),
-        ("6","bermuda branco", "100"),
-        ("6","bermuda preto", "100"),
+        ("6","bermuda vermelha", "100"),
+        ("6","bermuda branca", "100"),
+        ("6","bermuda preta", "100"),
         ("6","bermuda verde", "100"),
-        ("7","saia vermelho", "100"),
-        ("7","saia branco", "100"),
-        ("7","saia preto", "100"),
+        ("7","saia vermelha", "100"),
+        ("7","saia branca", "100"),
+        ("7","saia preta", "100"),
         ("7","saia verde", "100"),
         ("8","tênis vermelho", "100"),
         ("8","tênis branco", "100"),
@@ -219,13 +222,11 @@ def criabanco():
         ("9","sapato branco", "100"),
         ("9","sapato preto", "100"),
         ("9","sapato verde", "100"),
-        ("10","sapatilha vermelho", "100"),
-        ("10","sapatilha branco", "100"),
-        ("10","sapatilha preto", "100"),
+        ("10","sapatilha vermelha", "100"),
+        ("10","sapatilha branca", "100"),
+        ("10","sapatilha preta", "100"),
         ("10","sapatilha verde", "100"),
         
-        
-  
         ]
 
         for id_produto, nome, quantidade in data:
@@ -245,14 +246,6 @@ def criabanco():
             FOREIGN KEY (id_conta) REFERENCES conta(id)
         )
     """)
-        data = [
-        (1,1)
-        ]
-
-        for id_carrinho , id_conta in data:
-            cursor.execute(""" INSERT INTO carrinho_de_compras VALUES (%s,%s)""", (id_carrinho,id_conta))
-        #Aplica as modificações
-    
     
     #tabela de relação entre item e carrinho de compras ============
     cursor.execute("show tables like 'relacao_carrinho_item'")
@@ -264,6 +257,8 @@ def criabanco():
             id_conta_carrinho_de_compras INT, 
             id_item INT,
             quantidade INT,
+            valor DECIMAL(8,2),
+            nome VARCHAR(30),
             PRIMARY KEY (id_carrinho_de_compras, id_conta_carrinho_de_compras, id_item),
             FOREIGN KEY (id_conta_carrinho_de_compras) REFERENCES carrinho_de_compras(id_conta),
             FOREIGN KEY (id_carrinho_de_compras) REFERENCES carrinho_de_compras(id),
