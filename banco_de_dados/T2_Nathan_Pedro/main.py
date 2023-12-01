@@ -359,23 +359,27 @@ while connection:
                             elif eventos == "adic_carrinho":
                                 verifica_quantidade = 10
                                 total_carrinho = 0
+                                quantidade = 0 
 
                                 quantidade = valores['qtd_camiseta']
-                                if quantidade > "0":
+                                quantidade_int = int(quantidade)
+                                print(quantidade_int)
+                                if quantidade_int > 0:
                                     nome_item = valores['lista_camiseta'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'camiseta {nome_item}'")
                                     resultado = cursor.fetchone()
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'camiseta' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    valor_produto = resultado[0] * quantidade_int
                                     total_carrinho += valor_produto
 
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'camiseta {nome_item}')")
                                     verifica_quantidade -= 1
 
                                 quantidade = valores['qtd_camisa']
-                                if quantidade > "0":
+                                quantidade_int = int(quantidade) 
+                                if quantidade_int > 0:
 
                                     nome_item = valores['lista_camisa'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'camisa {nome_item}'")
@@ -383,14 +387,15 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'camisa' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    valor_produto = resultado[0] * quantidade_int
                                     total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'camisa {nome_item}')")
                                     verifica_quantidade -= 1
 
                                 quantidade = valores['qtd_casaco']
-                                if quantidade > "0":
+                                quantidade_int = int(quantidade) 
+                                if quantidade_int > 0:
 
                                     nome_item = valores['lista_casaco'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'casaco {nome_item}'")
@@ -398,14 +403,15 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'casaco' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    valor_produto = resultado[0] * quantidade_int
                                     total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'casaco {nome_item}')")
                                     verifica_quantidade -= 1
 
                                 quantidade = valores['qtd_cropped']
-                                if quantidade > "0":
+                                quantidade_int = int(quantidade) 
+                                if quantidade_int > 0:
 
                                     nome_item = valores['lista_cropped'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'cropped {nome_item}'")
@@ -413,14 +419,15 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'cropped' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    valor_produto = resultado[0] * quantidade_int
                                     total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'cropped {nome_item}')")
                                     verifica_quantidade -= 1
 
                                 quantidade = valores['qtd_calça']
-                                if quantidade > "0":
+                                quantidade_int = int(quantidade) 
+                                if quantidade_int > 0:
 
                                     nome_item = valores['lista_calça'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'calça {nome_item}'")
@@ -428,14 +435,15 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'calça' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    valor_produto = resultado[0] * quantidade_int
                                     total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'calça {nome_item}')")
                                     verifica_quantidade -= 1
 
                                 quantidade = valores['qtd_bermuda']
-                                if quantidade > "0":
+                                quantidade_int = int(quantidade) 
+                                if quantidade_int > 0:
 
                                     nome_item = valores['lista_bermuda'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'bermuda {nome_item}'")
@@ -443,14 +451,15 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'bermuda' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    valor_produto = resultado[0] * quantidade_int
                                     total_carrinho += valor_produto
 
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'bermuda {nome_item}')")
                                     verifica_quantidade -= 1
 
                                 quantidade = valores['qtd_saia']
-                                if quantidade > "0":
+                                quantidade_int = int(quantidade) 
+                                if quantidade_int > 0:
 
                                     nome_item = valores['lista_saia'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'saia {nome_item}'")
@@ -458,14 +467,15 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'saia' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    valor_produto = resultado[0] * quantidade_int
                                     total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'saia {nome_item}')")
                                     verifica_quantidade -= 1
 
                                 quantidade = valores['qtd_tênis']
-                                if quantidade > "0":
+                                quantidade_int = int(quantidade) 
+                                if quantidade_int > 0:
 
                                     nome_item = valores['lista_tênis'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'tênis {nome_item}'")
@@ -473,14 +483,15 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'tênis' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    valor_produto = resultado[0] * quantidade_int
                                     total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'tênis {nome_item}')")
                                     verifica_quantidade -= 1
 
                                 quantidade = valores['qtd_sapato']
-                                if quantidade > "0":
+                                quantidade_int = int(quantidade) 
+                                if quantidade_int > 0:
 
                                     nome_item = valores['lista_sapato'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'sapato {nome_item}'")
@@ -488,14 +499,15 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'sapato' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    valor_produto = resultado[0] * quantidade_int
                                     total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'sapato {nome_item}')")
                                     verifica_quantidade -= 1
 
                                 quantidade = valores['qtd_sapatilha']
-                                if quantidade > "0":
+                                quantidade_int = int(quantidade) 
+                                if quantidade_int > 0:
 
                                     nome_item = valores['lista_sapatilha'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'sapatilha {nome_item}'")
@@ -503,7 +515,7 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'sapatilha' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    valor_produto = resultado[0] * quantidade_int
                                     total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'sapatilha {nome_item}')")
@@ -517,7 +529,11 @@ while connection:
                                 cursor.execute(f"INSERT INTO pedido (status, data, id_conta, cpf_atendente) VALUES('confirmado', curdate(), {id_conta}, {cpf_atendente})")
                                 connection.commit()
 
-                                pagamento(valor)
+                                cursor.execute(f"SELECT id FROM pedido ORDER BY id DESC LIMIT 1")
+                                resultado = cursor.fetchone()
+                                id_pedido = resultado[0]
+
+                                pagamento(total_carrinho, id_pedido)
 
                     elif eventos == "adic_carrinho":
                         psg.popup("Insira o CPF do usuário antes de adicionar no carrinho")
