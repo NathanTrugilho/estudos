@@ -73,16 +73,19 @@ def janela_carrinho(compras):
         layout_carrinho.extend([  # Use extend para adicionar elementos à lista principal
             [psg.Text(nome,size=(30, 1), justification='right'),psg.Text(qtd,size=(6, 1), justification='right')],
         ])
-    [psg.Button("Voltar", size=(12, 1), button_color=("white", "#000080"), key="voltar_sistema_usuario", pad=((0, 0), (20, 15)))]
-
+    layout_carrinho.extend([ 
+        [psg.Button("Comprar", size=(12, 1), button_color=("white", "green"), key="comprar_carrinho", pad=((0, 0), (20, 15)))],
+        [psg.Button("Voltar", size=(12, 1), button_color=("white", "#000080"), key="voltar_sistema_usuario", pad=((0, 0), (20, 15)))],
+    ]
+    )
     return psg.Window("Login de usuário", layout_carrinho, background_color="white", element_justification='c')
 
 def janela_login_usuario():
     psg.theme('Reddit')
     layout_login_usuario = [
         [psg.Text("Login de usuário",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30)))],
-        [psg.Text("Login:", size=(6, 1), justification='right'), psg.Input(size=(30, 10), justification="center", key= "nome_login_usuario")],
-        [psg.Text("Senha:", size=(6, 1), justification='right'), psg.Input(size=(30,10), justification="center", key= "senha_usuario", password_char='*')],
+        [psg.Text("Login:", size=(6, 1), justification='right'), psg.Input(size=(30, 10), justification="center", key= "nome_login_usuario",default_text="joao@email.com")],
+        [psg.Text("Senha:", size=(6, 1), justification='right'), psg.Input(size=(30,10), justification="center", key= "senha_usuario", password_char='*',default_text="senha123")],
         [psg.Button("Logar", size=(20, 2), button_color=("white", "#2E8B57"), key="usuario_logou", pad=((0, 0), (20, 10)))],
         [psg.Button("Voltar", size=(12, 1), button_color=("white", "#000080"), key="voltar_login_usuario", pad=((0, 0), (20, 15)))],
     ]
@@ -117,7 +120,7 @@ def janela_login_atendente():
 def sistema_atendente():
     psg.theme('Reddit')
     layout_logado_atendente = [
-        [psg.Text("Sistema de atendimento de compras por telefone",text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (0, 0)))],
+        [psg.Text("Sistema de atendimento de compras por telefone",text_color='black', size=(40, 1), font=('Arial', 25), justification='center', pad=((0, 0), (0, 0)))],
         [psg.Button("Resgitrar usuário", size=(20, 2), button_color=("White", "#2E8B57"), key="registrar_usuario_atendente", pad=((0, 0), (10, 20)))],
         [psg.Text('CPF do cliente:', justification='right', size=(20,1)), psg.InputText(key='cpf'), psg.Button("Inserir CPF do cliente", key=("insere_cpf"))],
 
@@ -154,8 +157,8 @@ def sistema_atendente():
         psg.Text("Quantidade:"), psg.Input(default_text= "0" ,size=(10,1), key= "qtd_saia"),
         #Tênis
         psg.Text("Tênis",text_color='black', size=(20, 1), font=('Arial', 20), justification='center', pad=((0, 0), (20, 30))),
-        psg.Listbox(["vermelho","branco","preto","verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE, key='lista_tenis'), 
-        psg.Text("Quantidade:"), psg.Input(default_text= "0" ,size=(10,1), key= "qtd_tenis")],
+        psg.Listbox(["vermelho","branco","preto","verde"],size=(20,4),select_mode=psg.LISTBOX_SELECT_MODE_SINGLE, key='lista_tênis'), 
+        psg.Text("Quantidade:"), psg.Input(default_text= "0" ,size=(10,1), key= "qtd_tênis")],
         
         #Sapato
         [psg.Text("Sapato",text_color='black', size=(20, 1), font=('Arial', 20), justification='center', pad=((0, 0), (20, 30))),
@@ -174,7 +177,7 @@ def sistema_atendente():
 def janela_atendente_registrar_usuario():
     psg.theme('Reddit')
     layout_atendente_registrar_usuario = [
-        [psg.Text("Sistema de cadastro de usuario",text_color='black', size=(16, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30)))],
+        [psg.Text("Sistema de cadastro de usuario",text_color='black', size=(30, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30)))],
         [psg.Text('Cadastro de Novo Usuário', font=('Arial', 25), justification='center', pad=((0,0), (20,30)))],
         [psg.Text('Nome:', justification='right', size=(10,1)), psg.InputText(key='nome'), psg.Text('(10-40 chars)')],
         [psg.Text('CPF:', justification='right', size=(10,1)), psg.InputText(key='cpf'), psg.Text('    (11 chars)')],
@@ -218,6 +221,40 @@ def sistema_gerencia():
     ]
     return psg.Window("Sistema gerencia", layout_sistema_gerencia, background_color="white", element_justification='c')
 
+def pagamento():
+    psg.theme('Reddit')
+    fonte_titulo = ('Arial', 30)
+    fonte_texto = ('Arial', 15)
+    cor_botao = ('white', '#008C8C')
+
+    layout_pagamento = [
+        [psg.Text("Janela de Pagamento", text_color='black', font=fonte_titulo, justification='center', pad=((0,0),(10,20)))],
+        [psg.Text("Valor do carrinho: ", font=fonte_texto, justification='center'), psg.Text(size=(10, 1), key='-VALOR-', font=fonte_texto)],
+        [psg.Text("Formas de pagamento:", font=fonte_texto, justification='center',pad=((0,0),(10,20))), psg.Text(size=(10, 1), key='forma_pagamento', font=fonte_texto)],
+        [
+            psg.Button('Pix', button_color=cor_botao, size=(10, 2)),
+            psg.Button('Débito', button_color=cor_botao, size=(10, 2)),
+            psg.Button('Crédito', button_color=cor_botao, size=(10, 2)),
+            psg.Button('Boleto', button_color=cor_botao, size=(10, 2))
+        ],
+        [psg.Text("Quantidade de parcelas:", font=fonte_texto, pad=((0,0),(20,20))), psg.InputText(size=(5, 1), key='-PARCELAS-', font=fonte_texto, pad=((0,0),(20,20)))],
+        [psg.Button('Pagar', size=(20, 2)), psg.Button('Voltar', button_color=('white', '#FF5733'), size=(20, 2))]
+    ]
+    janela = psg.Window("Sistema de Pagamento", layout_pagamento, background_color="white", element_justification='c')
+
+    while True:
+        event, values = janela.read()
+
+        if event == psg.WIN_CLOSED:
+            break
+        elif event in ('Pix', 'Débito', 'Crédito', 'Boleto'):
+            janela['forma_pagamento'].update(f"{event}")
+        elif event == 'Pagar':
+            parcelas = values['-PARCELAS-']
+            # Lógica para pagamento com a quantidade de parcelas selecionada
+            psg.popup(f"Pagamento realizado em {parcelas} vezes.")
+
+    janela.close()
 
 def conecta(host,user,password):
     # Conectar ao MySQL

@@ -133,7 +133,7 @@ def criabanco():
             id INT AUTO_INCREMENT,
             id_pedido INT, 
             forma_pagamento VARCHAR(30),
-            preco DECIMAL(8,2) NOT NULL,
+            valor DECIMAL(8,2) NOT NULL,
             PRIMARY KEY (id, id_pedido),
             FOREIGN KEY (id_pedido) REFERENCES pedido(id)
         )

@@ -35,76 +35,18 @@ while connection:
     # LOGIN USUARIO ===========================================(Desenvolvimento)==========================================================
     elif eventos == "login_usuario":
         janela.close()
-        janela = janela_sistema_usuario()
-
+        janela = janela_login_usuario()
         while True:
-            # Atualizar a janela
-            qtd_produto = 0
-            id_conta = 1
-            id_item = 0
-            nome = ''
-            botoes_compras = ["comprar1","comprar2","comprar3","comprar4","comprar5","comprar6","comprar7","comprar8","comprar9","comprar10"]
-            cursor.execute("select id,nome from item")
-            itens = cursor.fetchall()
-            #print("Os itens são : ",itens)
             eventos, valores = janela.read()
-            # Se o usuário clicar no botão "Fechar"
+                # Se o usuário clicar no botão "Login"
             if eventos == psg.WINDOW_CLOSED or eventos == "voltar_login_usuario":
                 janela.close()
                 janela = janela_login()
                 break
-            #==============================================Lidando com compras===============================================
-            #Não tem como colocar todos os botões com o mesmo nome pois ai os outros não estavam ativando , logo cada botão deve ter seu nome
-            elif eventos in botoes_compras:
-                #Para debugar ele está printando tudo que recebe da janela
-                print(valores)
-                #Eu percorro minha lista de valores em busca de um produto selecionado ou seja que seja diferente de [] 
-                #Depois eu pego o id com base no meu banco de dados de id que eu fiz a culsulta lá em cima
-                #Depois eu pego a quantidade , já sabendo que a quantidade sempre vem depois do produto
-                #Lembre que valores[chave] é um tipo lista , logo mesmo com um valor vc precisa colocar esse [0]
-                #Verificar se é necessário deixar o usuario aumentar a quantidade depois
-                for chave in valores:
-                    if valores[chave] and isinstance(chave, int) :
-                        print(valores[chave][0])
-                        print(type(chave))
-                        print(type(valores[chave]))
-                        for id,tipo in itens:
-                            if  valores[chave][0] in tipo:
-                                id_item = id
-                                print(tipo)
-                                print(id_item)
-                                nome = tipo
-                                break
-                    elif valores[chave]:
-                        qtd_produto = valores[chave]
-                        print(qtd_produto)
-                        id_conta = int(id_conta)
-                        id_item = int(id_item)
-                        qtd_produto = qtd_produto[0]
-                        cursor.execute("INSERT INTO relacao_carrinho_item VALUES(1,%s,%s,%s,%s)", (id_conta, id_item, qtd_produto[0],nome))
-                        break
-                connection.commit()
-
-            #==============================================Lidando com compras===============================================
-            elif eventos == "ver_carrinho":
-                cursor.execute("select nome,quantidade from relacao_carrinho_item")
-                compras = cursor.fetchall()
-                janela.close()
-                janela = janela_carrinho(compras)
-                while True:
-                    eventos, valores = janela.read()
-                    # Se o usuário clicar no botão "Fechar"
-                    if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_usuario":
-                        janela.close()
-                        janela = janela_sistema_usuario()
-                        break
-                    
-
-            # Se o usuário clicar no botão "Login"
             elif eventos == "usuario_logou":
                 login_usuario = valores["nome_login_usuario"]
                 senha_usuario = valores["senha_usuario"]
-
+                print("Entrei aqui !")
                 # Verifica se os campos estão preenchidos
                 if len(login_usuario) < MIN_LEN_NOME_LOGIN or len(login_usuario) > MAX_LEN_NOME_LOGIN:
                     psg.popup("Login inválido!")
@@ -124,9 +66,97 @@ while connection:
                     psg.popup("Senha incorreta!")
                     continue
 
-                
-                #fazer a parte principal do código !!!!!!!
-
+                janela.close()
+                janela = janela_sistema_usuario()
+                qtd_produto = 0
+                id_conta = 1
+                id_item = 0
+                id_produto = 0 
+                valor = 0
+                nome = ''
+                cursor.execute("INSERT INTO carrinho_de_compras (id_conta) VALUES (%s)",(id_conta,))
+                while True:
+                    # Atualizar a janela
+                    eventos, valores = janela.read()
+                    botoes_compras = ["comprar1","comprar2","comprar3","comprar4","comprar5","comprar6","comprar7","comprar8","comprar9","comprar10"]
+                    cursor.execute("select id,nome,id_produto from item")
+                    itens = cursor.fetchall()
+                    cursor.execute("select id,valor from produto")
+                    produtos = cursor.fetchall()
+                    cursor.execute("SELECT MAX(id) AS maior_id FROM carrinho_de_compras")
+                    id_carrinho = cursor.fetchall()
+                    id_carrinho = list(map(lambda x: x[0],id_carrinho))
+                    id_carrinho = id_carrinho[0]
+                    print("O id do carrinho é : ",id_carrinho)
+                    #print("Os itens são : ",itens)
+                    # Se o usuário clicar no botão "Fechar"
+                    if eventos == psg.WINDOW_CLOSED or eventos == "voltar_login_usuario":
+                        janela.close()
+                        janela = janela_login_usuario()
+                        break
+                    #==============================================Lidando com compras===============================================
+                    #Não tem como colocar todos os botões com o mesmo nome pois ai os outros não estavam ativando , logo cada botão deve ter seu nome
+                    elif eventos in botoes_compras:
+                        #Para debugar ele está printando tudo que recebe da janela
+                        print(valores)
+                        #Eu percorro minha lista de valores em busca de um produto selecionado ou seja que seja diferente de [] 
+                        #Depois eu pego o id com base no meu banco de dados de id que eu fiz a culsulta lá em cima
+                        #Depois eu pego a quantidade , já sabendo que a quantidade sempre vem depois do produto
+                        #Lembre que valores[chave] é um tipo lista , logo mesmo com um valor vc precisa colocar esse [0]
+                        #Verificar se é necessário deixar o usuario aumentar a quantidade depois
+                        for chave in valores:
+                            if valores[chave] and isinstance(chave, int) :
+                                print(valores[chave][0])
+                                print(type(chave))
+                                print(type(valores[chave]))
+                                for id,tipo,id_produto in itens:
+                                    if  valores[chave][0] in tipo:
+                                        id_item = id
+                                        id_produto = id_produto
+                                        print(tipo)
+                                        print(id_item)
+                                        for id , valor_produto in produtos:
+                                            if id == id_produto:
+                                                valor == valor_produto   
+                                        nome = tipo
+                                        break
+                            elif valores[chave] and id_item:
+                                qtd_produto = valores[chave]
+                                print(qtd_produto)
+                                id_conta = int(id_conta)
+                                id_item = int(id_item)
+                                qtd_produto = qtd_produto[0]
+                                cursor.execute("select id_item from relacao_carrinho_item")
+                                produto_carrinho = cursor.fetchall()
+                                print(produto_carrinho)
+                                produto_carrinho = list(map(lambda x: x[0],produto_carrinho))
+                                print(produto_carrinho)
+                                if id_item not in produto_carrinho:
+                                    cursor.execute("INSERT INTO relacao_carrinho_item VALUES(%s,%s,%s,%s,%s,%s)", (id_carrinho,id_conta, id_item, qtd_produto[0],valor,nome))
+                                    cursor.fetchall()
+                                else:
+                                    cursor.execute("UPDATE relacao_carrinho_item SET quantidade = quantidade + %s WHERE id_item = %s", (qtd_produto[0], id_item))
+                                    cursor.fetchall()
+                                id_item = 0
+                                connection.commit()
+                                break
+                                
+                    #==============================================Lidando com compras===============================================
+                    elif eventos == "ver_carrinho":
+                        cursor.execute("select nome,quantidade from relacao_carrinho_item")
+                        compras = cursor.fetchall()
+                        janela.close()
+                        janela = janela_carrinho(compras)
+                        while True:
+                            eventos, valores = janela.read()
+                            # Se o usuário clicar no botão "Fechar"
+                            if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_usuario": 
+                                janela.close()
+                                janela =janela_sistema_usuario()
+                                break
+                            if eventos == "comprar_carrinho":
+                                connection.commit()
+                    #fazer a parte principal do código !!!!!!!
     # REGISTRAR USUARIO =============================================(Feito)====================================================
     elif eventos == "registrar_usuario":
         janela.close()
@@ -233,6 +263,10 @@ while connection:
                     psg.popup("Senha incorreta!")
                     continue
                 
+                cursor.execute(f"SELECT cpf FROM atendente WHERE nome_login = '{login_atendente}'")
+                resultado = cursor.fetchone()
+                cpf_atendente = resultado[0]
+
                 # SISTEMA ATENDENTE =======================================================================
                 janela.close()
                 janela = sistema_atendente()
@@ -323,21 +357,25 @@ while connection:
                             
                             #ADICIONA O ITEM NO CARRINHO =======================================================
                             elif eventos == "adic_carrinho":
+                                verifica_quantidade = 10
+                                total_carrinho = 0
 
                                 quantidade = valores['qtd_camiseta']
-                                if quantidade != "0":
+                                if quantidade > "0":
                                     nome_item = valores['lista_camiseta'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'camiseta {nome_item}'")
                                     resultado = cursor.fetchone()
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'camiseta' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0]
+                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    total_carrinho += valor_produto
 
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'camiseta {nome_item}')")
+                                    verifica_quantidade -= 1
 
                                 quantidade = valores['qtd_camisa']
-                                if quantidade != "0":
+                                if quantidade > "0":
 
                                     nome_item = valores['lista_camisa'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'camisa {nome_item}'")
@@ -345,12 +383,14 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'camisa' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0]
+                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'camisa {nome_item}')")
-                                
+                                    verifica_quantidade -= 1
+
                                 quantidade = valores['qtd_casaco']
-                                if quantidade != "0":
+                                if quantidade > "0":
 
                                     nome_item = valores['lista_casaco'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'casaco {nome_item}'")
@@ -358,12 +398,14 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'casaco' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0]
+                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'casaco {nome_item}')")
-                                
+                                    verifica_quantidade -= 1
+
                                 quantidade = valores['qtd_cropped']
-                                if quantidade != "0":
+                                if quantidade > "0":
 
                                     nome_item = valores['lista_cropped'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'cropped {nome_item}'")
@@ -371,12 +413,14 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'cropped' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0]
+                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'cropped {nome_item}')")
-                                
+                                    verifica_quantidade -= 1
+
                                 quantidade = valores['qtd_calça']
-                                if quantidade != "0":
+                                if quantidade > "0":
 
                                     nome_item = valores['lista_calça'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'calça {nome_item}'")
@@ -384,12 +428,14 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'calça' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0]
+                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'calça {nome_item}')")
-                                
+                                    verifica_quantidade -= 1
+
                                 quantidade = valores['qtd_bermuda']
-                                if quantidade != "0":
+                                if quantidade > "0":
 
                                     nome_item = valores['lista_bermuda'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'bermuda {nome_item}'")
@@ -397,12 +443,14 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'bermuda' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0]
-                                    
+                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    total_carrinho += valor_produto
+
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'bermuda {nome_item}')")
-                                
+                                    verifica_quantidade -= 1
+
                                 quantidade = valores['qtd_saia']
-                                if quantidade != "0":
+                                if quantidade > "0":
 
                                     nome_item = valores['lista_saia'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'saia {nome_item}'")
@@ -410,12 +458,14 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'saia' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0]
+                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'saia {nome_item}')")
-                                
+                                    verifica_quantidade -= 1
+
                                 quantidade = valores['qtd_tênis']
-                                if quantidade != "0":
+                                if quantidade > "0":
 
                                     nome_item = valores['lista_tênis'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'tênis {nome_item}'")
@@ -423,12 +473,14 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'tênis' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0]
+                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    total_carrinho += valor_produto 
                                     
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'bermuda {nome_item}')")
-                                
+                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'tênis {nome_item}')")
+                                    verifica_quantidade -= 1
+
                                 quantidade = valores['qtd_sapato']
-                                if quantidade != "0":
+                                if quantidade > "0":
 
                                     nome_item = valores['lista_sapato'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'sapato {nome_item}'")
@@ -436,12 +488,14 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'sapato' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0]
+                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'sapato {nome_item}')")
-                                
+                                    verifica_quantidade -= 1
+
                                 quantidade = valores['qtd_sapatilha']
-                                if quantidade != "0":
+                                if quantidade > "0":
 
                                     nome_item = valores['lista_sapatilha'][0]
                                     cursor.execute(f"SELECT id FROM item WHERE nome = 'sapatilha {nome_item}'")
@@ -449,12 +503,24 @@ while connection:
                                     id_item = resultado[0]
                                     cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'sapatilha' LIMIT 1;")
                                     resultado = cursor.fetchone()
-                                    valor_produto = resultado[0]
+                                    valor_produto = resultado[0] * (ord(quantidade) - 48)
+                                    total_carrinho += valor_produto 
                                     
                                     cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'sapatilha {nome_item}')")
+                                    verifica_quantidade -= 1
                                 
+                                if verifica_quantidade == 10:
+                                    psg.popup("Selecione pelo menos um item com alguma quantidade válida para prosseguir")
+                                    continue
+
+                                psg.popup("Itens adicionados ao carrinho !")
+                                cursor.execute(f"INSERT INTO pedido (status, data, id_conta, cpf_atendente) VALUES('confirmado', curdate(), {id_conta}, {cpf_atendente})")
                                 connection.commit()
-                                                
+
+                                pagamento(valor)
+
+                    elif eventos == "adic_carrinho":
+                        psg.popup("Insira o CPF do usuário antes de adicionar no carrinho")
 
     # LOGIN GERENTE =====================================================================================================
     elif eventos == "login_gerente":
