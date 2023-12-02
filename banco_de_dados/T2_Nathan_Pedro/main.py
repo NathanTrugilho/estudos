@@ -1,6 +1,7 @@
 import re #Para verificar nomes com espaço
 import PySimpleGUI as psg
 from funcoes import *
+import time
 
 LEN_CPF = 11
 LEN_ESTADO = 2
@@ -46,7 +47,6 @@ while connection:
             elif eventos == "usuario_logou":
                 login_usuario = valores["nome_login_usuario"]
                 senha_usuario = valores["senha_usuario"]
-                print("Entrei aqui !")
                 # Verifica se os campos estão preenchidos
                 if len(login_usuario) < MIN_LEN_NOME_LOGIN or len(login_usuario) > MAX_LEN_NOME_LOGIN:
                     psg.popup("Login inválido!")
@@ -66,96 +66,184 @@ while connection:
                     psg.popup("Senha incorreta!")
                     continue
 
-                janela.close()
-                janela = janela_sistema_usuario()
                 qtd_produto = 0
-                id_conta = 1
+                qtd_produtos = {}
+                id_conta = 0
                 id_item = 0
                 id_produto = 0 
                 valor = 0
                 nome = ''
+                #Pega o CPF============================
+                cursor.execute("SELECT cpf_usuario FROM usuario_web where nome_login = %s",(login_usuario,))
+                id_conta = cursor.fetchall()
+                id_conta = id_conta[0][0]
+                #Pega o id conta====================================================================================
+                cursor.execute("SELECT id FROM conta where cpf_usuario = %s",(id_conta,))
+                id_conta = cursor.fetchall()
+                id_conta= id_conta[0][0]
+                #Cria um carrinho====================================================================================
                 cursor.execute("INSERT INTO carrinho_de_compras (id_conta) VALUES (%s)",(id_conta,))
+                connection.commit()
+                cursor.execute("SELECT id,nome,id_produto from item")
+                itens = cursor.fetchall()
+                cursor.execute("SELECT id,valor from produto")
+                produtos = cursor.fetchall()
+                cursor.execute("SELECT MAX(id) AS maior_id FROM carrinho_de_compras")
+                id_carrinho = cursor.fetchall()
+                id_carrinho = list(map(lambda x: x[0],id_carrinho))
+                id_carrinho = id_carrinho[0]
+                janela.close()
+                janela = janela_sistema_usuario()
+                #====================================================================================
                 while True:
                     # Atualizar a janela
-                    eventos, valores = janela.read()
-                    botoes_compras = ["comprar1","comprar2","comprar3","comprar4","comprar5","comprar6","comprar7","comprar8","comprar9","comprar10"]
-                    cursor.execute("select id,nome,id_produto from item")
-                    itens = cursor.fetchall()
-                    cursor.execute("select id,valor from produto")
-                    produtos = cursor.fetchall()
-                    cursor.execute("SELECT MAX(id) AS maior_id FROM carrinho_de_compras")
-                    id_carrinho = cursor.fetchall()
-                    id_carrinho = list(map(lambda x: x[0],id_carrinho))
-                    id_carrinho = id_carrinho[0]
-                    print("O id do carrinho é : ",id_carrinho)
                     #print("Os itens são : ",itens)
                     # Se o usuário clicar no botão "Fechar"
+                    eventos, valores = janela.read()
                     if eventos == psg.WINDOW_CLOSED or eventos == "voltar_login_usuario":
                         janela.close()
                         janela = janela_login_usuario()
+                        cursor.execute("DELETE FROM relacao_carrinho_item WHERE id_carrinho_de_compras = %s", (id_carrinho,))
+                        connection.commit()
                         break
                     #==============================================Lidando com compras===============================================
-                    #Não tem como colocar todos os botões com o mesmo nome pois ai os outros não estavam ativando , logo cada botão deve ter seu nome
-                    elif eventos in botoes_compras:
+                    elif eventos == "comprar":
                         #Para debugar ele está printando tudo que recebe da janela
-                        print(valores)
                         #Eu percorro minha lista de valores em busca de um produto selecionado ou seja que seja diferente de [] 
                         #Depois eu pego o id com base no meu banco de dados de id que eu fiz a culsulta lá em cima
                         #Depois eu pego a quantidade , já sabendo que a quantidade sempre vem depois do produto
                         #Lembre que valores[chave] é um tipo lista , logo mesmo com um valor vc precisa colocar esse [0]
-                        #Verificar se é necessário deixar o usuario aumentar a quantidade depois
+                        #Se a chave for um inteiro é porquê o valor é o tipo do produto
                         for chave in valores:
                             if valores[chave] and isinstance(chave, int) :
-                                print(valores[chave][0])
-                                print(type(chave))
-                                print(type(valores[chave]))
-                                for id,tipo,id_produto in itens:
+                                for id_item1,tipo,id_produtofor in itens:
                                     if  valores[chave][0] in tipo:
-                                        id_item = id
-                                        id_produto = id_produto
-                                        print(tipo)
-                                        print(id_item)
-                                        for id , valor_produto in produtos:
-                                            if id == id_produto:
-                                                valor == valor_produto   
+                                        id_item = id_item1
+                                        id_produto = id_produtofor
+                                        for id_produto2 , valor_produto in produtos:
+                                            if id_produto2 == id_produto:
+                                                valor = int(valor_produto)
+                                                break   
                                         nome = tipo
                                         break
                             elif valores[chave] and id_item:
                                 qtd_produto = valores[chave]
-                                print(qtd_produto)
                                 id_conta = int(id_conta)
                                 id_item = int(id_item)
-                                qtd_produto = qtd_produto[0]
-                                cursor.execute("select id_item from relacao_carrinho_item")
-                                produto_carrinho = cursor.fetchall()
-                                print(produto_carrinho)
-                                produto_carrinho = list(map(lambda x: x[0],produto_carrinho))
-                                print(produto_carrinho)
-                                if id_item not in produto_carrinho:
-                                    cursor.execute("INSERT INTO relacao_carrinho_item VALUES(%s,%s,%s,%s,%s,%s)", (id_carrinho,id_conta, id_item, qtd_produto[0],valor,nome))
-                                    cursor.fetchall()
+                                #=============================
+                                qtd_produto = qtd_produto
+                                cursor.execute("select id_item from relacao_carrinho_item where id_carrinho_de_compras = %s",(id_carrinho,))
+                                item_carrinho = cursor.fetchall()
+                                item_carrinho = list(map(lambda x: x[0],item_carrinho))
+                                print(item_carrinho)
+                                if id_item not in item_carrinho:
+                                    qtd_produtos[id_item] = int(qtd_produto)
+                                    valor = valor*int(qtd_produto)
+                                    cursor.execute("select quantidade from item where id = %s",(id_item,))
+                                    quantidade_item = cursor.fetchall()
+                                    qtd_item = list(map(lambda x: x[0],quantidade_item))
+                                    if qtd_item[0] >= int(qtd_produto):
+                                        cursor.execute("INSERT INTO relacao_carrinho_item VALUES(%s,%s,%s,%s,%s,%s)", (id_carrinho,id_conta, id_item, qtd_produto,valor,nome))
+                                        connection.commit()
+                                    else:
+                                        psg.popup(f"Se alcame rapaz , não temos isso tudo! Nossa quantidade em estoque é : {qtd_item[0]}")
                                 else:
-                                    cursor.execute("UPDATE relacao_carrinho_item SET quantidade = quantidade + %s WHERE id_item = %s", (qtd_produto[0], id_item))
-                                    cursor.fetchall()
+                                    qtd_produtos[id_item] += int(qtd_produto)
+                                    valor = valor*int(qtd_produtos[id_item])
+                                    cursor.execute("select quantidade from item where id = %s",(id_item,))
+                                    quantidade_item = cursor.fetchall()
+                                    qtd_item = list(map(lambda x: x[0],quantidade_item))
+                                    if qtd_item[0] >= int(qtd_produto):
+                                        cursor.execute("UPDATE relacao_carrinho_item SET quantidade = quantidade + %s ,valor = %s WHERE id_item = %s", (qtd_produto,valor, id_item))
+                                        connection.commit()
+                                    else:
+                                         psg.popup(f"Se alcame rapaz , não temos isso tudo! Nossa quantidade em estoque é : {qtd_item[0]}")
                                 id_item = 0
-                                connection.commit()
-                                break
                                 
+
                     #==============================================Lidando com compras===============================================
                     elif eventos == "ver_carrinho":
-                        cursor.execute("select nome,quantidade from relacao_carrinho_item")
+                        cursor.execute("select nome,quantidade,valor from relacao_carrinho_item where id_carrinho_de_compras = %s",(id_carrinho,))
                         compras = cursor.fetchall()
                         janela.close()
-                        janela = janela_carrinho(compras)
+                        cursor.execute("SELECT SUM(valor) AS total_valor FROM relacao_carrinho_item WHERE id_carrinho_de_compras = %s",(id_carrinho,))
+                        total_carrinho = cursor.fetchone()
+                        total_carrinho = total_carrinho[0]
+                        janela = janela_carrinho(compras,total_carrinho)
                         while True:
                             eventos, valores = janela.read()
                             # Se o usuário clicar no botão "Fechar"
-                            if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_usuario": 
+                            if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_usuario_carrinho": 
                                 janela.close()
                                 janela =janela_sistema_usuario()
                                 break
                             if eventos == "comprar_carrinho":
+                                cursor.execute(f"INSERT INTO pedido (status, data, id_conta, cpf_atendente) VALUES('confirmado', curdate(), {id_conta},'NULL')")
                                 connection.commit()
+                                cursor.execute(f"SELECT id FROM pedido ORDER BY id DESC LIMIT 1")
+                                id_pedido = cursor.fetchone()
+                                id_pedido = id_pedido[0]
+                                sub_janela = pagamento(total_carrinho)
+                                forma_de_pagamento = ''
+
+                                # SERVE PARA TIRAR DO ESTOQUE E ADICIONAR OS VALORES NA TABELA "relacao_pedido_item" (aquela da relação N por N). As alterações só serão salvas depois do usuário comprar
+                                for p in qtd_produtos:
+                                    cursor.execute(f"UPDATE item SET quantidade = (quantidade - {qtd_produtos[p]}) WHERE id = {p}") #muda estoque
+                                    
+                                    if qtd_produtos[p] > 0:
+                                        cursor.execute(f"INSERT INTO relacao_item_pedido VALUES ({id_pedido}, {p}, {qtd_produtos[p]}) ") #adiciona na relacao n por n
+
+                                # PARTE QUE VERIFICA O PAGAMENTO 
+                                while True:
+                                    event, values = sub_janela.read()
+
+                                    if event == psg.WIN_CLOSED or event == 'Cancelar pagamento':
+                                        psg.popup("Pagamento cancelado!")
+                                        sub_janela.close()
+                                        janela.close()
+                                        janela = janela_sistema_usuario()
+                                        cursor.execute(f"UPDATE pedido SET status = 'cancelado' WHERE id = {id_pedido}")
+                                        sai = 0
+                                        break
+
+                                    elif event in ('Pix', 'Débito', 'Crédito', 'Boleto'):
+                                        sub_janela['forma_pagamento'].update(f"{event}")
+                                        forma_de_pagamento = event
+
+                                    elif event == 'Pagar':
+                                        parcelas = values['parcela']
+                                        parcelas_int = int(parcelas)
+
+                                        if parcelas_int < 1:
+                                            psg.popup("Quantidade de parcelas inválida!")
+                                            continue
+                                        
+                                        if forma_de_pagamento == '':
+                                            psg.popup("Selecione uma forma de pagamento")
+                                            continue
+
+                                        if parcelas_int > 24:
+                                            psg.popup("O número máximo de parcelas é de 24 vezes!")
+                                            continue
+
+                                        valor_parcela = (total_carrinho/parcelas_int)
+                                        psg.popup(f"Pagamento realizado no {forma_de_pagamento} em {parcelas} vez(es) de {valor_parcela} reais.")
+
+                                        cursor.execute(f"INSERT INTO pagamento(id_pedido, parcela, forma_pagamento, valor) VALUES ({id_pedido}, 1, '{forma_de_pagamento}', {valor_parcela})")
+                                        cursor.execute(f"UPDATE pedido SET status = 'pago' WHERE id = {id_pedido}")
+                                        connection.commit()
+                                        sub_janela.close()
+                                        cursor.execute("INSERT INTO carrinho_de_compras (id_conta) VALUES (%s)",(id_conta,))
+                                        connection.commit()
+                                        cursor.execute("SELECT MAX(id) AS maior_id FROM carrinho_de_compras")
+                                        id_carrinho = cursor.fetchall()
+                                        id_carrinho = list(map(lambda x: x[0],id_carrinho))
+                                        id_carrinho = id_carrinho[0]
+                                        break
+                                janela.close()
+                                janela = janela_sistema_usuario()
+                                break
+
                     #fazer a parte principal do código !!!!!!!
     # REGISTRAR USUARIO =============================================(Feito)====================================================
     elif eventos == "registrar_usuario":
@@ -164,12 +252,14 @@ while connection:
 
         while True:
             eventos, valores = janela.read()
-
+            
+            # VERIFICA SE O USUÁRIO VOLTOU
             if eventos == psg.WINDOW_CLOSED or eventos == "voltar_registrar_usuario":
                 janela.close()
                 janela = janela_login()
                 break
             
+            # FAZ AS VERIFICAÇÕES PARA INSERIR DADOS VÁLIDOS =====================================================================
             elif eventos == "registrado":
                 nome = valores['nome']
                 cpf = valores['cpf']
@@ -216,9 +306,11 @@ while connection:
                 if cursor.fetchone():
                     psg.popup("Este login já está sendo usado!")
                     continue
-
+                
+                # INSERE OS DADOS DO NOVO USUÁRIO NO BANCO DE DADOS ======================================================
                 cursor.execute(f"INSERT INTO usuario VALUES('{cpf}','{nome}','{bairro}','{cidade}','{estado}')")
                 cursor.execute(f"INSERT INTO usuario_web VALUES('{cpf}','{login}','{senha}')")
+                cursor.execute(f"INSERT INTO conta(cpf_usuario) VALUES('{cpf}')")
                 connection.commit()
 
                 psg.popup("Conta registrada com sucesso!")
@@ -226,15 +318,16 @@ while connection:
                 janela = janela_login()
                 break
 
-    # LOGIN ATENDENTE =====================================================================================================
+    # LOGIN ATENDENTE ======================================(FEITO)===============================================================
     elif eventos == "login_atendente":
         janela.close()
         janela = janela_login_atendente()
 
         while True:
-            # Atualizar a janela
+            # Atualizar a janela =====
             eventos, valores = janela.read()
 
+            # Verifica se o usuário fechou =========
             if eventos == psg.WINDOW_CLOSED or eventos == "voltar_login_atendente":
                 janela.close()
                 janela = janela_login()
@@ -244,7 +337,7 @@ while connection:
                 login_atendente = valores["nome_login_atendente"]
                 senha_atendente = valores["senha_atendente"]
 
-                # Verifica se os campos estão preenchidos
+                # VERIFICA SE OS CAMPOS ESTÃO PREENCHIDOS  =================
                 if len(login_atendente) < MIN_LEN_NOME_LOGIN or len(login_atendente) > MAX_LEN_NOME_LOGIN:
                     psg.popup("Login inválido!")
                     continue
@@ -252,7 +345,9 @@ while connection:
                 if len(senha_atendente) < MIN_LEN_SENHA or len(senha_atendente) > MAX_LEN_SENHA:
                     psg.popup("Senha inválida!")
                     continue
-                
+                # ==========================================================
+
+                # VERIFICA AS CREDENCIAIS DO USUARIO ============
                 cursor.execute(f"SELECT nome_login FROM atendente WHERE nome_login = '{login_atendente}'")
                 if not cursor.fetchone():
                     psg.popup("Este login não está cadastrado!")
@@ -279,13 +374,15 @@ while connection:
                         janela.close()
                         janela = janela_login_atendente()
                         break
-
+                    
+                    # REGISTRA UM NOVO USUÁRIO QUE ESTÁ COMPRANDO POR LIGAÇÃO TELEFÔNICA ================================================
                     elif eventos == "registrar_usuario_atendente":
                         sub_janela = janela_atendente_registrar_usuario()
 
                         while sai:
                             eventos, valores = sub_janela.read()
 
+                            # VERIFICA SE O USUARIO VOLTOU =================================================================================
                             if eventos == psg.WINDOW_CLOSED or eventos == "voltar_login_atendente":
                                 sub_janela.close()
                                 break
@@ -298,6 +395,7 @@ while connection:
                                 cidade = valores['cidade']
                                 estado = valores['estado']
 
+                                # VERIFICA SE OS DADOS SÃO VÁLIDOS ========================================================================
                                 if len(nome) < MIN_LEN_NOME or len(nome) > MAX_LEN_NOME or not re.match(r'^[A-Za-z\s]+$', nome):
                                     psg.popup("Nome inválido!")
                                     continue
@@ -322,8 +420,11 @@ while connection:
                                 if cursor.fetchone():
                                     psg.popup("CPF já cadastrado!")
                                     continue
-
+                                # ===========================================================================================================
+                               
+                                # INSERE O NOVO USUARIO NA TABELA 
                                 cursor.execute(f"INSERT INTO usuario VALUES('{cpf}','{nome}','{bairro}','{cidade}','{estado}')")
+                                cursor.execute(f"INSERT INTO conta(cpf_usuario) VALUES('{cpf}')")
                                 connection.commit()
 
                                 psg.popup("Usuário registrado com sucesso!")
@@ -338,203 +439,176 @@ while connection:
                                     psg.popup("CPF inválido!")
                                     continue
                         
+                        
                         cursor.execute(f"SELECT id FROM conta WHERE cpf_usuario = '{cpf}'")
                         resultado = cursor.fetchone()
-                        id_conta = resultado[0]
-                        cursor.execute(f"INSERT INTO carrinho_de_compras(id_conta) VALUES ('{id_conta}')")
                         
-                        cursor.execute("SELECT id FROM carrinho_de_compras ORDER BY id DESC LIMIT 1;") #Pega o último carrinho criado
+                        if resultado == None:
+                            psg.popup("Cliente não cadastrado!")
+                            continue
+
+                        psg.popup("CPF inserido!")
+                        id_conta = resultado[0]
+
+                        cursor.execute(f"INSERT INTO carrinho_de_compras(id_conta) VALUES ('{id_conta}')")
+                        connection.commit()
+                        cursor.execute("SELECT id FROM carrinho_de_compras ORDER BY id DESC LIMIT 1;") # Pega o id do último carrinho criado !!! (que é o atual)
                         resultado = cursor.fetchone()
                         id_carrinho = resultado[0]
 
                         while sai:
                             eventos, valores = janela.read()
-
+                            
+                            # VERIFICA SE O USUÁRIO VOLTOU E APAGA O CARRINHO SE FOR VERDADE ==================
                             if eventos == psg.WINDOW_CLOSED or eventos == "voltar_login_atendente":
                                 janela.close()
                                 sai = 0
+                                cursor.execute(f"DELETE FROM carrinho_de_compras WHERE id = {id_carrinho}")
+                                connection.commit()
                                 break
+                            
+                            elif eventos == "insere_cpf":
+                                cursor.execute(f"DELETE FROM carrinho_de_compras WHERE id = {id_carrinho}")
+                                
+                                # PEGA OS DADOS ============================================= 
+                                cpf = valores['cpf']
+                                if not len(cpf) == LEN_CPF or not cpf.isdigit():
+                                            psg.popup("CPF inválido!")
+                                            continue
+                                
+                                cursor.execute(f"SELECT id FROM conta WHERE cpf_usuario = '{cpf}'")
+                                resultado = cursor.fetchone()
+                                if resultado == None:
+                                    psg.popup("Cliente não cadastrado!")
+                                    continue
+                                
+                                # INSERE O NOVO CPF ===========================================
+                                psg.popup("CPF inserido!")
+                                id_conta = resultado[0]
+                                cursor.execute(f"INSERT INTO carrinho_de_compras(id_conta) VALUES ('{id_conta}')")
+                                connection.commit()
+                                cursor.execute("SELECT id FROM carrinho_de_compras ORDER BY id DESC LIMIT 1;") # Pega o id do último carrinho criado !!! (que é o atual)
+                                resultado = cursor.fetchone()
+                                id_carrinho = resultado[0]
                             
                             #ADICIONA O ITEM NO CARRINHO =======================================================
                             elif eventos == "adic_carrinho":
+                                produtos = ['camiseta', 'camisa', 'casaco', 'cropped', 'calça', 'bermuda', 'saia', 'tênis', 'sapato', 'sapatilha']
+                                nome_item = ['','','','','','','','','','']
+                                quantidade_int = [0,0,0,0,0,0,0,0,0,0]
+                                valor_produto = [0,0,0,0,0,0,0,0,0,0]
+                                id_item = [0,0,0,0,0,0,0,0,0,0]
                                 verifica_quantidade = 10
                                 total_carrinho = 0
                                 quantidade = 0 
+                                permissao = 1
 
-                                quantidade = valores['qtd_camiseta']
-                                quantidade_int = int(quantidade)
-                                print(quantidade_int)
-                                if quantidade_int > 0:
-                                    nome_item = valores['lista_camiseta'][0]
-                                    cursor.execute(f"SELECT id FROM item WHERE nome = 'camiseta {nome_item}'")
-                                    resultado = cursor.fetchone()
-                                    id_item = resultado[0]
-                                    cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'camiseta' LIMIT 1;")
-                                    resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * quantidade_int
-                                    total_carrinho += valor_produto
+                                for i in range (10):
+                                    quantidade = valores[f'qtd_{produtos[i]}']
+                                    quantidade_int[i] = int(quantidade)
 
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'camiseta {nome_item}')")
-                                    verifica_quantidade -= 1
+                                    if quantidade_int[i] > 0:
+                                        nome_item[i] = valores[f'lista_{produtos[i]}'][0]
+                                        cursor.execute(f"SELECT id FROM item WHERE nome = '{produtos[i]} {nome_item[i]}'")
+                                        resultado = cursor.fetchone()
+                                        id_item[i] = resultado[0]
 
-                                quantidade = valores['qtd_camisa']
-                                quantidade_int = int(quantidade) 
-                                if quantidade_int > 0:
+                                        cursor.execute(f"SELECT quantidade FROM item WHERE id = {id_item[i]}")
+                                        resultado = cursor.fetchone()
+                                        quantidade_estoque = resultado[0]
 
-                                    nome_item = valores['lista_camisa'][0]
-                                    cursor.execute(f"SELECT id FROM item WHERE nome = 'camisa {nome_item}'")
-                                    resultado = cursor.fetchone()
-                                    id_item = resultado[0]
-                                    cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'camisa' LIMIT 1;")
-                                    resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * quantidade_int
-                                    total_carrinho += valor_produto 
-                                    
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'camisa {nome_item}')")
-                                    verifica_quantidade -= 1
-
-                                quantidade = valores['qtd_casaco']
-                                quantidade_int = int(quantidade) 
-                                if quantidade_int > 0:
-
-                                    nome_item = valores['lista_casaco'][0]
-                                    cursor.execute(f"SELECT id FROM item WHERE nome = 'casaco {nome_item}'")
-                                    resultado = cursor.fetchone()
-                                    id_item = resultado[0]
-                                    cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'casaco' LIMIT 1;")
-                                    resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * quantidade_int
-                                    total_carrinho += valor_produto 
-                                    
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'casaco {nome_item}')")
-                                    verifica_quantidade -= 1
-
-                                quantidade = valores['qtd_cropped']
-                                quantidade_int = int(quantidade) 
-                                if quantidade_int > 0:
-
-                                    nome_item = valores['lista_cropped'][0]
-                                    cursor.execute(f"SELECT id FROM item WHERE nome = 'cropped {nome_item}'")
-                                    resultado = cursor.fetchone()
-                                    id_item = resultado[0]
-                                    cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'cropped' LIMIT 1;")
-                                    resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * quantidade_int
-                                    total_carrinho += valor_produto 
-                                    
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'cropped {nome_item}')")
-                                    verifica_quantidade -= 1
-
-                                quantidade = valores['qtd_calça']
-                                quantidade_int = int(quantidade) 
-                                if quantidade_int > 0:
-
-                                    nome_item = valores['lista_calça'][0]
-                                    cursor.execute(f"SELECT id FROM item WHERE nome = 'calça {nome_item}'")
-                                    resultado = cursor.fetchone()
-                                    id_item = resultado[0]
-                                    cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'calça' LIMIT 1;")
-                                    resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * quantidade_int
-                                    total_carrinho += valor_produto 
-                                    
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'calça {nome_item}')")
-                                    verifica_quantidade -= 1
-
-                                quantidade = valores['qtd_bermuda']
-                                quantidade_int = int(quantidade) 
-                                if quantidade_int > 0:
-
-                                    nome_item = valores['lista_bermuda'][0]
-                                    cursor.execute(f"SELECT id FROM item WHERE nome = 'bermuda {nome_item}'")
-                                    resultado = cursor.fetchone()
-                                    id_item = resultado[0]
-                                    cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'bermuda' LIMIT 1;")
-                                    resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * quantidade_int
-                                    total_carrinho += valor_produto
-
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'bermuda {nome_item}')")
-                                    verifica_quantidade -= 1
-
-                                quantidade = valores['qtd_saia']
-                                quantidade_int = int(quantidade) 
-                                if quantidade_int > 0:
-
-                                    nome_item = valores['lista_saia'][0]
-                                    cursor.execute(f"SELECT id FROM item WHERE nome = 'saia {nome_item}'")
-                                    resultado = cursor.fetchone()
-                                    id_item = resultado[0]
-                                    cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'saia' LIMIT 1;")
-                                    resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * quantidade_int
-                                    total_carrinho += valor_produto 
-                                    
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'saia {nome_item}')")
-                                    verifica_quantidade -= 1
-
-                                quantidade = valores['qtd_tênis']
-                                quantidade_int = int(quantidade) 
-                                if quantidade_int > 0:
-
-                                    nome_item = valores['lista_tênis'][0]
-                                    cursor.execute(f"SELECT id FROM item WHERE nome = 'tênis {nome_item}'")
-                                    resultado = cursor.fetchone()
-                                    id_item = resultado[0]
-                                    cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'tênis' LIMIT 1;")
-                                    resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * quantidade_int
-                                    total_carrinho += valor_produto 
-                                    
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'tênis {nome_item}')")
-                                    verifica_quantidade -= 1
-
-                                quantidade = valores['qtd_sapato']
-                                quantidade_int = int(quantidade) 
-                                if quantidade_int > 0:
-
-                                    nome_item = valores['lista_sapato'][0]
-                                    cursor.execute(f"SELECT id FROM item WHERE nome = 'sapato {nome_item}'")
-                                    resultado = cursor.fetchone()
-                                    id_item = resultado[0]
-                                    cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'sapato' LIMIT 1;")
-                                    resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * quantidade_int
-                                    total_carrinho += valor_produto 
-                                    
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'sapato {nome_item}')")
-                                    verifica_quantidade -= 1
-
-                                quantidade = valores['qtd_sapatilha']
-                                quantidade_int = int(quantidade) 
-                                if quantidade_int > 0:
-
-                                    nome_item = valores['lista_sapatilha'][0]
-                                    cursor.execute(f"SELECT id FROM item WHERE nome = 'sapatilha {nome_item}'")
-                                    resultado = cursor.fetchone()
-                                    id_item = resultado[0]
-                                    cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = 'sapatilha' LIMIT 1;")
-                                    resultado = cursor.fetchone()
-                                    valor_produto = resultado[0] * quantidade_int
-                                    total_carrinho += valor_produto 
-                                    
-                                    cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item},{quantidade},{valor_produto},'sapatilha {nome_item}')")
-                                    verifica_quantidade -= 1
+                                    if (quantidade_estoque - quantidade_int[i]) < 0:
+                                        psg.popup(f"Se acalme, rapaz! só temos {quantidade_estoque} unidades de {produtos[i]} {nome_item[i]}.")
+                                        permissao = 0
+                                        break 
                                 
+                                if permissao == 0:
+                                    continue
+
+                                for i in range (10):
+                                    
+                                    if quantidade_int[i] > 0:
+                                        cursor.execute(f"SELECT valor FROM produto JOIN item ON produto.id = item.id_produto WHERE produto.nome = '{produtos[i]}' LIMIT 1;")
+                                        resultado = cursor.fetchone()
+                                        valor_produto[i] = resultado[0] * quantidade_int[i]
+                                        total_carrinho += valor_produto[i]
+
+                                        cursor.execute(f"INSERT INTO relacao_carrinho_item VALUES({id_carrinho},{id_conta},{id_item[i]},{quantidade_int[i]},{valor_produto[i]},'{produtos[i]} {nome_item[i]}')")
+                                        verifica_quantidade -= 1
+
                                 if verifica_quantidade == 10:
                                     psg.popup("Selecione pelo menos um item com alguma quantidade válida para prosseguir")
                                     continue
-
+                                
                                 psg.popup("Itens adicionados ao carrinho !")
+
+                                # CRIA O PEDIDO =======================================================
                                 cursor.execute(f"INSERT INTO pedido (status, data, id_conta, cpf_atendente) VALUES('confirmado', curdate(), {id_conta}, {cpf_atendente})")
                                 connection.commit()
 
+                                # CRIA A JANELA DE PAGAMENTO E PEGA OS DADOS NECESSÁRIOS PARA CRIAR UM PAGAMENTO =====================================
                                 cursor.execute(f"SELECT id FROM pedido ORDER BY id DESC LIMIT 1")
                                 resultado = cursor.fetchone()
                                 id_pedido = resultado[0]
+                                sub_janela = pagamento(total_carrinho)
+                                forma_de_pagamento = ''
 
-                                pagamento(total_carrinho, id_pedido)
+                                # SERVE PARA TIRAR DO ESTOQUE E ADICIONAR OS VALORES NA TABELA "relacao_pedido_item" (aquela da relação N por N). As alterações só serão salvas depois do usuário comprar
+                                for i in range (10):
+                                    if quantidade_int[i] > 0:
 
+                                        cursor.execute(f"UPDATE item SET quantidade = (quantidade - {quantidade_int[i]}) WHERE id = {id_item[i]}") #muda estoque
+                                        cursor.execute(f"INSERT INTO relacao_item_pedido VALUES ({id_pedido}, {id_item[i]}, {quantidade_int[i]}) ") #adiciona na relacao n por n
+
+                                # PARTE QUE VERIFICA O PAGAMENTO (AS PARCELAS, O MÉTODO DE PAGAMENTO OU SE O USUÁRIO DECIDIU CANCELAR A COMPRA) ===========
+                                while True:
+                                    event, values = sub_janela.read()
+                                    
+                                    # CANCELA A COMPRA E MUDA O STATUS DO PEDIDO PARA CANCELADO ============
+                                    if event == psg.WIN_CLOSED or event == 'Cancelar pagamento':
+                                        psg.popup("Pagamento cancelado!")
+                                        sub_janela.close()
+                                        janela.close()
+                                        janela = sistema_atendente()
+                                        cursor.execute(f"UPDATE pedido SET status = 'cancelado' WHERE id = {id_pedido}")
+                                        sai = 0
+                                        break
+                                    
+                                    # VERIFICA O MÉTODO DE PAGAMENTO
+                                    elif event in ('Pix', 'Débito', 'Crédito', 'Boleto'):
+                                        sub_janela['forma_pagamento'].update(f"{event}")
+                                        forma_de_pagamento = event
+
+                                    # VERIFICA SE A QUANTIDADE DE PARCELAS É VÁLIDA 
+                                    elif event == 'Pagar':
+                                        parcelas = values['parcela']
+                                        parcelas_int = int(parcelas)
+
+                                        if parcelas_int < 1:
+                                            psg.popup("Quantidade de parcelas inválida!")
+                                            continue
+                                        
+                                        if forma_de_pagamento == '':
+                                            psg.popup("Selecione uma forma de pagamento")
+                                            continue
+
+                                        if parcelas_int > 24:
+                                            psg.popup("O número máximo de parcelas é de 24 vezes!")
+                                            continue
+
+                                        # INSERE O PAGAMENTO NA TABELA E ALTERA O STATUS DO PEDIDO PARA "PAGO"
+                                        valor_parcela = (total_carrinho/parcelas_int)
+                                        psg.popup(f"Pagamento realizado no {forma_de_pagamento} em {parcelas} vez(es) de {valor_parcela} reais.")
+                                        cursor.execute(f"INSERT INTO pagamento(id_pedido, parcela, forma_pagamento, valor) VALUES ({id_pedido}, 1, '{forma_de_pagamento}', {valor_parcela})")
+                                        cursor.execute(f"UPDATE pedido SET status = 'pago' WHERE id = {id_pedido}")
+                                        connection.commit()
+                                        sub_janela.close()
+                                        janela.close()
+                                        janela = sistema_atendente()
+                                        sai = 0
+                                        break
+                    
+                    # VERIFICAÇÃO BOBINHA 
                     elif eventos == "adic_carrinho":
                         psg.popup("Insira o CPF do usuário antes de adicionar no carrinho")
 
@@ -624,6 +698,55 @@ while connection:
                                 sub_janela.close()
                                 break
 
+                    elif eventos == "todos_pedidos_conta":
+                        sub_janela = sub_janela_total_pedido_conta_id()
+                        while True:
+                            eventos, valores = sub_janela.read()
+                            
+                            if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_gerente":
+                                sub_janela.close()
+                                break
+
+                            elif eventos == "enviar":
+                                sub_janela.close()
+                                id_conta = valores["id_conta"]
+                                id_conta = int(id_conta)
+                                print(id_conta)
+                                cursor.execute(f"SELECT count(*) FROM pedido WHERE id_conta = {id_conta} GROUP BY id_conta")
+                                total_pedidos = cursor.fetchall()
+                                total_pedidos = total_pedidos[0][0]
+                                print(total_pedidos)
+                                sub_janela = sub_janela_total_pedido_conta(total_pedidos)
+                                while True:
+                                    eventos, valores = sub_janela.read()
+                                    if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_gerente":
+                                        sub_janela.close()
+                                        break
+
+                    elif eventos == "dados_usuarios_cadastrados":
+                        cursor.execute("SELECT count(cpf_usuario) FROM usuario_web")
+                        resultado = cursor.fetchone()
+                        quantidade_usuarios_web = resultado[0]
+
+                        cursor.execute("SELECT count(cpf) FROM usuario")
+                        resultado = cursor.fetchone()
+                        quantidade_usuarios_atendidos = resultado[0] - quantidade_usuarios_web
+                        sub_janela = sub_janela_dados_usuarios(quantidade_usuarios_web, quantidade_usuarios_atendidos)
+    
+                        while True:
+                            eventos, valores = sub_janela.read()
+
+                            cursor.execute("SELECT * FROM usuario")
+                            resultados = cursor.fetchall()
+
+                            for tupla in resultados:
+                                print(tupla)
+
+                            if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_gerente":
+                                sub_janela.close()
+                                break
+
 cursor.close()
 connection.close()
 janela.close()
+                           

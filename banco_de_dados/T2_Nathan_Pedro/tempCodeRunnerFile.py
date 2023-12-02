@@ -1,1 +1,1 @@
-
+quantidade_usuarios_web, quantidade_usuarios_atendidos

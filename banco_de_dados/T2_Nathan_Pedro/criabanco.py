@@ -131,10 +131,11 @@ def criabanco():
         cursor.execute("""
         CREATE TABLE pagamento (
             id INT AUTO_INCREMENT,
-            id_pedido INT, 
-            forma_pagamento VARCHAR(30),
+            id_pedido INT,
+            parcela INT,
+            forma_pagamento VARCHAR(30) NOT NULL,
             valor DECIMAL(8,2) NOT NULL,
-            PRIMARY KEY (id, id_pedido),
+            PRIMARY KEY (id, id_pedido, parcela),
             FOREIGN KEY (id_pedido) REFERENCES pedido(id)
         )
     """)
