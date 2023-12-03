@@ -116,6 +116,7 @@ def criabanco():
             ( 'Pendente', '2023-01-17', 3, '11223344556'),
             ( 'Concluído', '2023-01-18', 4, 'NULL'),
             ( 'Pendente', '2023-01-19', 5, '44556677889'),
+            ( 'Pendente', '2024-01-19', 6, '44556677889'),
         ]
 
         for status, data_pedido, id_conta, cpf_atendente in data:
@@ -139,6 +140,15 @@ def criabanco():
             FOREIGN KEY (id_pedido) REFERENCES pedido(id)
         )
     """)
+        data = [
+            ( '6', '1', 'Pix', '10'),
+        ]
+
+        for id_pedido, parcela, forma_pagamento, valor in data:
+            cursor.execute("""
+            INSERT INTO pagamento (id_pedido, parcela, forma_pagamento, valor)
+            VALUES ( %s, %s, %s, %s)
+            """, ( id_pedido, parcela, forma_pagamento, valor))
     
     #tabela produto ==============================================
     cursor.execute("show tables like 'produto'")

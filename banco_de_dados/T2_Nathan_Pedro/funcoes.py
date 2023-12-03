@@ -212,9 +212,14 @@ def sistema_gerencia():
     psg.theme('Reddit')
     layout_sistema_gerencia = [
         [psg.Text("Sistema de Gestão de Loja", text_color='black', size=(20, 1), font=('Arial', 25), justification='center', pad=((0, 0), (20, 30)))],
-        [psg.Button("Registrar Atendente", size=(18, 1), button_color=("white", "#000080"), key="registrar_atendente", pad=((0, 0), (20, 15)))],
+        [psg.Button("Registrar Atendente", size=(25, 1), button_color=("white", "#000080"), key="registrar_atendente", pad=((0, 0), (20, 15)))],
         [psg.Button("Total de pedidos de uma conta", size=(25, 1), button_color=("white", "#000080"), key="todos_pedidos_conta", pad=((0, 0), (20, 15)))],
+        [psg.Button("Total de pedidos de um carrinho", size=(25, 1), button_color=("white", "#000080"), key="todos_produtos_carrinho", pad=((0, 0), (20, 15)))],
         [psg.Button("Dados dos usuários cadastrados", size=(25, 1), button_color=("white", "#000080"), key="dados_usuarios_cadastrados", pad=((0, 0), (20, 15)))],
+        [psg.Button("Dados das formas de pagamento", size=(25, 1), button_color=("white", "#000080"), key="formas_pagamento", pad=((0, 0), (20, 15)))],
+        [psg.Button("Médias anuais", size=(25, 1), button_color=("white", "#000080"), key="media_anual", pad=((0, 0), (20, 15)))],
+        [psg.Button("Maior número de vendas", size=(25, 1), button_color=("white", "#000080"), key="maior_numero_vendas", pad=((0, 0), (20, 15)))],
+        [psg.Button("Compra em todos os meses", size=(25, 1), button_color=("white", "#000080"), key="compras_todos_meses", pad=((0, 0), (20, 15)))],
         [psg.Button("Deslogar", size=(12, 1), button_color=("white", "red"), key="voltar_sistema_gerencia", pad=((0, 0), (20, 15)))]
     ]
     return psg.Window("Sistema gerencia", layout_sistema_gerencia, background_color="white", element_justification='c')
@@ -231,12 +236,61 @@ def sub_janela_total_pedido_conta_id():
 
 def sub_janela_total_pedido_conta(total_pedidos):
     psg.theme('Reddit')
-    layout_sistema_gerencia = [
+    # Criar a lista de layout do carrinho
+    layout_sistema_total_pedidos = [
         [psg.Text("Total de pedidos de uma conta", text_color='black', size=(30, 1), font=('Arial', 22), justification='center', pad=((0, 0), (20, 30)))],
-        [psg.Text(f"Total: {total_pedidos}", size=(10, 1), justification='right')],
+    ]
+    for id, status, data,cpf_atendente in total_pedidos:
+        layout_sistema_total_pedidos.extend([
+                [psg.Text(f"ID: {id}, Status: {status}, Data: {data}, CPF_atendente: {cpf_atendente}", size=(100, 1), justification='center')],
+        ])
+    layout_sistema_total_pedidos.extend([
         [psg.Button("Voltar", key='voltar_sistema_gerente', button_color=("white", "#000080"), size=(8, 2), pad=((0, 140), (25, 25)))]
     ]
-    return psg.Window("Total_de_pedidos_de_uma_conta", layout_sistema_gerencia, background_color="white", element_justification='c')
+    )
+    return psg.Window("Total_de_pedidos_de_uma_conta", layout_sistema_total_pedidos, background_color="white", element_justification='c')
+
+def sub_todos_produtos_carrinho_id():
+    psg.theme('Reddit')
+    sub_todos_produtos_carrinho_id = [
+        [psg.Text("Total de produtos de um carrinho", text_color='black', size=(30, 1), font=('Arial', 20), justification='center', pad=((0, 0), (20, 30)))],
+        [psg.Text("ID carrinho:", size=(10, 1), justification='right'), psg.Input(size=(10, 10), justification="center", key= "id_carrinho",default_text="2")],
+        [psg.Button("Enviar", key='enviar', button_color=("white", "Green"), size=(8, 2), pad=((0, 140), (25, 25)))],
+        [psg.Button("Voltar", key='voltar_sistema_gerente', button_color=("white", "#000080"), size=(8, 2), pad=((0, 140), (25, 25)))]
+    ]
+    return psg.Window("Total de pedidos de uma conta id", sub_todos_produtos_carrinho_id, background_color="white", element_justification='c')
+
+def sub_todos_produtos_carrinho(total_produtos):
+    psg.theme('Reddit')
+    # Criar a lista de layout do carrinho
+    layout_sistema_total_pedidos = [
+        [psg.Text("Total de produtos de um carrinho", text_color='black', size=(30, 1), font=('Arial', 22), justification='center', pad=((0, 0), (20, 30)))],
+    ]
+    for id_conta_carrinho_de_compras, id_item, valor, nome in total_produtos:
+        layout_sistema_total_pedidos.extend([
+                [psg.Text(f"ID da conta : {id_conta_carrinho_de_compras}, ID do item: {id_item},valor: {valor}, nome: {nome}", size=(100, 1), justification='center')],
+        ])
+    layout_sistema_total_pedidos.extend([
+        [psg.Button("Voltar", key='voltar_sistema_gerente', button_color=("white", "#000080"), size=(8, 2), pad=((0, 140), (25, 25)))]
+    ]
+    )
+
+def sub_janela_media_anual(media_anual):
+    psg.theme('Reddit')
+    # Criar a lista de layout do carrinho
+    sub_janela_media_anual = [
+        [psg.Text("Média anual", text_color='black', size=(30, 1), font=('Arial', 22), justification='center', pad=((0, 0), (20, 30)))],
+    ]
+    for ano,media in media_anual:
+        sub_janela_media_anual.extend([
+                [psg.Text(f"Ano : {ano}, média : {media:.2f}", size=(100, 1), justification='center')],
+        ])
+    sub_janela_media_anual.extend([
+    [psg.Button("Voltar", key='voltar_sistema_gerente', button_color=("white", "#000080"), size=(8, 2), pad=((0, 140), (25, 25)))]
+    ]
+    )
+
+    return psg.Window("Média anual", sub_janela_media_anual, background_color="white", element_justification='c')
 
 def sub_janela_dados_usuarios(quantidade_usuarios_web, quantidade_usuarios_atendidos):
     psg.theme('Reddit')
@@ -251,6 +305,42 @@ def sub_janela_dados_usuarios(quantidade_usuarios_web, quantidade_usuarios_atend
         [psg.Button("Voltar", key='voltar_sistema_gerente', button_color=("white", "#000080"), size=(14, 2), pad=((0, 0), (25, 25)))]
     ]
     return psg.Window("Dados_dos_usuários_cadastrados", layout_sistema_gerencia, background_color="white", element_justification='c')
+
+def sub_janela_pagamento_mais_utilizado(forma_pagamento, quantidade_pagamento, valor_pagamento):
+    psg.theme('Reddit')
+    layout_sistema_gerencia = [
+        [psg.Text("Dados sobre pagamento", text_color='black', size=(36, 1), font=('Arial', 22), justification='center', pad=((0, 0), (20, 30)))],
+        [psg.Text(f"A forma de pagamento mais utilizada é no {forma_pagamento[0]}:", text_color='black', size=(50, 1), font=('Arial', 16), justification='left', pad=((0, 0), (0, 0)))],
+        [psg.Text(f"Pagamentos: {quantidade_pagamento[0]}    Valor: {valor_pagamento[0]} reais", text_color='black', size=(30, 1), font=('Arial', 14), justification='left', pad=((40, 0), (0, 0)))],
+        [psg.Text(f"A segunda forma de pagamento mais utilizada é no {forma_pagamento[1]}:", text_color='black', size=(50, 1), font=('Arial', 16), justification='left', pad=((0, 0), (20, 0)))],
+        [psg.Text(f"Pagamentos: {quantidade_pagamento[1]}    Valor: {valor_pagamento[1]} reais", text_color='black', size=(30, 1), font=('Arial', 14), justification='left', pad=((40, 0), (0, 0)))],
+        [psg.Text(f"A terceira forma de pagamento mais utilizada é no {forma_pagamento[2]}:", text_color='black', size=(50, 1), font=('Arial', 16), justification='left', pad=((0, 0), (20, 0)))],
+        [psg.Text(f"Pagamentos: {quantidade_pagamento[2]}    Valor: {valor_pagamento[2]} reais", text_color='black', size=(30, 1), font=('Arial', 14), justification='left', pad=((40, 0), (0, 0)))],
+        [psg.Text(f"A forma de pagamento menos utilizada é no {forma_pagamento[3]}:", text_color='black', size=(50, 1), font=('Arial', 16), justification='left', pad=((0, 0), (20, 0)))],
+        [psg.Text(f"Pagamentos: {quantidade_pagamento[3]}    Valor: {valor_pagamento[3]} reais", text_color='black', size=(30, 1), font=('Arial', 14), justification='left', pad=((40, 0), (0, 0)))],
+        [psg.Button("Voltar", key='voltar_sistema_gerente', button_color=("white", "#000080"), size=(14, 2), pad=((0, 0), (25, 25)))]
+    ]
+    return psg.Window("Dados sobre pagamento", layout_sistema_gerencia, background_color="white", element_justification='l')
+
+def sub_janela_maior_numero_vendas(maior_num_ano, maior_num_mes):
+    psg.theme('Reddit')
+    layout_sistema_gerencia = [
+        [psg.Text("Dados de vendas", text_color='black', size=(36, 1), font=('Arial', 22), justification='center', pad=((0, 0), (20, 30)))],
+        [psg.Text(f"O ano com o maior número de vendas foi: {maior_num_ano}", text_color='black', size=(50, 1), font=('Arial', 14), justification='left', pad=((40, 0), (0, 0)))],
+        [psg.Text(f"O mês com o maior número de vendas foi o mês: {maior_num_mes}", text_color='black', size=(50, 1), font=('Arial', 14), justification='left', pad=((40, 0), (0, 0)))],
+        [psg.Button("Voltar", key='voltar_sistema_gerente', button_color=("white", "#000080"), size=(14, 2), pad=((0, 0), (25, 25)))]
+    ]
+    return psg.Window("Dados de vendas", layout_sistema_gerencia, background_color="white", element_justification='c')
+
+def sub_janela_compras_todos_meses():
+    psg.theme('Reddit')
+    layout_sistema_gerencia = [
+        [psg.Text("Compras em todos os meses", text_color='black', size=(36, 1), font=('Arial', 22), justification='center', pad=((0, 0), (20, 30)))],
+        [psg.Text('Insira o ano para verificar:', justification='center', size=(30,1), font=('Arial', 14)), psg.InputText(key='ano'), psg.Button("Procurar", key="busca_compra")],
+        [psg.Text("CPF dos usuários:"), psg.Output(size=(30,5), key= "output", pad=((0,0),(20,20)))],
+        [psg.Button("Voltar", key='voltar_sistema_gerente', button_color=("white", "#000080"), size=(14, 2), pad=((0, 0), (25, 25)))]
+    ]
+    return psg.Window("Compra em todos os meses", layout_sistema_gerencia, background_color="white", element_justification='c')
 
 def pagamento(total_carrinho):
     psg.theme('Reddit')

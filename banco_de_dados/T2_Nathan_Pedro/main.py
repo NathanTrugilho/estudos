@@ -1,7 +1,6 @@
 import re #Para verificar nomes com espaço
 import PySimpleGUI as psg
 from funcoes import *
-import time
 
 LEN_CPF = 11
 LEN_ESTADO = 2
@@ -500,6 +499,7 @@ while connection:
                                 id_item = [0,0,0,0,0,0,0,0,0,0]
                                 verifica_quantidade = 10
                                 total_carrinho = 0
+                                quantidade_estoque = 0
                                 quantidade = 0 
                                 permissao = 1
 
@@ -712,9 +712,11 @@ while connection:
                                 id_conta = valores["id_conta"]
                                 id_conta = int(id_conta)
                                 print(id_conta)
-                                cursor.execute(f"SELECT count(*) FROM pedido WHERE id_conta = {id_conta} GROUP BY id_conta")
+                                #cursor.execute(f"SELECT count(*) FROM pedido WHERE id_conta = {id_conta} GROUP BY id_conta")
+                                cursor.execute(f"SELECT id, status, data, cpf_atendente FROM pedido WHERE id_conta = {id_conta}")
                                 total_pedidos = cursor.fetchall()
-                                total_pedidos = total_pedidos[0][0]
+                                print(total_pedidos)
+                                #total_pedidos = total_pedidos[0][0]
                                 print(total_pedidos)
                                 sub_janela = sub_janela_total_pedido_conta(total_pedidos)
                                 while True:
@@ -722,6 +724,46 @@ while connection:
                                     if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_gerente":
                                         sub_janela.close()
                                         break
+
+                    elif eventos == "todos_produtos_carrinho":
+                        sub_janela =  sub_todos_produtos_carrinho_id()
+                        while True:
+                            eventos, valores = sub_janela.read()
+                            
+                            if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_gerente":
+                                sub_janela.close()
+                                break
+
+                            elif eventos == "enviar":
+                                sub_janela.close()
+                                id_carrinho= valores["id_carrinho"]
+                                id_carrinho = int(id_carrinho)
+                                print(id_carrinho)
+                                #cursor.execute(f"SELECT count(*) FROM pedido WHERE id_conta = {id_conta} GROUP BY id_conta")
+                                cursor.execute(f"SELECT id_conta_carrinho_de_compras, id_item, valor, nome FROM relacao_carrinho_item WHERE id_carrinho_de_compras = {id_carrinho}")
+                                total_produtos = cursor.fetchall()
+                                print(total_produtos)
+                                #total_pedidos = total_pedidos[0][0]
+                                print(total_produtos)
+                                sub_janela = sub_todos_produtos_carrinho(total_produtos)
+                                while True:
+                                    eventos, valores = sub_janela.read()
+                                    if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_gerente":
+                                        sub_janela.close()
+                                        break
+
+                    elif eventos == "media_anual":
+                        cursor.execute("SELECT YEAR(pedido.data) AS ano, AVG(pagamento.valor) AS media_vendas_anual FROM pagamento JOIN pedido ON pagamento.id_pedido = pedido.id GROUP BY YEAR(pedido.data)")
+                        media_anual = cursor.fetchall()
+                        print(media_anual)
+                        sub_janela = sub_janela_media_anual(media_anual)
+
+                        while True:
+                            eventos, valores = sub_janela.read()
+
+                            if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_gerente":
+                                sub_janela.close()
+                                break
 
                     elif eventos == "dados_usuarios_cadastrados":
                         cursor.execute("SELECT count(cpf_usuario) FROM usuario_web")
@@ -746,7 +788,74 @@ while connection:
                                 sub_janela.close()
                                 break
 
+                    elif eventos == "formas_pagamento":
+                        cursor.execute("SELECT forma_pagamento, count(forma_pagamento) AS qtd, sum(valor) AS valor FROM pagamento GROUP BY forma_pagamento ORDER BY qtd DESC")
+                        resultado = cursor.fetchall()
+                        forma_pagamento = [0,0,0,0]
+                        quantidade_pagamento = [0,0,0,0]
+                        valor_pagamento = [0,0,0,0]
+
+                        for i in range(4):
+                            forma_pagamento[i] = resultado[i][0]
+                            quantidade_pagamento[i] = resultado[i][1]
+                            valor_pagamento[i] = resultado[i][2]
+
+                        sub_janela = sub_janela_pagamento_mais_utilizado(forma_pagamento, quantidade_pagamento, valor_pagamento)
+                        while True:
+                            eventos, valores = sub_janela.read()
+
+                            if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_gerente":
+                                sub_janela.close()
+                                break
+                    
+                    elif eventos == "maior_numero_vendas":
+                        cursor.execute("select year(data), count(pagamento.id) as qtd from pedido join pagamento on pagamento.id_pedido = pedido.id group by year(data) order by qtd desc limit 1")
+                        resultado = cursor.fetchone()
+                        maior_num_ano = resultado[0]
+
+                        cursor.execute("select month(data), count(pagamento.id) as qtd from pedido join pagamento on pagamento.id_pedido = pedido.id group by month(data) order by qtd desc limit 1")
+                        resultado = cursor.fetchone()
+                        maior_num_mes = resultado[0]
+
+                        sub_janela = sub_janela_maior_numero_vendas(maior_num_ano, maior_num_mes)
+                        while True:
+                            eventos, valores = sub_janela.read()
+
+                            if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_gerente":
+                                sub_janela.close()
+                                break
+
+                    elif eventos == "compras_todos_meses":
+
+                        sub_janela = sub_janela_compras_todos_meses()
+                        
+                        while True:
+                            eventos, valores = sub_janela.read()
+
+                            if eventos == psg.WINDOW_CLOSED or eventos == "voltar_sistema_gerente":
+                                sub_janela.close()
+                                break
+                            
+                            elif eventos == "busca_compra":
+                                sub_janela["output"].update('')
+                                verifica_ano = valores['ano']
+                                
+                                if not verifica_ano.isdigit():
+                                    psg.popup("Insira um ano válido!")
+                                    continue
+                                
+                                verifica_ano = int(verifica_ano)
+
+                                cursor.execute(f"select cpf_usuario from pedido join conta on pedido.id_conta = conta.id where year(data) = '{verifica_ano}' and status = 'pago' group by id_conta having count(distinct month(data)) = 12;")
+                                resultado = cursor.fetchone()
+
+                                if not resultado == None:
+                                    resultado = resultado[0]
+                                    print(resultado)
+                                    continue
+                                
+                                print("Nenhum usuário fez compras em todos os meses deste ano!")
+
 cursor.close()
 connection.close()
 janela.close()
-                           
