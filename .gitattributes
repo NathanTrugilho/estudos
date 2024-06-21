@@ -52,7 +52,3 @@
 *.a      binary
 *.lib    binary
 *.bin    binary
-
-# Para arquivos grandes que devem ser tratados de maneira especial
-# Exemplo para Git LFS (Large File Storage)
-#*.psd filter=lfs diff=lfs merge=lfs -text
