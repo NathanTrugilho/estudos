@@ -1,0 +1,70 @@
+\! mysqldump (nome do banco) > (nome do arquivo).sql (Pra salvar)
+describe (nome tabela)
+
+create table cliente
+(
+	idCliente tinyint,
+	nomeCliente varchar(40),
+	primary key (idCliente)
+);
+
+create table telCliente
+(
+	idCliente tinyint,
+	telCliente char(9),
+	primary key (idCliente, telCliente),
+	foreign key (idCliente)
+	references cliente (idCliente)
+);
+
+create table mesa
+(
+	idMesa tinyint,
+	numeroMesas tinyint unique,
+	primary key (idMesa)
+);
+
+create table nota
+(
+	numeroNota tinyint,
+	dtPagamento date,
+	idPedido tinyint,
+	primary key (numeroNota, dtPagamento),
+	foreign key (idPedido) references pedido (idPedido)
+);
+
+create table pedido
+(
+	idPedido tinyint,
+	idCliente tinyint,
+	idMesa tinyint,
+	dtPedido date,
+	motivoCancel varchar(100),
+	situacao varchar(30),
+	primary key (idPedido),
+	foreign key(idCliente)
+	references cliente (idCliente),
+	foreign key(idMesa)
+	references mesa (idMesa)
+);
+
+create table itemConsumo
+(
+	idItem tinyint,
+	nomeItem varchar(30),
+	precoUnit float(8,2),
+	descricao varchar(200),
+	categoria varchar(30),
+	primary key (idItem)
+);
+
+create table contem
+(
+	idPedido tinyint,
+	idItem tinyint,
+	quantidade tinyint,
+	primary key (idPedido, idItem),
+	foreign key (idPedido) references pedido (idPedido),
+	foreign key (idItem) references itemConsumo (idItem)
+);
+
