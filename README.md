@@ -1,2 +1,2 @@
 # estudos
-Repositório para estudos diversos
+Repositório para estudos diversos e relacionados à faculdade
