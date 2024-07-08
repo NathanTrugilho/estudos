@@ -2,11 +2,10 @@ import os
 from pysr import PySRRegressor
 import matplotlib.pyplot as plt 
 import numpy as np
-import sympy as sp
+
+ARQUIVO_PKL = "equacoes.pkl"
 HORA = 3600
-INF = 100000000
-COLUNA_ARQUIVO_Y = 1
-# G2 ^
+INF = 100000000000
 
 def pausa_tela():
     input("Pressione 'Enter' para continuar...")
@@ -19,40 +18,42 @@ def Pysr(vetor_entrada, vetor_resultado):
         binary_operators=["+", "*", "-", "/", "^"],
         progress=True,
         # A condição de parada ====
-        timeout_in_seconds=10*HORA,
-        populations=50,
-        population_size=150,
-        maxsize=50,
+        #timeout_in_seconds=10*HORA,
+        populations=100,
+        population_size=100,
+        maxsize=30,
         unary_operators=[
             "sin",
             "cos",
             "exp",
             "log",
-            "abs",
             "sinh",
             "cosh",
+            "erf",
         ],
-        #warm_start=True,
+        warm_start=True,
         # Faz com que o pysr rode a partir de um progresso já feito ^
         turbo=True,
         batching=False,
         # Usar se tiver mais de 1000 pontos ^
-        nested_constraints={"sin": {"sin": 1, "cos": 1, "sinh": 1, "cosh": 1}, "cos": {"sin": 1, "cos": 1, "sinh": 1, "cosh": 1}, 
-                            "sinh": {"sin": 1, "cos": 1, "sinh": 1, "cosh": 1}, "cosh": {"sin": 1, "cos": 1, "sinh": 1, "cosh": 1}, "abs": {"abs": 0}}, 
+        nested_constraints={"sin": {"sin": 1, "cos": 1, "sinh": 1, "cosh": 1}, "cos": {"sin": 1, "cos": 1, "sinh": 1, "cosh": 1},
+                            "sinh": {"sin": 1, "cos": 1, "sinh": 1, "cosh": 1}, "cosh": {"sin": 1, "cos": 1, "sinh": 1, "cosh": 1}},
         constraints={"^": (9, 1)},
-        loss="loss(prediction, target) = (prediction - target)^2",
-        early_stop_condition="f(loss, complexity) = (loss < 0.00001) && (complexity < 10)",
+        loss="loss(prediction, target) = (prediction - target)^2", # MSE (erro quadrático médio)
+        early_stop_condition="f(loss, complexity) = (loss < 0.000001) && (complexity < 10)",
         equation_file="equacoes.csv",
     )
     model.fit(vetor_entrada, vetor_resultado)
     print(model)
 
 def plota_grafico(xVector, vetor_resultado_real):
+    # Inicializo os vetores
     valores_reais = []
-    entrada = "equacoes.pkl"
-    # Nome que eu defini nas configurações do pysr ^
+    valores_predicao = []
+
+    # Defino o nome do arquivo e carrego ele para a variável "model"
+    entrada = ARQUIVO_PKL
     model = PySRRegressor.from_file(entrada)
-    x0,x1,x2,x3= sp.symbols('x0 x1 x2 x3')
 
     while True:
         valores_predicao = []
@@ -70,8 +71,10 @@ def plota_grafico(xVector, vetor_resultado_real):
 
             string_numero_equacao = (input("Selecione a opção e pressione Enter(0 para voltar, 1, ..., quantidade de equações): "))
 
+            # Escolhe qual equação será plotada
             if string_numero_equacao == "":
-                equacao = PySRRegressor.sympy(model, None)
+                valores_predicao = model.predict(xVector)
+                equacao = PySRRegressor.sympy(model)
                 break
             
             numero_equacao = int(string_numero_equacao)
@@ -81,50 +84,26 @@ def plota_grafico(xVector, vetor_resultado_real):
                 return
             
             elif numero_equacao >= 0:
+                valores_predicao = model.predict(xVector, numero_equacao)
                 equacao = PySRRegressor.sympy(model, numero_equacao)
                 break
-        # Escolhe qual equação será plotada ^^^ ======================================
 
-        '''
-        if len(vetor_resultado_real) == 0:
-            arr = np.loadtxt( "dados_treinamento.csv" , delimiter = ',' , dtype = float)
-            valores_reais = arr[ : , COLUNA_ARQUIVO_Y ]
-                
-        else:
-            if len(valores_reais) == 0:
-                valores_reais = vetor_resultado_real
-        '''
+        # Carrega os valores reais para serem comparados com os valores de predição
         valores_reais = vetor_resultado_real
         
-        for i in range(len(xVector)):
-            x_atual = xVector[i]
-            valores_subs = {x0: x_atual[0], x1: x_atual[1], x2: x_atual[2], x3: x_atual[3]}
-            valores_predicao.append(equacao.subs(valores_subs))
-
-        # Ordena os valores em ordem crescente de Delta
+        # Ordena os valores em ordem crescente
         valores_ordenados = sorted(zip(valores_reais, valores_predicao))
         valores_reais_ordenados = [v[0] for v in valores_ordenados]
         valores_predicao_ordenados = [v[1] for v in valores_ordenados]
 
-        # Modifique esta linha para reduzir os arrays pela metade
-        #valores_reais_ordenados = valores_reais_ordenados[::]
-
-        # E esta linha também
-        #valores_predicao_ordenados = valores_predicao_ordenados[::]
-
-        plt.plot(np.arange(len(valores_reais)), valores_reais_ordenados, color='blue', marker='o', markersize=8, alpha=0.7, linestyle='None', label='Valor Real de G2')
-        plt.plot(np.arange(len(valores_predicao)), valores_predicao_ordenados, color='red', marker='x', markersize=14, alpha=0.7, linestyle='None', label='Predição pela eq gerada')
-
-        # Mostro a equação no gráfico
-        #plt.text(0.5, 0.95, f'Equação: {equacao}', horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes, fontsize=12)
-        
-        print(f'eq: {equacao}')
-        
-        plt.title('Comparação entre Valor Real do Delta e Predição pelo PySR')
+        plt.plot(np.arange(len(valores_reais)), valores_reais_ordenados, color='blue', marker='o', markersize=8, alpha=1, linestyle='None', label='Valor real do MDO (m³/h)')
+        plt.plot(np.arange(len(valores_predicao)), valores_predicao_ordenados, color='red', marker='o', markersize=7, alpha=1, linestyle='None', label='Predição pela eq gerada')
+      
+        plt.title('Comparação entre Valor do MDO(m³/h) e Predição pelo PySR')
         plt.xlabel('Índice dos Pontos')
-        plt.ylabel('Valor do G2')
+        plt.ylabel('MDO')
 
         plt.legend()
+        print(f'\nEquação escolhida simplificada: {equacao}')
         plt.show()
-    
     
