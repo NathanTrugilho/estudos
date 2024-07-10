@@ -2,6 +2,8 @@ import os
 from pysr import PySRRegressor
 import matplotlib.pyplot as plt 
 import numpy as np
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import pandas as pd
 
 ARQUIVO_TREINO = "treino.csv"
 ARQUIVO_VALIDACAO = "validacao.csv"
@@ -129,40 +131,131 @@ def plota_grafico():
         print(f'\nEquação escolhida simplificada: {equacao}')
         plt.show()
 
-def valida_equacoes():
+def observa_metricas():
     # Carrego os dados da planilha
                                                                                     #usecols é para ele carregar apenas as colunas que quero
-    arr = np.loadtxt(ARQUIVO_VALIDACAO, delimiter = ',' , dtype = float, skiprows=1, usecols=[1,2,3,5,6,7,9]) 
+    arr = np.loadtxt(ARQUIVO_TESTE, delimiter = ',' , dtype = float, skiprows=1, usecols=[1,2,3,5,6,7,9]) 
     xVector = arr[ : ,  [0, 1, 2, 3, 4, 5]] #B, C, D, F, G, H               #skiprows é pra pular a primeira linha (que informa o que é aquele dado) -> transit, fast transit...
     yVector = arr[ : , 6] # J
 
     modelo = PySRRegressor.from_file(EQUACOES_PKL)
 
-    dicionario_validacao = {}
+    dicionario_mse = {}
+    dicionario_rmse = {}
+    dicionario_mae = {}
+    dicionario_r2 = {}
 
     # Faço a contagem das equações
     quantidade_equacoes = int(modelo.equations_.count()["equation"])
 
+    print("") #pular linha
+
+    calcula_mse_geral(dicionario_mse, quantidade_equacoes, modelo, xVector, yVector)
+
+    calcula_rmse_geral(dicionario_rmse, quantidade_equacoes, modelo, xVector, yVector)
+
+    calcula_mae_geral(dicionario_mae, quantidade_equacoes, modelo, xVector, yVector)
+
+    calcula_r2_geral(dicionario_r2, quantidade_equacoes, modelo, xVector, yVector)
+
+    dados = {
+        'Equações': list(PySRRegressor.sympy(modelo, i) for i in range (0, quantidade_equacoes)),
+        'MSE': list(dicionario_mse.values()),
+        'RMSE': list(dicionario_rmse.values()),
+        'MAE': list(dicionario_mae.values()),
+        'R2': list(dicionario_r2.values())
+    }
+
+    df = pd.DataFrame(dados)
+
+    # Crio o arquivo do tipo excel
+    df.to_excel('metricas_equacoes.xlsx', index=False)
+    pausa_tela()
+
+def calcula_mse_geral(dicionario_mse, quantidade_equacoes, modelo, xVector, yVector):
+    
     # Calculo o MSE de todas as equações e guardo num dicionário
     for i in range(1, quantidade_equacoes + 1):
 
         valores_predicao = modelo.predict(xVector, i - 1)
-        mse = ((valores_predicao - yVector)**2).sum()
-        dicionario_validacao[f"Eq{i}:"] = mse
+        mse = mean_squared_error(yVector, valores_predicao)
+        dicionario_mse[f"Eq{i}:"] = mse
 
     # Digo que a primeira chave tem o menor valor de MSE
-    chave_menor_valor = next(iter(dicionario_validacao.keys()))
-    menor_valor = dicionario_validacao[chave_menor_valor]
-
-    # Imprimo todas as equações com os seus respectivos MSEs
-    print("\nEq    ===== MSE =====")
+    chave_menor_valor = next(iter(dicionario_mse.keys()))
+    menor_valor = dicionario_mse[chave_menor_valor]
     
-    for chave, valor in dicionario_validacao.items():
-        print(chave, valor)
+    for chave, valor in dicionario_mse.items():
+        #print(chave, valor)
         if valor < menor_valor:
             chave_menor_valor = chave
             menor_valor = valor
-
+    
     # Mostro a melhor equação (com menor MSE)
-    print(f"\nA {chave_menor_valor} tem o menor MSE com o valor de: {menor_valor}\n")
-    pausa_tela()
+    print(f"A {chave_menor_valor} tem o menor MSE com o valor de: {dicionario_mse[chave_menor_valor]}\n")
+
+def calcula_rmse_geral(dicionario_rmse, quantidade_equacoes, modelo, xVector, yVector):
+    
+    # Calculo o RMSE de todas as equações e guardo num dicionário
+    for i in range(1, quantidade_equacoes + 1):
+
+        valores_predicao = modelo.predict(xVector, i - 1)
+        rmse = np.sqrt(mean_squared_error(yVector, valores_predicao)) # Tiro a raiz quadrada do MSE
+        dicionario_rmse[f"Eq{i}:"] = rmse
+
+    # Digo que a primeira chave tem o menor valor de RMSE
+    chave_menor_valor = next(iter(dicionario_rmse.keys()))
+    menor_valor = dicionario_rmse[chave_menor_valor]
+    
+    for chave, valor in dicionario_rmse.items():
+        #print(chave, valor)
+        if valor < menor_valor:
+            chave_menor_valor = chave
+            menor_valor = valor
+    
+    # Mostro a melhor equação (com menor RMSE)
+    print(f"A {chave_menor_valor} tem o menor RMSE com o valor de: {dicionario_rmse[chave_menor_valor]}\n")
+
+def calcula_mae_geral(dicionario_mae, quantidade_equacoes, modelo, xVector, yVector):
+    
+    # Calculo o MAE de todas as equações e guardo num dicionário
+    for i in range(1, quantidade_equacoes + 1):
+
+        valores_predicao = modelo.predict(xVector, i - 1)
+        mae = mean_absolute_error(yVector, valores_predicao)
+        dicionario_mae[f"Eq{i}:"] = mae
+
+    # Digo que a primeira chave tem o menor valor de MAE
+    chave_menor_valor = next(iter(dicionario_mae.keys()))
+    menor_valor = dicionario_mae[chave_menor_valor]
+    
+    for chave, valor in dicionario_mae.items():
+        #print(chave, valor)
+        if valor < menor_valor:
+            chave_menor_valor = chave
+            menor_valor = valor
+    
+    # Mostro a melhor equação (com menor MAE)
+    print(f"A {chave_menor_valor} tem o menor MAE com o valor de: {dicionario_mae[chave_menor_valor]}\n")
+
+def calcula_r2_geral(dicionario_r2, quantidade_equacoes, modelo, xVector, yVector):
+
+    # Calculo o R2 de todas as equações e guardo num dicionário
+    for i in range(1, quantidade_equacoes + 1):
+
+        valores_predicao = modelo.predict(xVector, i - 1)
+        r2 = r2_score(yVector, valores_predicao)
+        dicionario_r2[f"Eq{i}:"] = r2
+
+    # Digo que a primeira chave tem o menor valor de R2
+    chave_maior_valor = next(iter(dicionario_r2.keys()))
+    maior_valor = dicionario_r2[chave_maior_valor]
+
+    for chave, valor in dicionario_r2.items():
+        #print(chave, valor)
+        if valor > maior_valor:
+            chave_maior_valor = chave
+            maior_valor = valor
+
+    # Mostro a melhor equação (com menor R2)
+    print(f"A {chave_maior_valor} tem o maior R2 com o valor de: {dicionario_r2[chave_maior_valor]}\n")

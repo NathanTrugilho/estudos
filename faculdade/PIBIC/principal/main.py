@@ -9,7 +9,7 @@ def main():
         print("+---------------------------------------------------------+")
         print("| 1. Usar a Regressão simbólica                           |")
         print("| 2. Plotar o gráfico para comparar com a predição        |")
-        print("| 3. Validar a melhor equação                             |")
+        print("| 3. Observar métricas de erro -> MSE, RMSE, MAE e R2     |")
         print("| 4. Mostrar resultados                                   |")
         print("| 0. Sair                                                 |")
         print("+---------------------------------------------------------+")
@@ -34,7 +34,7 @@ def main():
                 plota_grafico()
 
             elif caso == 3:                                                                      
-                valida_equacoes()
+                observa_metricas()
 
             elif caso == 4:
                 print(f"\n{PySRRegressor.from_file(EQUACOES_PKL)}")

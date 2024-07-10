@@ -50,8 +50,6 @@ def dividir_csv():
     print(f'Arquivo de teste salvo como {arquivo_teste}')
 
 
-
-
 #Arquivo Excel que vou abrir para filtrar
 arquivo_entrada = '/Users/Nathan/Desktop/Dados Isabella para ML 2024.xlsx' 
 
