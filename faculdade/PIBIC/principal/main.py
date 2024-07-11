@@ -9,7 +9,7 @@ def main():
         print("+---------------------------------------------------------+")
         print("| 1. Usar a Regressão simbólica                           |")
         print("| 2. Plotar o gráfico para comparar com a predição        |")
-        print("| 3. Observar métricas de erro -> MSE, RMSE, MAE e R2     |")
+        print("| 3. Observar métricas de erro -> MSE, RMSE, MAE ...      |")
         print("| 4. Mostrar resultados                                   |")
         print("| 0. Sair                                                 |")
         print("+---------------------------------------------------------+")

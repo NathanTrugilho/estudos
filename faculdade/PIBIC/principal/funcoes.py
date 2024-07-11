@@ -2,7 +2,7 @@ import os
 from pysr import PySRRegressor
 import matplotlib.pyplot as plt 
 import numpy as np
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, median_absolute_error, mean_absolute_percentage_error
 import pandas as pd
 
 ARQUIVO_TREINO = "treino.csv"
@@ -144,6 +144,8 @@ def observa_metricas():
     dicionario_rmse = {}
     dicionario_mae = {}
     dicionario_r2 = {}
+    dicionario_median_abs_err = {}
+    dicionario_mean_abs_perc_err = {}
 
     # Faço a contagem das equações
     quantidade_equacoes = int(modelo.equations_.count()["equation"])
@@ -158,12 +160,18 @@ def observa_metricas():
 
     calcula_r2_geral(dicionario_r2, quantidade_equacoes, modelo, xVector, yVector)
 
+    calcula_median_abs_err(dicionario_median_abs_err, quantidade_equacoes, modelo, xVector, yVector)
+
+    calcula_mean_abs_perc_err(dicionario_mean_abs_perc_err, quantidade_equacoes, modelo, xVector, yVector)
+
     dados = {
         'Equações': list(PySRRegressor.sympy(modelo, i) for i in range (0, quantidade_equacoes)),
         'MSE': list(dicionario_mse.values()),
         'RMSE': list(dicionario_rmse.values()),
         'MAE': list(dicionario_mae.values()),
-        'R2': list(dicionario_r2.values())
+        'R2': list(dicionario_r2.values()),
+        'Median absolute error': list(dicionario_median_abs_err.values()),
+        'Mean absolute percentage error': list(dicionario_mean_abs_perc_err.values())
     }
 
     df = pd.DataFrame(dados)
@@ -259,3 +267,39 @@ def calcula_r2_geral(dicionario_r2, quantidade_equacoes, modelo, xVector, yVecto
 
     # Mostro a melhor equação (com menor R2)
     print(f"A {chave_maior_valor} tem o maior R2 com o valor de: {dicionario_r2[chave_maior_valor]}\n")
+
+def calcula_median_abs_err(dicionario_median_abs_err, quantidade_equacoes, modelo, xVector, yVector):
+
+    for i in range(1, quantidade_equacoes + 1):
+
+        valores_predicao = modelo.predict(xVector, i - 1)
+        median_abs_err = median_absolute_error(yVector, valores_predicao)
+        dicionario_median_abs_err[f"Eq{i}:"] = median_abs_err
+
+    chave_menor_valor = next(iter(dicionario_median_abs_err.keys()))
+    menor_valor = dicionario_median_abs_err[chave_menor_valor]
+
+    for chave, valor in dicionario_median_abs_err.items():
+        if valor < menor_valor:
+            chave_maior_valor = chave
+            menor_valor = valor
+
+    print(f"A {chave_maior_valor} tem o menor Median absolute error com o valor de: {dicionario_median_abs_err[chave_maior_valor]}\n")
+
+def calcula_mean_abs_perc_err(dicionario_mean_abs_perc_err, quantidade_equacoes, modelo, xVector, yVector):
+
+    for i in range(1, quantidade_equacoes + 1):
+
+        valores_predicao = modelo.predict(xVector, i - 1)
+        mean_abs_perc_err = mean_absolute_percentage_error(yVector, valores_predicao)
+        dicionario_mean_abs_perc_err[f"Eq{i}:"] = mean_abs_perc_err
+
+    chave_menor_valor = next(iter(dicionario_mean_abs_perc_err.keys()))
+    menor_valor = dicionario_mean_abs_perc_err[chave_menor_valor]
+
+    for chave, valor in dicionario_mean_abs_perc_err.items():
+        if valor < menor_valor:
+            chave_maior_valor = chave
+            menor_valor = valor
+
+    print(f"A {chave_maior_valor} tem o menor Mean absolute percentage error com o valor de: {dicionario_mean_abs_perc_err[chave_maior_valor]}\n")
