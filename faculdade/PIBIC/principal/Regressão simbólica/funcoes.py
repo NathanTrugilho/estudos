@@ -7,7 +7,7 @@ import pandas as pd
 
 ARQUIVO_TREINO = "treino.csv"
 ARQUIVO_VALIDACAO = "validacao.csv"
-ARQUIVO_TESTE = "cofre/teste.csv"
+ARQUIVO_TESTE = "/Program Files/GitHub/estudos/faculdade/PIBIC/principal/dados/cofre/teste.csv"
 EQUACOES_PKL = "equacoes.pkl"
 EQUACOES_CSV = "equacoes.csv"
 HORA = 3600

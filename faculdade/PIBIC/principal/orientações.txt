@@ -4,5 +4,6 @@ Sugiro que inicie as simulações usando a planilha DadosCompletos(2). Siga as o
 3- Use a coluna J como a variável a ser predita;  ok
 4- Rearrange as linhas da tabela de forma aleatória (shuffle das instâncias); Check!
 5- Faça separação da base de dados da seguinte forma 70% treinamento, 10% validação e 20% teste; Check !
-6- Avalie o desempenho da técnica de regressão simbólica;
+6- Avalie o desempenho da técnica de regressão simbólica; ok
 7- Avalie o desempenho das técnicas de Redes neurais, Random Forest e SVR.
+					(MLP)
