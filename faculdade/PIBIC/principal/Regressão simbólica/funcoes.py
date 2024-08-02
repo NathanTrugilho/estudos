@@ -123,7 +123,7 @@ def plota_grafico():
         plt.plot(np.arange(len(yVector)), valores_reais_ordenados, color='blue', marker='o', markersize=8, alpha=1, linestyle='None', label='Valor real do MDO (m³/h)')
         plt.plot(np.arange(len(valores_predicao)), valores_predicao_ordenados, color='red', marker='o', markersize=7, alpha=1, linestyle='None', label='Predição pela eq gerada')
 
-        plt.title('Comparação entre Valor do MDO(m³/h) e Predição pelo PySR')
+        plt.title('Comparação entre Valor do MDO e Predição pelo PySR')
         plt.xlabel('Índice dos Pontos')
         plt.ylabel('MDO')
 
