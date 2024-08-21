@@ -49,9 +49,17 @@ def dividir_csv():
     print(f'Arquivo de validação salvo como {arquivo_validacao}')
     print(f'Arquivo de teste salvo como {arquivo_teste}')
 
+def csv_para_excel():
+    # Carrega o arquivo CSV em um DataFrame
+    df = pd.read_csv("equacoes.csv")
+    
+    # Salva o DataFrame em um arquivo Excel
+    df.to_excel("equacoes.xlsx", index=False)
+    print(f"Arquivo Excel salvo")
 
 #Arquivo Excel que vou abrir para filtrar
-arquivo_entrada = '/Users/Nathan/Desktop/Dados Isabella para ML 2024.xlsx' 
+#arquivo_entrada = '/Users/Nathan/Desktop/Dados Isabella para ML 2024.xlsx' 
 
 #filtra_dados(arquivo_entrada)
+csv_para_excel()
 #dividir_csv()

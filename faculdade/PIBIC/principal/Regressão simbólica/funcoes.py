@@ -5,9 +5,9 @@ import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, median_absolute_error, mean_absolute_percentage_error
 import pandas as pd
 
-ARQUIVO_TREINO = "treino.csv"
-ARQUIVO_VALIDACAO = "validacao.csv"
-ARQUIVO_TESTE = "/Program Files/GitHub/estudos/faculdade/PIBIC/principal/dados/cofre/teste.csv"
+ARQUIVO_TREINO = "/Program Files/GitHub/estudos/faculdade/PIBIC/principal/dados/treino.csv"
+ARQUIVO_VALIDACAO = "/Program Files/GitHub/estudos/faculdade/PIBIC/principal/dados/validacao.csv"
+ARQUIVO_TESTE = "/Program Files/GitHub/estudos/faculdade/PIBIC/principal/dados/teste.csv"
 EQUACOES_PKL = "equacoes.pkl"
 EQUACOES_CSV = "equacoes.csv"
 HORA = 3600
@@ -29,11 +29,11 @@ def Pysr():
         binary_operators=["+", "*", "-", "/", "^"],
         progress=True,
         # A condição de parada ====
-        timeout_in_seconds=6*HORA,
+        timeout_in_seconds=24*HORA,
         populations=100,
         population_size=100,
-        maxsize=30,
-        maxdepth=10,
+        maxsize=32,
+        maxdepth=16,
         unary_operators=[
             "sin",
             "cos",
@@ -54,7 +54,7 @@ def Pysr():
                             "erf": {"sin": 1, "cos": 1, "sinh": 1, "cosh": 1, "erf": 1, "log": 1}, "log": {"sin": 1, "cos": 1, "sinh": 1, "cosh": 1, "erf": 1, "log": 1}},
         constraints={"^": (9, 1)},
         complexity_of_operators={"/": 3, "exp": 3},
-        loss="loss(prediction, target) = (prediction - target)^2", # MSE (erro quadrático médio)
+        elementwise_loss="loss(prediction, target) = (prediction - target)^2", # MSE (erro quadrático médio)
         early_stop_condition="f(loss, complexity) = (loss < 0.000001) && (complexity < 10)",
         equation_file="equacoes.csv",
     )
@@ -134,7 +134,7 @@ def plota_grafico():
 def observa_metricas():
     # Carrego os dados da planilha
                                                                                     #usecols é para ele carregar apenas as colunas que quero
-    arr = np.loadtxt(ARQUIVO_TESTE, delimiter = ',' , dtype = float, skiprows=1, usecols=[1,2,3,5,6,7,9]) 
+    arr = np.loadtxt(ARQUIVO_VALIDACAO, delimiter = ',' , dtype = float, skiprows=1, usecols=[1,2,3,5,6,7,9]) 
     xVector = arr[ : ,  [0, 1, 2, 3, 4, 5]] #B, C, D, F, G, H               #skiprows é pra pular a primeira linha (que informa o que é aquele dado) -> transit, fast transit...
     yVector = arr[ : , 6] # J
 

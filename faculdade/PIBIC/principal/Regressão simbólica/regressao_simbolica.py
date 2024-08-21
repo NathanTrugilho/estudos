@@ -21,6 +21,7 @@ while True:
     if caso == 0:
         # Encerra o programa
         print("Programa encerrado!\n")
+        exit(0)
 
     else:                                                                             
         # Switch case para o usuário escolher o que quer fazer =================================================
